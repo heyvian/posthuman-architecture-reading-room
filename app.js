@@ -16,7 +16,9 @@ const pilePositions = [
   [68, 48, 9], [49, 42, -17], [30, 49, 6], [16, 45, -8], [25, 70, 12],
   [46, 65, -7], [64, 70, 15], [82, 65, -6], [76, 75, 9], [56, 74, -14],
   [37, 74, 5], [18, 73, -12], [34, 30, 7], [56, 26, -10], [72, 42, 13],
-  [43, 55, -5], [60, 54, 8], [28, 60, -11]
+  [43, 55, -5], [60, 54, 8], [28, 60, -11], [13, 35, -3], [87, 34, 4],
+  [12, 58, 14], [89, 57, -14], [49, 81, 4], [67, 83, -8], [32, 83, -12],
+  [89, 78, 11], [14, 83, 6], [91, 47, 3], [49, 20, -7]
 ];
 const pileScales = [0.94, 1.03, 0.98, 1.08, 0.92];
 
@@ -36,7 +38,7 @@ function visibleReadings() {
   return window.readings.filter((item) => {
     const matchesTheme = activeTheme === 'All ideas' || item.theme === activeTheme;
     const sourceText = item.sources.map((source) => `${source.label} ${source.note}`).join(' ');
-    const haystack = [item.title, item.subtitle, item.type, item.theme, item.summary, item.why, item.quote, item.quoteType, item.quoteCredit || '', item.citation, sourceText, item.tags.join(' ')].join(' ').toLowerCase();
+    const haystack = [item.title, item.subtitle, item.type, item.theme, item.summary, item.why, item.quote, item.fullQuote || '', item.quoteType, item.quoteCredit || '', item.quoteLocator || '', item.excerptNote || '', item.citation, sourceText, item.tags.join(' ')].join(' ').toLowerCase();
     return matchesTheme && (!query || haystack.includes(query));
   });
 }
@@ -119,9 +121,11 @@ function openReading(id) {
     <div class="drawer-art ${escapeHTML(item.color)}"><span>${escapeHTML(item.symbol)}</span><small>${escapeHTML(item.theme.toUpperCase())} / FIELD NOTE</small></div>
     <p class="card-theme">${escapeHTML(item.theme)}</p>
     <h2>${escapeHTML(item.title)}</h2><p class="drawer-subtitle">${escapeHTML(item.subtitle)}</p>
-    <blockquote><span class="quote-kind">${escapeHTML(item.quoteType || 'Reading prompt')}</span><span class="quote-text">${escapeHTML(item.quote)}</span>${item.quoteCredit ? `<cite class="quote-credit">— ${escapeHTML(item.quoteCredit)}</cite>` : ''}</blockquote>
+    <blockquote><span class="quote-kind">${escapeHTML(item.quoteType || 'Reading prompt')}</span><span class="quote-text">${escapeHTML(item.fullQuote || item.quote)}</span>${item.quoteCredit ? `<cite class="quote-credit">— ${escapeHTML(item.quoteCredit)}</cite>` : ''}</blockquote>
+    ${item.quoteLocator ? `<p class="quote-locator">${escapeHTML(item.quoteLocator)}</p>` : ''}
     <section class="detail-section"><h3>In brief</h3><p>${escapeHTML(item.summary)}</p></section>
     <section class="detail-section"><h3>Why it matters</h3><p>${escapeHTML(item.why)}</p></section>
+    ${item.excerptNote ? `<section class="detail-section"><h3>Quote verification</h3><p>${escapeHTML(item.excerptNote)}</p></section>` : ''}
     <section class="detail-section"><h3>Explore through</h3><div class="detail-tags">${item.tags.map((tag) => `<span>${escapeHTML(tag)}</span>`).join('')}</div></section>
     <section class="detail-section"><h3>References & further reading</h3>${item.sources.length ? `<ul class="source-list">${item.sources.map((source) => `<li><a href="${escapeHTML(source.url)}" target="_blank" rel="noopener noreferrer">${escapeHTML(source.label)} <span aria-hidden="true">↗</span></a><p>${escapeHTML(source.note)}</p></li>`).join('')}</ul>` : '<p>No external link is attached to this card. Use the full citation above to locate a copy.</p>'}</section>
     <section class="detail-section citation"><h3>Citation</h3><p>${escapeHTML(item.citation)}</p></section>`;
