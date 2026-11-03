@@ -11,6 +11,14 @@ const library = document.querySelector('#library');
 const allThemes = [...new Set(window.readings.map((item) => item.theme))];
 let activeTheme = 'All ideas';
 let returnFocusId = null;
+const pilePositions = [
+  [23, 28, -14], [41, 25, 11], [61, 29, -5], [79, 25, 17], [84, 44, -11],
+  [68, 48, 9], [49, 42, -17], [30, 49, 6], [16, 45, -8], [25, 70, 12],
+  [46, 65, -7], [64, 70, 15], [82, 65, -6], [76, 75, 9], [56, 74, -14],
+  [37, 74, 5], [18, 73, -12], [34, 30, 7], [56, 26, -10], [72, 42, 13],
+  [43, 55, -5], [60, 54, 8], [28, 60, -11]
+];
+const pileScales = [0.94, 1.03, 0.98, 1.08, 0.92];
 
 const escapeHTML = (value) => String(value).replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
 
@@ -35,6 +43,7 @@ function visibleReadings() {
 
 function renderCards() {
   const results = visibleReadings();
+  cards.classList.toggle('sparse-pile', results.length === 1);
   document.querySelector('#result-count').textContent = String(results.length).padStart(2, '0');
   document.querySelector('#empty').hidden = results.length > 0;
   cards.innerHTML = results.map((item, index) => renderCard(item, index)).join('');
@@ -42,8 +51,12 @@ function renderCards() {
 }
 
 function renderCard(item, index, mode = 'pile') {
+  const pile = mode === 'pile' ? pilePositions[index % pilePositions.length] : null;
+  const pileStyle = pile
+    ? `style="--pile-x:${pile[0]}%;--pile-y:${pile[1]}%;--pile-angle:${pile[2]}deg;--pile-scale:${pileScales[index % pileScales.length]};--pile-depth:${index}"`
+    : '';
   return `
-    <button class="reading-card ${escapeHTML(item.color)} ${mode === 'picked' ? 'picked-card' : ''}" data-id="${escapeHTML(item.id)}" aria-label="Pick up ${escapeHTML(item.title)}">
+    <button class="reading-card ${escapeHTML(item.color)} ${mode === 'picked' ? 'picked-card' : ''}" ${pileStyle} data-id="${escapeHTML(item.id)}" aria-label="Pick up ${escapeHTML(item.title)}">
       <span class="card-meta"><span>${escapeHTML(item.type)}</span><span>${String(index + 1).padStart(2, '0')} / ${escapeHTML(item.year)}</span></span>
       <span class="card-art" aria-hidden="true"><span class="art-symbol">${escapeHTML(item.symbol)}</span><span class="art-caption">${escapeHTML(item.theme.toUpperCase())}<br />STUDIES IN RELATION</span></span>
       <span class="card-copy"><span class="card-theme">${escapeHTML(item.theme)}</span><span class="card-title">${escapeHTML(item.title)}</span><span class="card-subtitle">${escapeHTML(item.subtitle)}</span><span class="card-quote"><span class="quote-kind">${escapeHTML(item.quoteType || 'Reading prompt')}</span><span class="quote-text">${escapeHTML(item.quote)}</span>${item.quoteCredit ? `<span class="quote-credit">— ${escapeHTML(item.quoteCredit)}</span>` : ''}</span><span class="card-tags">${item.tags.slice(0, 3).map((tag) => `<span>${escapeHTML(tag)}</span>`).join('')}</span></span>

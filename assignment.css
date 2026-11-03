@@ -215,60 +215,161 @@
 }
 
 .card-grid {
+  position: relative;
   display: block;
-  columns: 3 230px;
-  column-gap: 24px;
-  min-height: 460px;
-  padding: 18px 8px 35px;
-  border: 1px solid #d5d0c4;
-  background-color: #e7e2d5;
-  background-image: radial-gradient(#c9c3b4 0.7px, transparent 0.7px);
-  background-size: 15px 15px;
+  width: 100%;
+  height: clamp(520px, 68vh, 700px);
+  overflow: hidden;
+  border: 0;
+  background-color: #d6d2c7;
+  background-image:
+    repeating-linear-gradient(0deg, #7772630a 0 1px, transparent 1px 5px),
+    repeating-linear-gradient(90deg, #77726308 0 1px, transparent 1px 6px),
+    linear-gradient(135deg, #e1ddd2, #cbc7bc);
+  box-shadow: inset 0 0 75px #37352b24;
   perspective: 1200px;
-  transition: filter .3s ease, opacity .3s ease, transform .3s ease;
+  transition: filter .3s ease, opacity .3s ease;
+}
+
+.card-grid::before {
+  position: absolute;
+  inset: 12px;
+  border: 1px solid #fff4;
+  content: "";
+  pointer-events: none;
 }
 
 .reading-card {
+  position: absolute;
+  top: var(--pile-y);
+  left: clamp(60px, var(--pile-x), calc(100% - 60px));
+  z-index: var(--pile-depth);
   display: flex;
-  width: 100%;
-  min-height: 360px;
-  margin: 0 0 20px;
-  break-inside: avoid;
-  border-color: #d3cebf;
-  box-shadow: 1px 5px 10px #25291c20, 0 1px 2px #25291c20;
-  transform-origin: 50% 20%;
+  width: clamp(116px, 14vw, 188px);
+  height: clamp(172px, 22vw, 242px);
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid #c8c2b6;
+  border-radius: 2px;
+  background-color: #f8f6ee;
+  background-image: repeating-linear-gradient(0deg, #756d5d05 0 1px, transparent 1px 5px);
+  box-shadow: 0 7px 13px #2b291f45, 0 1px 3px #201e172a;
+  color: var(--ink);
+  cursor: pointer;
+  text-align: left;
+  transform: translate(-50%, -50%) rotate(var(--pile-angle)) scale(var(--pile-scale));
+  transform-origin: center;
+  transition: transform .24s ease, box-shadow .24s ease;
 }
 
-.reading-card:nth-child(5n + 1) {
-  transform: rotate(-1.6deg);
+.reading-card.acid {
+  background-color: #faf8f0;
 }
 
-.reading-card:nth-child(5n + 2) {
-  transform: rotate(1.2deg) translateX(4px);
+.reading-card.moss {
+  background-color: #f2f3e9;
 }
 
-.reading-card:nth-child(5n + 3) {
-  transform: rotate(-.8deg) translateX(-3px);
+.reading-card.violet {
+  background-color: #f5f0f3;
 }
 
-.reading-card:nth-child(5n + 4) {
-  transform: rotate(1.8deg) translateX(2px);
+.reading-card:not(.picked-card) .card-meta {
+  height: 27px;
+  flex: 0 0 27px;
+  padding: 0 9px;
+  font-size: 6px;
+  letter-spacing: .04em;
 }
 
-.reading-card:nth-child(5n) {
-  transform: rotate(-1.1deg) translateX(-4px);
+.reading-card:not(.picked-card) .card-art {
+  height: 51px;
+  flex: 0 0 51px;
+  margin: 0 9px;
+  border: 1px solid #77726322;
+  background: #e9e5d9;
 }
 
-.reading-card:hover {
-  position: relative;
-  z-index: 3;
-  transform: rotate(0) translateY(-5px) scale(1.015);
+.reading-card:not(.picked-card).moss .card-art {
+  background: #e4e9dc;
+}
+
+.reading-card:not(.picked-card).violet .card-art {
+  background: #ebe6ec;
+}
+
+.reading-card:not(.picked-card) .card-art::before,
+.reading-card:not(.picked-card) .card-art::after {
+  display: none;
+}
+
+.reading-card:not(.picked-card) .art-symbol {
+  font-size: 47px;
+  color: #65704f;
+}
+
+.reading-card:not(.picked-card).moss .art-symbol {
+  color: #718274;
+}
+
+.reading-card:not(.picked-card).violet .art-symbol {
+  color: #766b7d;
+}
+
+.reading-card:not(.picked-card) .art-caption,
+.reading-card:not(.picked-card) .card-subtitle,
+.reading-card:not(.picked-card) .card-tags,
+.reading-card:not(.picked-card) .card-open,
+.reading-card:not(.picked-card) .quote-credit {
+  display: none;
+}
+
+.reading-card:not(.picked-card) .card-copy {
+  min-height: 0;
+  padding: 8px 10px 10px;
+}
+
+.reading-card:not(.picked-card) .card-theme {
+  margin-bottom: 5px;
+  font-size: 6px;
+  letter-spacing: .04em;
+}
+
+.reading-card:not(.picked-card) .card-title {
+  font-size: clamp(13px, 1.2vw, 16px);
+  line-height: 1.1;
+}
+
+.reading-card:not(.picked-card) .card-quote {
+  display: -webkit-box;
+  overflow: hidden;
+  margin-top: 7px;
+  font-size: 10px;
+  line-height: 1.3;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.reading-card:not(.picked-card) .quote-kind {
+  font-size: 6px;
+}
+
+.reading-card:not(.picked-card):hover {
+  z-index: 40;
+  box-shadow: 0 17px 30px #27251e55, 0 2px 6px #201e1744;
+  transform: translate(-50%, -53%) rotate(0) scale(1.08);
+}
+
+.card-grid.sparse-pile .reading-card:only-child {
+  top: 50%;
+  left: 50%;
 }
 
 .library.has-selection .card-grid {
-  filter: blur(5px);
-  opacity: .46;
-  transform: scale(.985);
+  filter: blur(4px);
+  opacity: .55;
   pointer-events: none;
 }
 
@@ -278,7 +379,12 @@
   top: 50%;
   right: min(592px, calc(92vw - 8px));
   left: clamp(24px, 5vw, 72px);
+  display: flex;
   max-height: 92dvh;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
   overflow-x: hidden;
   overflow-y: auto;
   transform: translateY(-50%);
@@ -290,52 +396,97 @@
 }
 
 .picked-main {
-  max-width: 780px;
+  width: min(360px, 100%);
+  flex: 0 0 auto;
   margin: 0 auto;
   padding: 5px;
   perspective: 1200px;
 }
 
 .reading-card.picked-card {
+  position: relative;
+  top: auto;
+  left: auto;
+  z-index: auto;
+  width: 100%;
+  height: auto;
   min-height: 0;
   margin: 0;
-  border-color: #c9c2b1;
-  box-shadow: 0 20px 55px #13180f40, 0 3px 8px #13180f28;
+  border: 3px solid #b94a54;
+  border-radius: 2px;
+  background-color: #fbf9f1;
+  box-shadow: 0 15px 30px #1d1b1740, 0 2px 4px #1d1b1728;
   animation: card-lift .36s cubic-bezier(.2,.8,.2,1) both;
-  transform: rotate(-.6deg) translateY(-3px);
+  transform: rotate(-1deg);
 }
 
 .reading-card.picked-card:hover {
-  transform: rotate(0) translateY(-3px);
+  transform: rotate(0) translateY(-2px);
+}
+
+.picked-card .card-meta {
+  height: 32px;
+  flex-basis: 32px;
+  font-size: 7px;
 }
 
 .picked-card .card-art {
-  height: clamp(115px, 19vh, 190px);
+  height: 76px;
+  flex-basis: 76px;
+  margin: 0 12px;
+  border: 1px solid #77726322;
+  background: #e9e5d9;
+}
+
+.picked-card .card-art::before,
+.picked-card .card-art::after,
+.picked-card .art-caption {
+  display: none;
+}
+
+.picked-card .art-symbol {
+  font-size: 66px;
+  color: #65704f;
+}
+
+.picked-card.moss .card-art {
+  background: #e4e9dc;
+}
+
+.picked-card.moss .art-symbol {
+  color: #718274;
+}
+
+.picked-card.violet .card-art {
+  background: #ebe6ec;
+}
+
+.picked-card.violet .art-symbol {
+  color: #766b7d;
 }
 
 .picked-card .card-copy {
-  padding: 15px 20px 19px;
+  padding: 13px 16px 16px;
 }
 
 .picked-card .card-title {
-  font-size: clamp(22px, 2.4vw, 32px);
+  font-size: clamp(21px, 2vw, 28px);
 }
 
 .picked-card .card-quote {
-  margin-top: 11px;
+  margin-top: 10px;
   font-size: 13px;
 }
 
 .picked-card .card-tags {
-  padding-top: 11px;
+  padding-top: 10px;
 }
 
 .cross-pollination {
-  margin-top: 17px;
-  padding: 13px 15px 15px;
-  background: #f2eee5ed;
-  border: 1px solid #d6d1c6;
-  box-shadow: 0 9px 24px #13180f25;
+  width: min(560px, 100%);
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 4px 8px 8px;
 }
 
 .related-heading {
@@ -343,64 +494,85 @@
   justify-content: space-between;
   align-items: baseline;
   gap: 12px;
-  margin-bottom: 10px;
+  margin: 0 0 8px;
 }
 
 .related-heading h3 {
   margin: 0;
-  font: 500 17px var(--serif);
+  font: 500 15px var(--serif);
 }
 
 .related-heading > span {
   color: var(--muted);
-  font: 8px var(--mono);
-  letter-spacing: .07em;
+  font: 7px var(--mono);
+  letter-spacing: .06em;
 }
 
 .related-cards {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
+  display: flex;
+  justify-content: center;
+  gap: 0;
 }
 
 .related-card {
+  position: relative;
   display: flex;
   min-width: 0;
-  min-height: 86px;
+  min-height: 75px;
+  flex: 1 1 0;
   align-items: center;
-  gap: 9px;
+  gap: 8px;
+  margin: 0 -3px;
   padding: 8px;
-  border: 1px solid #d6d1c6;
-  background: #f8f6f0;
+  border: 1px solid #c8c2b6;
+  border-radius: 2px;
+  background-color: #f8f6ee;
+  box-shadow: 0 4px 8px #2b291f30;
   color: var(--ink);
   text-align: left;
   cursor: pointer;
   transition: transform .18s ease, box-shadow .18s ease;
 }
 
+.related-card:nth-child(1) {
+  transform: rotate(-3deg) translateY(2px);
+}
+
+.related-card:nth-child(2) {
+  z-index: 1;
+  transform: rotate(1deg) translateY(-2px);
+}
+
+.related-card:nth-child(3) {
+  transform: rotate(3deg) translateY(2px);
+}
+
 .related-card:hover {
-  transform: translateY(-3px) rotate(-.5deg);
-  box-shadow: 0 6px 13px #25291c20;
+  z-index: 2;
+  box-shadow: 0 10px 17px #25291c30;
+  transform: translateY(-5px) rotate(0);
 }
 
 .related-art {
   display: grid;
-  flex: 0 0 38px;
-  height: 48px;
+  width: 30px;
+  height: 40px;
+  flex: 0 0 30px;
   place-items: center;
-  background: #d7df79;
-  color: var(--green);
-  font: 26px var(--serif);
+  border: 1px solid #77726322;
+  background: #e9e5d9;
+  color: #65704f;
+  font: 22px var(--serif);
 }
 
 .related-card.moss .related-art {
-  background: #82977c;
-  color: #f1eee1;
+  background: #e4e9dc;
+  color: #718274;
 }
 
 .related-card.violet .related-art {
-  background: #c2b9cf;
-  color: #44334e;
+  background: #ebe6ec;
+  color: #766b7d;
 }
 
 .related-copy {
@@ -412,13 +584,13 @@
 
 .related-copy .card-theme {
   margin: 0;
-  font-size: 7px;
+  font-size: 6px;
 }
 
 .related-copy strong {
   display: -webkit-box;
   overflow: hidden;
-  font: 500 12px/1.16 var(--serif);
+  font: 500 11px/1.15 var(--serif);
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
@@ -426,7 +598,7 @@
 .related-copy small {
   overflow: hidden;
   color: var(--muted);
-  font-size: 8px;
+  font-size: 7px;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -438,20 +610,16 @@
 @keyframes card-lift {
   from {
     opacity: .7;
-    transform: translateY(18px) rotate(-2deg) scale(.97);
+    transform: translateY(18px) rotate(-3deg) scale(.97);
   }
 
   to {
     opacity: 1;
-    transform: translateY(-3px) rotate(-.6deg) scale(1);
+    transform: translateY(0) rotate(-1deg) scale(1);
   }
 }
 
 @media (max-width: 1000px) {
-  .card-grid {
-    columns: 2 210px;
-  }
-
   .picked-view {
     top: 8vh;
     right: 4vw;
@@ -461,12 +629,17 @@
     transform: none;
   }
 
+  .picked-main {
+    width: min(360px, 100%);
+  }
+
   .picked-card .card-art {
-    height: clamp(80px, 14vh, 125px);
+    height: clamp(58px, 10vh, 82px);
+    flex-basis: clamp(58px, 10vh, 82px);
   }
 
   .picked-card .card-copy {
-    padding: 11px 14px 14px;
+    padding: 10px 13px 12px;
   }
 
   .picked-card .card-subtitle,
@@ -475,40 +648,11 @@
   }
 
   .picked-card .card-quote {
-    margin-top: 8px;
-  }
-
-  .cross-pollination {
-    margin-top: 10px;
-    padding: 9px;
-  }
-
-  .related-cards {
-    gap: 6px;
-  }
-
-  .related-card {
-    min-height: 70px;
-    gap: 5px;
-    padding: 5px;
-  }
-
-  .related-art {
-    flex-basis: 27px;
-    height: 38px;
-    font-size: 20px;
-  }
-
-  .related-copy strong {
-    font-size: 10px;
+    margin-top: 7px;
   }
 
   .related-heading h3 {
-    font-size: 14px;
-  }
-
-  .related-heading > span {
-    font-size: 7px;
+    font-size: 13px;
   }
 
   .drawer {
@@ -526,43 +670,50 @@
 }
 
 @media (max-width: 760px) {
-  .card-grid {
-    columns: 2 155px;
-    column-gap: 14px;
+  .reading-card:not(.picked-card) .card-title {
+    font-size: 13px;
   }
 
-  .reading-card {
-    min-height: 330px;
+  .related-card {
+    min-height: 68px;
+    gap: 5px;
+    padding: 6px;
   }
 
-  .card-art {
-    height: 120px;
+  .related-art {
+    width: 25px;
+    height: 34px;
+    flex-basis: 25px;
+    font-size: 18px;
   }
 
-  .card-title {
-    font-size: 20px;
+  .related-copy strong {
+    font-size: 9px;
   }
-
 }
 
 @media (max-width: 430px) {
   .card-grid {
-    columns: 1 100%;
+    height: clamp(520px, 68vh, 620px);
   }
 
-  .reading-card {
-    min-height: 350px;
+  .reading-card:not(.picked-card) {
+    width: 116px;
+    height: 172px;
   }
 
   .related-card {
-    align-items: flex-start;
+    min-height: 74px;
     flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    padding: 5px;
   }
 
   .related-art {
-    flex-basis: 25px;
     width: 100%;
-    height: 25px;
+    height: 24px;
+    flex-basis: 24px;
   }
 
   .related-copy small {

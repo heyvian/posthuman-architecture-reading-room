@@ -10,7 +10,7 @@ Open `index.html` in a browser. This prototype uses plain HTML, CSS, and JavaScr
 
 ## What is here
 
-- Searchable reading cards arranged as a loose, tabletop pile with graphic covers, quotes, tags, and taxonomy filters
+- Searchable reading cards scattered and overlapped across a tabletop, with graphic covers, quotes, tags, and taxonomy filters
 - A selected-card view that softens the pile and surfaces three related readings from distinct categories
 - A slide-out detail view with summaries, references, and citation fields; it adapts to a bottom drawer on narrower screens
 - Search across reading prompts, tags, source notes, and citations
