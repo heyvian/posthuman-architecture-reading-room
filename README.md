@@ -10,8 +10,9 @@ Open `index.html` in a browser. This prototype uses plain HTML, CSS, and JavaScr
 
 ## What is here
 
-- Searchable reading cards with graphic covers, quotes, tags, and taxonomy filters
-- A slide-out detail view with summaries, references, and citation fields
+- Searchable reading cards arranged as a loose, tabletop pile with graphic covers, quotes, tags, and taxonomy filters
+- A selected-card view that softens the pile and surfaces three related readings from distinct categories
+- A slide-out detail view with summaries, references, and citation fields; it adapts to a bottom drawer on narrower screens
 - Search across reading prompts, tags, source notes, and citations
 - 23 reading cards spanning cybernetics, architecture, more-than-human theory, ecology, and speculative fiction
 - A process log distinguishing human-provided ideas and sources from AI contributions
