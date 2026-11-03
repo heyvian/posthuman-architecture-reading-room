@@ -8,6 +8,16 @@ const pickedView = document.querySelector('#picked-view');
 const pickedMain = document.querySelector('#picked-main');
 const relatedCards = document.querySelector('#related-cards');
 const library = document.querySelector('#library');
+function shuffle(items) {
+  const shuffled = [...items];
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
+  }
+  return shuffled;
+}
+
+const pileReadings = shuffle(window.readings);
 const allThemes = [...new Set(window.readings.map((item) => item.theme))];
 let activeTheme = 'All ideas';
 let returnFocusId = null;
@@ -18,7 +28,8 @@ const pilePositions = [
   [37, 74, 5], [18, 73, -12], [34, 30, 7], [56, 26, -10], [72, 42, 13],
   [43, 55, -5], [60, 54, 8], [28, 60, -11], [13, 35, -3], [87, 34, 4],
   [12, 58, 14], [89, 57, -14], [49, 81, 4], [67, 83, -8], [32, 83, -12],
-  [89, 78, 11], [14, 83, 6], [91, 47, 3], [49, 20, -7]
+  [89, 78, 11], [14, 83, 6], [91, 47, 3], [49, 20, -7], [11, 25, -2],
+  [91, 25, 11], [25, 84, 7], [81, 84, -10], [90, 64, 5], [20, 57, -6]
 ];
 const pileScales = [0.94, 1.03, 0.98, 1.08, 0.92];
 
@@ -35,7 +46,7 @@ function renderFilters() {
 
 function visibleReadings() {
   const query = search.value.trim().toLowerCase();
-  return window.readings.filter((item) => {
+  return pileReadings.filter((item) => {
     const matchesTheme = activeTheme === 'All ideas' || item.theme === activeTheme;
     const sourceText = item.sources.map((source) => `${source.label} ${source.note}`).join(' ');
     const haystack = [item.title, item.subtitle, item.type, item.theme, item.summary, item.why, item.quote, item.fullQuote || '', item.quoteType, item.quoteCredit || '', item.quoteLocator || '', item.excerptNote || '', item.citation, sourceText, item.tags.join(' ')].join(' ').toLowerCase();
