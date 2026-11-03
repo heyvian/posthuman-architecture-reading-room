@@ -1,40 +1,25 @@
-.research-frame,
 .research {
   margin: 0 6vw;
 }
 
-.research-frame {
-  display: grid;
-  grid-template-columns: minmax(150px, 0.7fr) minmax(0, 2fr);
-  gap: 7vw;
-  padding: 66px 4vw 70px;
-  border-bottom: 1px solid var(--line);
+.intro h1.research-question {
+  max-width: 1050px;
+  font-size: clamp(38px, 7vw, 88px);
 }
 
-.frame-label {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+.intro .index-number {
+  white-space: nowrap;
 }
 
-.frame-label .eyebrow,
 .research .eyebrow,
 .process-log .eyebrow {
   color: var(--muted);
 }
 
-.frame-label > span,
 .pitch-sources article > span {
   color: var(--muted);
   font: 9px var(--mono);
   letter-spacing: .08em;
-}
-
-.frame-content h2 {
-  max-width: 800px;
-  margin: 0;
-  font: 500 clamp(28px, 4vw, 48px)/1.14 var(--serif);
-  letter-spacing: -.035em;
 }
 
 .research {
@@ -205,24 +190,12 @@
 }
 
 @media (max-width: 900px) {
-  .research-frame,
   .research {
     margin: 0 5vw;
   }
 }
 
 @media (max-width: 650px) {
-  .research-frame {
-    grid-template-columns: 1fr;
-    gap: 22px;
-    padding: 48px 0;
-  }
-
-  .frame-label {
-    flex-direction: row;
-    align-items: baseline;
-  }
-
   .research {
     padding: 52px 0 35px;
   }

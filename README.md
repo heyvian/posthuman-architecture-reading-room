@@ -1,6 +1,6 @@
 # Cybernetics & More-than-Human Architecture — Reading Room
 
-A small, responsive reading-room web app and assignment prototype for ARCH 602 Theory Class. Group Sweet Chili Heat: Steff Siu, Vian Esterhuizen, Evan Winther, and Victoria Shaw.
+A small, responsive reading-room web app and assignment prototype for ARCH 602 Theory Class. Group Sweet Chili Heat: Evan Winther, Steff Siu, Vian Esterhuizen, and Victoria Shaw.
 
 The human-authored pitch asks: **How do we design for post-humanism in architecture, and how do we consider future needs of non-human users?** The reading room brings together the group’s supplied pitch sources, readings identified in the ARCH 602 course PDFs, and additional literary, ecological, and theoretical directions.
 
