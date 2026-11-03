@@ -1,22 +1,34 @@
-# More-than-Human Architecture — Reading Room
+# Cybernetics & More-than-Human Architecture — Reading Room
 
-A small, responsive web prototype for a public course reading room about post-humanist approaches to architecture, non-human users, and future architectural discourse. The site owner curates entries; visitors can search, filter, and explore them. It does not host or distribute PDFs.
+A small, responsive reading-room web app and assignment prototype for ARCH 602 Theory Class. Group Sweet Chili Heat: Steff Siu, Vian Esterhuizen, Evan Winther, and Victoria Shaw.
+
+The human-authored pitch asks: **How do we design for post-humanism in architecture, and how do we consider future needs of non-human users?** The reading room brings together the group’s supplied pitch sources, readings identified in the ARCH 602 course PDFs, and additional literary, ecological, and theoretical directions.
 
 ## Run locally
 
-Open `index.html` in a browser. The prototype uses plain HTML, CSS, and JavaScript; no build step or package installation is required. Google Fonts are loaded remotely, with system font fallbacks.
+Open `index.html` in a browser. This prototype uses plain HTML, CSS, and JavaScript; no build step or package installation is required. Google Fonts are loaded remotely, with system font fallbacks.
 
 ## What is here
 
-- Visual, responsive reading cards
-- Text search across titles, descriptions, tags, and themes
-- Theme filters
-- An animated right-side detail panel with summaries, tags, and references
-- Keyboard shortcuts: `⌘ K` / `Ctrl K` to focus search, `Esc` to close the panel
-- Example entries for the supplied cybernetics pitch, living architecture, and *Binti*
+- Searchable reading cards with graphic covers, quotes, tags, and taxonomy filters
+- A slide-out detail view with summaries, references, and citation fields
+- Search across reading prompts, tags, source notes, and citations
+- An interactive feedback-loop model with target, controller gain, environmental disturbance, and sensor delay controls
+- A changing response graph, final deviation, and explicitly relative actuator-effort measure
+- A process log distinguishing human-provided ideas and sources from AI contributions
 
-## Curating the collection
+## Reading entries
 
-Edit `data.js`. Each entry includes a title, short description, theme, quote, summary, interpretive note, tags, references, and citation. The supplied MoMA and ACM URLs are included as references for the pitch, but their bibliographic details and claims are intentionally left for verification after reading. Do not publish copyrighted PDFs; link to legitimate sources and share only material you have permission to reproduce.
+Edit `data.js` to curate reading cards. Keep short direct excerpts distinguishable from original editorial reading prompts. Attribute every excerpt and verify its wording and page against the edition used. Add reliable links to publisher, archive, or library records in `sources` when available; the full citation remains in `citation`.
 
-This is a front-end prototype. It has no administrator login, server-side content store, or PDF upload pipeline yet. A production version will need an owner-only publishing workflow and a backend or content-management system.
+The MoMA Magazine and ACM Digital Library links came from the group’s pitch and still need bibliographic verification. The supplied course PDFs are course outlines and reading-list handouts, not the full texts of most listed readings. Cards identify several books and articles as research leads; verify their bibliographic details against the edition actually consulted. The direct Kimmerer excerpt is sourced to the publisher page and needs a page number checked in the group’s edition.
+
+The app is a citation and reading-card catalog. It does not upload, store, or distribute PDFs.
+
+## Process log
+
+The visible process-log section records the human-provided research question, source links, group roster, attached course reading lists, author interests, and editorial decisions. It distinguishes those inputs from AI-suggested additional authors and generated card prompts. It documents this conversation only; the group should add off-platform research, source verification, and any corrections or edits made by members before submission.
+
+## Configurator assumptions
+
+The model is conceptual, not a building-energy or species-needs simulation. It starts at 20 °C, runs 24 steps, applies a fixed environmental disturbance, delays sensor readings, and limits the controller's correction. “Actuator effort” is the sum of absolute corrections in this model; it is not real energy use. The group should connect or revise each rule using its verified research and explain what the model cannot represent.

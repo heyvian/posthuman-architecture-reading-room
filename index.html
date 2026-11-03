@@ -4,36 +4,146 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#f2eee5" />
-    <meta name="description" content="A curated reading room exploring post-humanist approaches to architecture and future worlds." />
-    <title>More-than-Human Architecture — Reading Room</title>
+    <meta name="description" content="A searchable reading room on cybernetics, post-humanist architecture, and more-than-human futures." />
+    <title>Cybernetics & More-than-Human Architecture — Reading Room</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="assignment.css" />
   </head>
   <body>
     <header class="topbar">
-      <a class="wordmark" href="#" aria-label="Reading room home"><span class="mark">M—H</span><span>MORE-THAN-HUMAN<br />ARCHITECTURE</span></a>
-      <nav aria-label="Main navigation"><a class="active" href="#library">The library</a><a href="#about">About the project</a></nav>
-      <span class="edition">A COURSE READING ROOM&nbsp; / &nbsp;2026</span>
+      <a class="wordmark" href="#" aria-label="Reading room home"><span class="mark">M—H</span><span>CYBERNETICS<br />& ARCHITECTURE</span></a>
+      <nav aria-label="Main navigation"><a class="active" href="#library">Reading room</a><a href="#configurator">The model</a><a href="#research">Research</a><a href="#process-log">Process log</a></nav>
+      <span class="edition">ARCH 602&nbsp; / &nbsp;2026</span>
     </header>
 
     <main>
       <section class="intro" id="about">
-        <p class="eyebrow">A living index of ideas, practices & possible futures</p>
-        <h1>Architecture is not<br />just <em>for us.</em></h1>
-        <div class="intro-bottom"><p class="intro-copy">Explore how post-humanist thought might reshape architectural discourse—and how we design with the many lives, intelligences, and systems that share our built worlds.</p><span class="index-number">FIELD NOTES<br />NO. 001—∞</span></div>
+        <p class="eyebrow">ARCH 602 · THEORY CLASS · GROUP SWEET CHILI HEAT</p>
+        <h1>Can a building<br /><em>learn to listen?</em></h1>
+        <div class="intro-bottom"><p class="intro-copy">How do we design for post-humanism in architecture, and how might buildings respond to the future needs of non-human users? This study uses a simple feedback model to test what a building can—and cannot—learn.</p><span class="index-number">STEFF SIU<br />VIAN ESTERHUIZEN<br />EVAN WINTHER<br />VICTORIA SHAW</span></div>
       </section>
 
       <section class="library" id="library" aria-labelledby="library-heading">
-        <div class="library-heading"><div><p class="eyebrow">Browse the collection</p><h2 id="library-heading">Ideas in relation</h2></div><p class="collection-count"><span id="result-count">0</span> READINGS & IDEAS</p></div>
+        <div class="library-heading"><div><p class="eyebrow">Browse the collection</p><h2 id="library-heading">The reading room</h2></div><p class="collection-count"><span id="result-count">0</span> READINGS & IDEAS</p></div>
         <div class="controls">
-          <label class="searchbox"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Search ideas, beings, materials…" autocomplete="off" /><kbd>⌘ K</kbd></label>
+          <label class="searchbox"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Search ideas, beings, materials…" autocomplete="off" /><kbd>CTRL / ⌘ K</kbd></label>
           <div class="filters" id="filters" aria-label="Filter by theme"></div>
         </div>
         <div class="card-grid" id="cards" aria-live="polite"></div>
         <p class="empty-state" id="empty" hidden>No readings found. Try another term or theme.</p>
       </section>
+
+      <section class="research-frame" aria-labelledby="question-heading">
+        <div class="frame-label"><p class="eyebrow">The research question</p><span>01 / QUESTION</span></div>
+        <div class="frame-content">
+          <h2 id="question-heading">How do we design for post-humanism in architecture? How do we consider future needs of non-human users?</h2>
+        </div>
+      </section>
+
+      <section class="configurator" id="configurator" aria-labelledby="configurator-heading">
+        <div class="section-intro">
+          <p class="eyebrow">Explore a cybernetic feedback loop</p>
+          <h2 id="configurator-heading">Give the building a signal.<br /><em>See what it does.</em></h2>
+          <p>Set a target, adjust how strongly the controller reacts, add an environmental disturbance, and change how late the sensor reports. The graph shows the modeled room temperature over 24 steps.</p>
+        </div>
+        <div class="model-layout">
+          <form class="model-controls" aria-label="Feedback loop variables" onsubmit="return false">
+            <label class="control-row" for="goal">
+              <span><strong>Target temperature</strong><output id="goal-value" for="goal">22 °C</output></span>
+              <small>The value the controller tries to maintain.</small>
+              <input id="goal" type="range" min="18" max="26" step="1" value="22" />
+            </label>
+            <label class="control-row" for="gain">
+              <span><strong>Controller gain</strong><output id="gain-value" for="gain">0.8</output></span>
+              <small>How strongly the system corrects a measured difference.</small>
+              <input id="gain" type="range" min="0.2" max="2" step="0.1" value="0.8" />
+            </label>
+            <label class="control-row" for="disturbance">
+              <span><strong>Environmental disturbance</strong><output id="disturbance-value" for="disturbance">−2 °C</output></span>
+              <small>A steady outside influence on the room, positive or negative.</small>
+              <input id="disturbance" type="range" min="-8" max="8" step="1" value="-2" />
+            </label>
+            <label class="control-row" for="delay">
+              <span><strong>Sensor delay</strong><output id="delay-value" for="delay">1 step</output></span>
+              <small>How old the temperature reading is when the controller acts.</small>
+              <input id="delay" type="range" min="0" max="5" step="1" value="1" />
+            </label>
+            <p class="model-caveat">This is a teaching model, not a building-energy simulation. Its units and response rules are simplified assumptions.</p>
+          </form>
+          <div class="model-output">
+            <div class="loop-diagram" aria-label="Feedback loop: environment, sensor, controller, and building">
+              <span class="loop-node">ENVIRONMENT</span><span class="loop-arrow" aria-hidden="true">→</span>
+              <span class="loop-node">SENSOR</span><span class="loop-arrow" aria-hidden="true">→</span>
+              <span class="loop-node">CONTROLLER</span><span class="loop-arrow" aria-hidden="true">→</span>
+              <span class="loop-node">BUILDING</span>
+              <span class="loop-return" aria-hidden="true">↶ &nbsp; measured condition returns to the sensor</span>
+            </div>
+            <div class="chart-heading"><h3>Room temperature over time</h3><span>°C / 24 STEPS</span></div>
+            <svg id="response-chart" class="response-chart" viewBox="0 0 600 230" role="img" aria-labelledby="chart-title chart-desc">
+              <title id="chart-title">Simulated room temperature response</title>
+              <desc id="chart-desc">A line chart compares the target with the simulated room temperature.</desc>
+              <g class="chart-grid"><line x1="52" y1="30" x2="580" y2="30"></line><line x1="52" y1="75" x2="580" y2="75"></line><line x1="52" y1="120" x2="580" y2="120"></line><line x1="52" y1="165" x2="580" y2="165"></line><line x1="52" y1="210" x2="580" y2="210"></line></g>
+              <g class="chart-labels"><text x="12" y="34">30°</text><text x="12" y="79">25°</text><text x="12" y="124">20°</text><text x="12" y="169">15°</text><text x="12" y="214">10°</text><text x="52" y="228">START</text><text x="550" y="228">END</text></g>
+              <line id="target-line" class="target-line" x1="52" y1="102" x2="580" y2="102"></line>
+              <polyline id="temperature-line" class="temperature-line" points=""></polyline>
+            </svg>
+            <div class="chart-legend"><span><i class="legend-target"></i> SET TARGET</span><span><i class="legend-room"></i> MODELED ROOM</span></div>
+            <div class="metrics" aria-live="polite">
+              <div><span>FINAL ROOM TEMP.</span><strong id="final-temp">—</strong></div>
+              <div><span>FINAL DEVIATION</span><strong id="final-error">—</strong></div>
+              <div><span>ACTUATOR EFFORT*</span><strong id="effort">—</strong></div>
+            </div>
+            <p class="effort-note">*Sum of absolute controller corrections across the simulated steps; a comparison within this model, not a real energy estimate.</p>
+          </div>
+        </div>
+        <div class="rule-trace">
+          <h3>What the rules mean—and where they come from</h3>
+          <p>The feedback-loop structure is the cybernetics idea being tested: sense a condition, compare it with a goal, act, then sense again. The controls are the group’s simplified model choices. They are not measurements or claims from either pitch link. The exact mapping must be checked against the group’s primary and scholarly sources before final submission.</p>
+          <div class="rule-keys"><span><b>Source-derived idea</b> Feedback and regulation as a loop.</span><span><b>Our assumptions</b> 20 °C start; 24 steps; fixed disturbance; correction cap; simplified thermal response.</span><span><b>What is left out</b> Multiple species, conflicting goals, spatial differences, adaptation, and real building physics.</span></div>
+        </div>
+      </section>
+
+      <section class="research" id="research" aria-labelledby="research-heading">
+        <div class="library-heading"><div><p class="eyebrow">Group pitch and course reading list</p><h2 id="research-heading">Sources in conversation</h2></div><p class="collection-count"><span id="reading-total">00</span> READING CARDS</p></div>
+        <p class="research-intro">The cards bring together the group’s original pitch and supplied source links, readings named in the ARCH 602 course PDFs, and additional theoretical and literary directions. Course handouts identify readings but are not substitutes for the full texts. Verify bibliographic details, arguments, quotations, and page numbers against the edition you read. Direct excerpts are labeled; other card lines are original reading prompts.</p>
+        <div class="pitch-sources">
+          <article><span>01 / PROVIDED IN PITCH</span><h3>MoMA Magazine</h3><a href="https://production-gcp.moma.org/magazine/articles/1409" target="_blank" rel="noopener noreferrer">Open supplied article ↗</a><p>Confirm title, author, date, and how it supports the research question.</p></article>
+          <article><span>02 / PROVIDED IN PITCH</span><h3>ACM Digital Library</h3><a href="https://dl.acm.org/doi/10.1145/3789492.3796449" target="_blank" rel="noopener noreferrer">Open supplied paper ↗</a><p>Confirm authors, publication details, scholarly status, and argument.</p></article>
+        </div>
+      </section>
+
+      <section class="process-log" id="process-log" aria-labelledby="process-log-heading">
+        <div class="library-heading"><div><p class="eyebrow">Human-led research · AI use record</p><h2 id="process-log-heading">Process log</h2></div><p class="collection-count">CONVERSATION RECORD</p></div>
+        <p class="log-intro">This record documents the project direction and AI assistance visible in this conversation. It credits the group’s supplied ideas and materials; it does not claim to record work done outside this conversation. The group should add its own source-checking, edits, and any other tools used before submitting the final 1–2 page process log.</p>
+        <div class="log-entry">
+          <span class="log-date">PROJECT QUESTION & PITCH</span>
+          <div><h3>Human direction</h3><p>The group supplied its topic, the exact research question about post-humanism and future needs of non-human users, two starting URLs (MoMA Magazine and ACM Digital Library), and the name Sweet Chili Heat with members Steff Siu, Vian Esterhuizen, Evan Winther, and Victoria Shaw. The group’s question—not an AI-generated topic—anchors the app.</p><h3>AI contribution and check</h3><p>AI organized the pitch into the reading-room framing and added a cybernetics feedback-loop model. The two supplied links could not be bibliographically verified during this work; their titles, authors, dates, and relevance remain for the group to check.</p></div>
+        </div>
+        <div class="log-entry">
+          <span class="log-date">COURSE MATERIALS</span>
+          <div><h3>Human-provided sources</h3><p>The group attached eight ARCH 602 PDFs, including the course outline and module handouts on foundational treatises, mathematics and plasticity, modernism, cybernetics and Japanese Metabolists, architectural “isms,” deconstruction, adjacent discourses, and visionary digital intensities. The cybernetics handout names Gordon Pask, Nicholas Negroponte, Christopher Alexander, Reyner Banham, Yona Friedman, and the Metabolists; other handouts list Philip Ball, Sanford Kwinter, and D’Arcy Wentworth Thompson.</p><h3>AI contribution and check</h3><p>AI extracted reading-list information and used relevant entries to seed cards. These attachments are course handouts and reading lists, not the full texts of every listed work. Most card lines are therefore labeled as original reading prompts, not quotations. The group should check every citation against the actual reading and its chosen edition.</p></div>
+        </div>
+        <div class="log-entry">
+          <span class="log-date">LITERARY & ECOLOGICAL DIRECTIONS</span>
+          <div><h3>Human direction</h3><p>The group asked whether Octavia Butler, Audre Lorde, Douglas Adams, and Terry Pratchett fit, then added Robert Macfarlane’s <em>Is a River Alive?</em> and Robin Wall Kimmerer. These are human-supplied interests and are distinguished in the cards as fiction, critical lenses, or environmental writing—not misrepresented as architectural history.</p><h3>AI contribution</h3><p>AI suggested Donna Haraway, María Puig de la Bellacasa, Anna Tsing, and Vinciane Despret as further reading directions. Those suggestions are clearly identified as leads to verify, rather than as sources selected or read by the group.</p></div>
+        </div>
+        <div class="log-entry">
+          <span class="log-date">DESIGN & EDITORIAL DECISIONS</span>
+          <div><h3>Human direction</h3><p>The group described the visual card pile, search and taxonomy filters, slide-out reading details, citations, and a public-facing learning goal. It explicitly chose not to host PDFs, asking instead for information, quotations, and citations. The group also rejected the speculative “Working position” copy and asked to remove the configurator eyebrow and the reading-access paragraph.</p><h3>AI response</h3><p>The app keeps cards, search, filters, and the detail drawer; the deleted speculative text is removed. No PDF upload or storage feature is included. This records the group’s design choices rather than attributing them to AI.</p></div>
+        </div>
+        <div class="log-examples">
+          <h3>Three documented decisions and corrections</h3>
+          <ol>
+            <li><strong>Source ownership:</strong> the group supplied the research question, two starting sources, roster, course PDFs, and literary interests. AI used these as the content basis; it did not originate the project topic or group members.</li>
+            <li><strong>Quote accuracy:</strong> course PDFs identify readings but do not provide the full texts of most books. AI did not invent author quotations; cards use labeled reading prompts. The Kimmerer excerpt is short and credited to the publisher’s book page, with the page number left for edition-level verification.</li>
+            <li><strong>Scope correction:</strong> the group rejected assistant-written argument text and specified that the site should not host PDFs. AI removed the rejected copy and kept the site as a citation-and-reading-card catalog.</li>
+          </ol>
+        </div>
+      </section>
+
       <footer><span>AN OPEN-ENDED READING ROOM</span><span>DESIGNED FOR MANY WORLDS</span><span>© 2026</span></footer>
     </main>
 
