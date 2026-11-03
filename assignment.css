@@ -69,6 +69,35 @@
   line-height: 1.6;
 }
 
+.pitch-sources .featured-source {
+  border-color: #b7bda0;
+  background: #f3f2e9;
+}
+
+.pitch-sources .source-citation {
+  padding-top: 9px;
+  border-top: 1px solid var(--line);
+  font-family: var(--mono);
+  font-size: 9px;
+}
+
+.source-card-link {
+  margin-top: 12px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--green);
+  cursor: pointer;
+  font: 11px var(--sans);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.source-card-link:focus-visible {
+  outline: 2px solid #607c4f;
+  outline-offset: 3px;
+}
+
 .card-art::before,
 .card-art::after {
   position: absolute;

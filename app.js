@@ -165,6 +165,10 @@ function closeReading() {
 search.addEventListener('input', renderCards);
 document.querySelector('#close-drawer').addEventListener('click', closeReading);
 scrim.addEventListener('click', closeReading);
+document.querySelectorAll('[data-reading-id]').forEach((button) => button.addEventListener('click', () => {
+  library.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  openReading(button.dataset.readingId);
+}));
 document.addEventListener('keydown', (event) => {
   if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') { event.preventDefault(); search.focus(); }
   if (event.key === 'Escape') closeReading();

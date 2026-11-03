@@ -16,6 +16,7 @@ Open `index.html` in a browser. This prototype uses plain HTML, CSS, and JavaScr
 - Search across reading prompts, tags, source notes, and citations
 - 40 reading cards spanning cybernetics, architecture, more-than-human theory, ecology, and speculative fiction
 - A newly shuffled card order on each page load, held steady while searching and filtering
+- Two featured course readings under “Sources in conversation,” selected for their close fit with the research question and linked directly to their reading cards
 - A process log distinguishing human-provided ideas and sources from AI contributions
 
 ## Reading entries
