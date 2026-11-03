@@ -13,8 +13,7 @@ Open `index.html` in a browser. This prototype uses plain HTML, CSS, and JavaScr
 - Searchable reading cards with graphic covers, quotes, tags, and taxonomy filters
 - A slide-out detail view with summaries, references, and citation fields
 - Search across reading prompts, tags, source notes, and citations
-- An interactive feedback-loop model with target, controller gain, environmental disturbance, and sensor delay controls
-- A changing response graph, final deviation, and explicitly relative actuator-effort measure
+- 23 reading cards spanning cybernetics, architecture, more-than-human theory, ecology, and speculative fiction
 - A process log distinguishing human-provided ideas and sources from AI contributions
 
 ## Reading entries
@@ -28,7 +27,3 @@ The app is a citation and reading-card catalog. It does not upload, store, or di
 ## Process log
 
 The visible process-log section records the human-provided research question, source links, group roster, attached course reading lists, author interests, and editorial decisions. It distinguishes those inputs from AI-suggested additional authors and generated card prompts. It documents this conversation only; the group should add off-platform research, source verification, and any corrections or edits made by members before submission.
-
-## Configurator assumptions
-
-The model is conceptual, not a building-energy or species-needs simulation. It starts at 20 °C, runs 24 steps, applies a fixed environmental disturbance, delays sensor readings, and limits the controller's correction. “Actuator effort” is the sum of absolute corrections in this model; it is not real energy use. The group should connect or revise each rule using its verified research and explain what the model cannot represent.

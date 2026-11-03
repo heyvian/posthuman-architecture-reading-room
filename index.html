@@ -15,7 +15,7 @@
   <body>
     <header class="topbar">
       <a class="wordmark" href="#" aria-label="Reading room home"><span class="mark">M—H</span><span>CYBERNETICS<br />& ARCHITECTURE</span></a>
-      <nav aria-label="Main navigation"><a class="active" href="#library">Reading room</a><a href="#configurator">The model</a><a href="#research">Research</a><a href="#process-log">Process log</a></nav>
+      <nav aria-label="Main navigation"><a class="active" href="#library">Reading room</a><a href="#research">Research</a><a href="#process-log">Process log</a></nav>
       <span class="edition">ARCH 602&nbsp; / &nbsp;2026</span>
     </header>
 
@@ -23,7 +23,7 @@
       <section class="intro" id="about">
         <p class="eyebrow">ARCH 602 · THEORY CLASS · GROUP SWEET CHILI HEAT</p>
         <h1>Can a building<br /><em>learn to listen?</em></h1>
-        <div class="intro-bottom"><p class="intro-copy">How do we design for post-humanism in architecture, and how might buildings respond to the future needs of non-human users? This study uses a simple feedback model to test what a building can—and cannot—learn.</p><span class="index-number">STEFF SIU<br />VIAN ESTERHUIZEN<br />EVAN WINTHER<br />VICTORIA SHAW</span></div>
+        <div class="intro-bottom"><p class="intro-copy">How do we design for post-humanism in architecture, and how might architectural discourse account for the future needs of non-human users? Explore readings, projects, and speculative worlds across the collection.</p><span class="index-number">STEFF SIU<br />VIAN ESTERHUIZEN<br />EVAN WINTHER<br />VICTORIA SHAW</span></div>
       </section>
 
       <section class="library" id="library" aria-labelledby="library-heading">
@@ -40,69 +40,6 @@
         <div class="frame-label"><p class="eyebrow">The research question</p><span>01 / QUESTION</span></div>
         <div class="frame-content">
           <h2 id="question-heading">How do we design for post-humanism in architecture? How do we consider future needs of non-human users?</h2>
-        </div>
-      </section>
-
-      <section class="configurator" id="configurator" aria-labelledby="configurator-heading">
-        <div class="section-intro">
-          <p class="eyebrow">Explore a cybernetic feedback loop</p>
-          <h2 id="configurator-heading">Give the building a signal.<br /><em>See what it does.</em></h2>
-          <p>Set a target, adjust how strongly the controller reacts, add an environmental disturbance, and change how late the sensor reports. The graph shows the modeled room temperature over 24 steps.</p>
-        </div>
-        <div class="model-layout">
-          <form class="model-controls" aria-label="Feedback loop variables" onsubmit="return false">
-            <label class="control-row" for="goal">
-              <span><strong>Target temperature</strong><output id="goal-value" for="goal">22 °C</output></span>
-              <small>The value the controller tries to maintain.</small>
-              <input id="goal" type="range" min="18" max="26" step="1" value="22" />
-            </label>
-            <label class="control-row" for="gain">
-              <span><strong>Controller gain</strong><output id="gain-value" for="gain">0.8</output></span>
-              <small>How strongly the system corrects a measured difference.</small>
-              <input id="gain" type="range" min="0.2" max="2" step="0.1" value="0.8" />
-            </label>
-            <label class="control-row" for="disturbance">
-              <span><strong>Environmental disturbance</strong><output id="disturbance-value" for="disturbance">−2 °C</output></span>
-              <small>A steady outside influence on the room, positive or negative.</small>
-              <input id="disturbance" type="range" min="-8" max="8" step="1" value="-2" />
-            </label>
-            <label class="control-row" for="delay">
-              <span><strong>Sensor delay</strong><output id="delay-value" for="delay">1 step</output></span>
-              <small>How old the temperature reading is when the controller acts.</small>
-              <input id="delay" type="range" min="0" max="5" step="1" value="1" />
-            </label>
-            <p class="model-caveat">This is a teaching model, not a building-energy simulation. Its units and response rules are simplified assumptions.</p>
-          </form>
-          <div class="model-output">
-            <div class="loop-diagram" aria-label="Feedback loop: environment, sensor, controller, and building">
-              <span class="loop-node">ENVIRONMENT</span><span class="loop-arrow" aria-hidden="true">→</span>
-              <span class="loop-node">SENSOR</span><span class="loop-arrow" aria-hidden="true">→</span>
-              <span class="loop-node">CONTROLLER</span><span class="loop-arrow" aria-hidden="true">→</span>
-              <span class="loop-node">BUILDING</span>
-              <span class="loop-return" aria-hidden="true">↶ &nbsp; measured condition returns to the sensor</span>
-            </div>
-            <div class="chart-heading"><h3>Room temperature over time</h3><span>°C / 24 STEPS</span></div>
-            <svg id="response-chart" class="response-chart" viewBox="0 0 600 230" role="img" aria-labelledby="chart-title chart-desc">
-              <title id="chart-title">Simulated room temperature response</title>
-              <desc id="chart-desc">A line chart compares the target with the simulated room temperature.</desc>
-              <g class="chart-grid"><line x1="52" y1="30" x2="580" y2="30"></line><line x1="52" y1="75" x2="580" y2="75"></line><line x1="52" y1="120" x2="580" y2="120"></line><line x1="52" y1="165" x2="580" y2="165"></line><line x1="52" y1="210" x2="580" y2="210"></line></g>
-              <g class="chart-labels"><text x="12" y="34">30°</text><text x="12" y="79">25°</text><text x="12" y="124">20°</text><text x="12" y="169">15°</text><text x="12" y="214">10°</text><text x="52" y="228">START</text><text x="550" y="228">END</text></g>
-              <line id="target-line" class="target-line" x1="52" y1="102" x2="580" y2="102"></line>
-              <polyline id="temperature-line" class="temperature-line" points=""></polyline>
-            </svg>
-            <div class="chart-legend"><span><i class="legend-target"></i> SET TARGET</span><span><i class="legend-room"></i> MODELED ROOM</span></div>
-            <div class="metrics" aria-live="polite">
-              <div><span>FINAL ROOM TEMP.</span><strong id="final-temp">—</strong></div>
-              <div><span>FINAL DEVIATION</span><strong id="final-error">—</strong></div>
-              <div><span>ACTUATOR EFFORT*</span><strong id="effort">—</strong></div>
-            </div>
-            <p class="effort-note">*Sum of absolute controller corrections across the simulated steps; a comparison within this model, not a real energy estimate.</p>
-          </div>
-        </div>
-        <div class="rule-trace">
-          <h3>What the rules mean—and where they come from</h3>
-          <p>The feedback-loop structure is the cybernetics idea being tested: sense a condition, compare it with a goal, act, then sense again. The controls are the group’s simplified model choices. They are not measurements or claims from either pitch link. The exact mapping must be checked against the group’s primary and scholarly sources before final submission.</p>
-          <div class="rule-keys"><span><b>Source-derived idea</b> Feedback and regulation as a loop.</span><span><b>Our assumptions</b> 20 °C start; 24 steps; fixed disturbance; correction cap; simplified thermal response.</span><span><b>What is left out</b> Multiple species, conflicting goals, spatial differences, adaptation, and real building physics.</span></div>
         </div>
       </section>
 
@@ -132,14 +69,14 @@
         </div>
         <div class="log-entry">
           <span class="log-date">DESIGN & EDITORIAL DECISIONS</span>
-          <div><h3>Human direction</h3><p>The group described the visual card pile, search and taxonomy filters, slide-out reading details, citations, and a public-facing learning goal. It explicitly chose not to host PDFs, asking instead for information, quotations, and citations. The group also rejected the speculative “Working position” copy and asked to remove the configurator eyebrow and the reading-access paragraph.</p><h3>AI response</h3><p>The app keeps cards, search, filters, and the detail drawer; the deleted speculative text is removed. No PDF upload or storage feature is included. This records the group’s design choices rather than attributing them to AI.</p></div>
+          <div><h3>Human direction</h3><p>The group described the visual card pile, search and taxonomy filters, slide-out reading details, citations, and a public-facing learning goal. It explicitly chose not to host PDFs, asking instead for information, quotations, and citations. The group rejected the speculative “Working position” copy and later asked to remove the entire cybernetics configurator panel as confusing.</p><h3>AI response</h3><p>The app keeps cards, search, filters, and the detail drawer; the rejected argument and configurator panel are removed. No PDF upload or storage feature is included. This records the group’s design choices rather than attributing them to AI.</p></div>
         </div>
         <div class="log-examples">
           <h3>Three documented decisions and corrections</h3>
           <ol>
             <li><strong>Source ownership:</strong> the group supplied the research question, two starting sources, roster, course PDFs, and literary interests. AI used these as the content basis; it did not originate the project topic or group members.</li>
             <li><strong>Quote accuracy:</strong> course PDFs identify readings but do not provide the full texts of most books. AI did not invent author quotations; cards use labeled reading prompts. The Kimmerer excerpt is short and credited to the publisher’s book page, with the page number left for edition-level verification.</li>
-            <li><strong>Scope correction:</strong> the group rejected assistant-written argument text and specified that the site should not host PDFs. AI removed the rejected copy and kept the site as a citation-and-reading-card catalog.</li>
+            <li><strong>Scope correction:</strong> the group rejected assistant-written argument text, asked for no PDF hosting, and then removed the full configurator panel. AI removed those features and kept the site focused on the reading cards and citations.</li>
           </ol>
         </div>
       </section>

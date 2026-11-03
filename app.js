@@ -4,10 +4,6 @@ const filterBox = document.querySelector('#filters');
 const drawer = document.querySelector('#drawer');
 const scrim = document.querySelector('#scrim');
 const drawerContent = document.querySelector('#drawer-content');
-const goalInput = document.querySelector('#goal');
-const gainInput = document.querySelector('#gain');
-const disturbanceInput = document.querySelector('#disturbance');
-const delayInput = document.querySelector('#delay');
 const allThemes = [...new Set(window.readings.map((item) => item.theme))];
 let activeTheme = 'All ideas';
 
@@ -74,53 +70,6 @@ function closeReading() {
   document.body.classList.remove('drawer-open');
 }
 
-function simulateLoop(goal, gain, disturbance, delay) {
-  const temperatures = [20];
-  let effort = 0;
-
-  for (let step = 0; step < 24; step += 1) {
-    const current = temperatures[temperatures.length - 1];
-    const sensed = temperatures[Math.max(0, temperatures.length - 1 - delay)];
-    const correction = Math.max(-6, Math.min(6, (goal - sensed) * gain));
-    effort += Math.abs(correction);
-    temperatures.push(current + correction * 0.12 + disturbance * 0.06);
-  }
-
-  return { temperatures, effort };
-}
-
-function renderSimulation() {
-  const goal = Number(goalInput.value);
-  const gain = Number(gainInput.value);
-  const disturbance = Number(disturbanceInput.value);
-  const delay = Number(delayInput.value);
-  const { temperatures, effort } = simulateLoop(goal, gain, disturbance, delay);
-  const temperatureToY = (temperature) => 210 - ((temperature - 10) / 5) * 45;
-  const points = temperatures.map((temperature, index) => {
-    const x = 52 + (index / (temperatures.length - 1)) * 528;
-    return `${x.toFixed(1)},${temperatureToY(temperature).toFixed(1)}`;
-  }).join(' ');
-  const finalTemperature = temperatures[temperatures.length - 1];
-  const deviation = finalTemperature - goal;
-  const signedValue = (value) => `${value > 0 ? '+' : ''}${value.toFixed(1)}`;
-
-  document.querySelector('#goal-value').textContent = `${goal} °C`;
-  document.querySelector('#gain-value').textContent = gain.toFixed(1);
-  document.querySelector('#disturbance-value').textContent = `${disturbance > 0 ? '+' : ''}${disturbance} °C`;
-  document.querySelector('#delay-value').textContent = `${delay} ${delay === 1 ? 'step' : 'steps'}`;
-  document.querySelector('#temperature-line').setAttribute('points', points);
-  document.querySelector('#target-line').setAttribute('y1', temperatureToY(goal).toFixed(1));
-  document.querySelector('#target-line').setAttribute('y2', temperatureToY(goal).toFixed(1));
-  document.querySelector('#final-temp').textContent = `${finalTemperature.toFixed(1)} °C`;
-  document.querySelector('#final-error').textContent = `${signedValue(deviation)} °C`;
-  document.querySelector('#effort').textContent = `${effort.toFixed(1)} °C·steps`;
-  document.querySelector('#chart-desc').textContent = `The target is ${goal} degrees Celsius. The modeled room starts at 20 degrees and finishes at ${finalTemperature.toFixed(1)} degrees after 24 steps.`;
-}
-
-[goalInput, gainInput, disturbanceInput, delayInput].forEach((input) => {
-  input.addEventListener('input', renderSimulation);
-});
-
 search.addEventListener('input', renderCards);
 document.querySelector('#close-drawer').addEventListener('click', closeReading);
 scrim.addEventListener('click', closeReading);
@@ -131,5 +80,4 @@ document.addEventListener('keydown', (event) => {
 
 renderFilters();
 renderCards();
-renderSimulation();
 document.querySelector('#reading-total').textContent = String(window.readings.length).padStart(2, '0');

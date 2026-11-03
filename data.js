@@ -12,7 +12,7 @@ window.readings = [
     quoteType: 'Human-provided research question',
     quoteCredit: 'Sweet Chili Heat pitch',
     summary: 'The group asks how architectural discourse might include non-human users and how cybernetics can help model responsive relationships between buildings and their environments.',
-    why: 'This is the project’s human-authored starting point. The configurator and reading collection should help the group refine—not replace—the question through primary sources, architectural cases, and more-than-human perspectives.',
+    why: 'This is the project’s human-authored starting point. The reading collection should help the group refine—not replace—the question through primary sources, architectural cases, and more-than-human perspectives.',
     tags: ['Cybernetics', 'Post-humanism', 'Non-human users', 'Group pitch'],
     sources: [
       { label: 'MoMA Magazine link supplied in the pitch', url: 'https://production-gcp.moma.org/magazine/articles/1409', note: 'The group supplied this URL. Verify its title, author, date, and relevance against the page before citing it.' },
@@ -168,7 +168,7 @@ window.readings = [
     quote: 'What changes when a building is treated as a process people can assemble?',
     quoteType: 'Reading prompt',
     summary: 'The assignment names Ant Farm’s Inflatocookbook as the class example: choose components, inflate a form, and generate a material list.',
-    why: 'It demonstrates how an architectural argument can become a manipulable model. Your group’s configurator should be a new question, grounded in your own sources, rather than a copy of the inflatable example.',
+    why: 'It demonstrates how an architectural argument can become a manipulable model. The assignment presents it as a class example and asks groups to develop a new, source-grounded question rather than copy it.',
     tags: ['Ant Farm', 'Inflatables', 'Open systems', 'Assignment precedent'],
     sources: [],
     citation: 'Ant Farm. Inflatocookbook. 1971. Verify the copy, authorship, and archival details of the version consulted.'
@@ -275,7 +275,7 @@ window.readings = [
     quote: 'How does the question we ask shape what we are able to notice?',
     quoteType: 'Reading prompt',
     summary: 'Despret asks how scientific questions and practices shape what people learn about animals, and invites a more attentive approach to animal agency.',
-    why: 'This is a useful lens for the configurator: sensor choices, categories, and questions shape what a system can register. Extend the analogy carefully and keep the text’s animal studies context visible.',
+    why: 'This is a useful lens for the project’s cybernetics reading: sensors, categories, and questions shape what a system can register. Extend the analogy carefully and keep the text’s animal studies context visible.',
     tags: ['Vinciane Despret', 'Animal studies', 'Observation', 'Agency'],
     sources: [],
     citation: 'Despret, Vinciane. What Would Animals Say If We Asked the Right Questions? Translated by Brett Buchanan. Minneapolis: University of Minnesota Press, 2016.'
