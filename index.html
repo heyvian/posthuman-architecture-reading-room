@@ -11,11 +11,12 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css?v=featured-sources-07195f3" />
     <link rel="stylesheet" href="assignment.css?v=featured-sources-07195f3" />
+    <link rel="stylesheet" href="configurator.css?v=coevolution-5" />
   </head>
   <body>
     <header class="topbar">
       <a class="wordmark" href="#" aria-label="Reading room home"><span class="mark">M—H</span><span>CYBERNETICS<br />& ARCHITECTURE</span></a>
-      <nav aria-label="Main navigation"><a class="active" href="#library">Reading room</a><a href="#research">Research</a><a href="#process-log">Process log</a></nav>
+      <nav aria-label="Main navigation"><a class="active" href="#library">Reading room</a><a href="#configurator">A History of Becoming</a><a href="#research">Research</a><a href="#process-log">Process log</a></nav>
       <span class="edition">ARCH 602&nbsp; / &nbsp;2026</span>
     </header>
 
@@ -41,6 +42,91 @@
           </section>
         </div>
         <p class="empty-state" id="empty" hidden>No readings found. Try another term or theme.</p>
+      </section>
+
+      <section class="configurator" id="configurator" aria-labelledby="configurator-heading">
+        <div class="configurator-intro">
+          <div>
+            <p class="eyebrow">A generational co-evolution study</p>
+            <h2 id="configurator-heading">A History of Becoming</h2>
+            <p>Configure speculative avatars and an architectural environment, then follow how each changes through interaction. This is a transparent thought experiment—not a prediction, a biological model, or a claim that one rule fits all life.</p>
+          </div>
+          <div class="configurator-intro-actions"><button type="button" class="mode-toggle" id="advanced-mode-toggle" aria-pressed="false">Advanced mode · Off</button><a href="#research">Read the sources behind the questions ↓</a></div>
+        </div>
+        <div class="experiment-bar">
+          <label>Experiment <select id="experiment-select" aria-label="Saved experiment"></select></label>
+          <label>Name <input id="experiment-name" maxlength="80" value="Untitled becoming study" /></label>
+          <button type="button" class="button secondary" id="new-experiment">New experiment</button>
+          <button type="button" class="button secondary" id="save-experiment">Save</button>
+          <button type="button" class="button secondary reset-button" id="delete-experiment">Delete experiment</button>
+          <button type="button" class="button secondary" id="export-experiment">Export JSON</button>
+          <label class="button secondary import-button">Import JSON<input id="import-experiment" type="file" accept="application/json,.json" /></label>
+          <button type="button" class="button secondary" id="export-diary">Download diary</button>
+          <button type="button" class="button secondary reset-button" id="reset-experiment">Reset this experiment</button>
+          <span id="storage-status" role="status">Opening local experiment storage…</span>
+        </div>
+        <div class="view-tabs" role="tablist" aria-label="Configurator views">
+          <button type="button" role="tab" id="tab-configure" aria-controls="view-configure" aria-selected="true">01 Configure</button>
+          <button type="button" role="tab" id="tab-simulate" aria-controls="view-simulate" aria-selected="false">02 Simulate</button>
+          <button type="button" role="tab" id="tab-diary" aria-controls="view-diary" aria-selected="false">03 Diary</button>
+          <button type="button" role="tab" id="tab-evolution" aria-controls="view-evolution" aria-selected="false">04 Evolution</button>
+        </div>
+        <section class="config-view" id="view-configure" role="tabpanel" aria-labelledby="tab-configure">
+          <div class="view-heading"><div><p class="eyebrow">Set initial conditions</p><h3>Configure the world</h3></div><p>Changes to an existing history start a branch; earlier generations remain intact.</p></div>
+          <div class="beginner-setup" id="beginner-setup">
+            <p class="beginner-lead">Choose a starting situation. The same three example beings enter each world with different needs; your choice changes the building they encounter.</p>
+            <div class="world-presets" role="group" aria-label="Choose a starting situation">
+              <button type="button" class="world-preset" data-world-preset="reciprocal" aria-pressed="true"><strong>A shared habitat</strong><span>More links, a generous resource supply, and a building ready to adapt.</span></button>
+              <button type="button" class="world-preset" data-world-preset="scarcity" aria-pressed="false"><strong>A resource pinch</strong><span>Less resource to share. Watch who can reach it and how the building responds.</span></button>
+              <button type="button" class="world-preset" data-world-preset="shifting" aria-pressed="false"><strong>A changing climate</strong><span>Spaces begin with uneven temperatures; the building has more capacity to change.</span></button>
+            </div>
+            <div class="starter-cast" id="starter-cast"></div>
+            <p class="starter-note">These are fictional starting conditions, not claims about real species. Choose a world, then let one generation unfold.</p>
+          </div>
+          <div class="configure-layout advanced-only" id="advanced-configure" hidden>
+            <section class="config-panel">
+              <h4>Architectural system</h4>
+              <p class="panel-note">Adjust the starting network, shared resources, adaptability, and the environmental conditions of each linked space.</p>
+              <div id="architecture-controls"></div>
+            </section>
+            <section class="config-panel avatar-panel">
+              <div class="panel-heading"><div><h4>Speculative avatars</h4><p class="panel-note">Create more-than-human entities with distinct needs and capacities.</p></div><button type="button" class="button" id="add-avatar">+ Add avatar</button></div>
+              <div id="avatar-editor-list"></div>
+            </section>
+          </div>
+          <div class="configure-actions"><p id="branch-edit-note" class="notice" hidden></p><button type="button" class="button primary" id="start-simulation">Begin / continue simulation →</button></div>
+        </section>
+        <section class="config-view" id="view-simulate" role="tabpanel" aria-labelledby="tab-simulate" hidden>
+          <div class="view-heading"><div><p class="eyebrow">An explicit rule set · sequential generations</p><h3>Simulate encounters</h3></div><p>Each run uses the previous generation’s complete output. Movement, resource use, environmental fit, encounters, and resulting transformations are recorded.</p></div>
+          <div class="generation-story" id="generation-story"><p>Choose a starting situation, then let the first generation unfold. Follow where the beings go, what they encounter, and what shifts in the shared environment.</p></div>
+          <div class="simulation-controls"><button type="button" class="button primary" id="run-one">Meet one generation</button><button type="button" class="button" data-run-count="5">Let five generations unfold</button><button type="button" class="button advanced-only" data-run-count="10" hidden>Run ten generations</button><span id="generation-status" role="status"></span></div>
+          <div class="simulation-layout">
+            <div class="world-panel"><div class="panel-heading"><h4>Current spatial network</h4><span id="world-generation">GEN 000</span></div><div id="world-diagram" class="world-diagram" aria-label="Diagram of the current architectural spaces and avatar locations"></div><div class="world-legend" id="world-legend"></div></div>
+            <div class="event-panel advanced-only" hidden><div class="panel-heading"><h4>Latest interactions</h4><span id="interaction-count">0 EVENTS</span></div><div id="latest-events" class="latest-events"><p>Run a generation to see recorded encounters.</p></div></div>
+          </div>
+        </section>
+        <section class="config-view" id="view-diary" role="tabpanel" aria-labelledby="tab-diary" hidden>
+          <div class="view-heading"><div><p class="eyebrow">Follow one path through time</p><h3>Generation diary</h3></div><p>Read the short account first. Open the evidence when you want to see the before-and-after states, interactions, and rules behind it.</p></div>
+          <div id="trajectory-summary" class="trajectory-summary" aria-live="polite"></div>
+          <div class="diary-playback" aria-label="Diary playback controls"><button type="button" class="button" data-diary-step="-1">← Previous</button><button type="button" class="button" id="diary-play-toggle">Play</button><button type="button" class="button" data-diary-step="1">Next →</button></div>
+          <div class="diary-layout"><nav id="diary-timeline" class="diary-timeline" aria-label="Generation entries"></nav><article id="diary-detail" class="diary-detail"><p>Run a generation to begin the diary.</p></article></div>
+        </section>
+        <section class="config-view" id="view-evolution" role="tabpanel" aria-labelledby="tab-evolution" hidden>
+          <div class="view-heading"><div><p class="eyebrow">What changed over time?</p><h3>Evolution & comparison</h3></div><p>Start with a plain-language reading of the recorded path. The chart and comparisons show what that account is based on.</p></div>
+          <div id="evolution-story" class="evolution-story"><p>Run a few generations to see which patterns emerge.</p></div>
+          <div id="evolution-summary" class="evolution-summary"></div>
+          <div class="evolution-layout"><section class="evolution-panel"><h4>Recorded patterns</h4><div id="pattern-list"></div></section><section class="evolution-panel"><h4>Branch comparison</h4><div class="comparison-controls"><label>Path A <select id="compare-left"></select></label><label>Path B <select id="compare-right"></select></label></div><div id="comparison-result"></div></section></div>
+          <div class="chart-panel"><h4>Architecture and avatar change over generations</h4><div id="evolution-chart" class="evolution-chart"></div></div>
+        </section>
+        <div class="config-theory-links" aria-label="Related reading-room sources">
+          <span>READ ALONGSIDE</span>
+          <button type="button" class="source-card-link" data-reading-id="pask-haque">Haque on Pask’s conversational environments ↗</button>
+          <button type="button" class="source-card-link" data-reading-id="negroponte-machines">Negroponte on architecture machines ↗</button>
+          <button type="button" class="source-card-link" data-reading-id="wiscombe-inner-life-models">Wiscombe on models and representation ↗</button>
+          <button type="button" class="source-card-link" data-reading-id="kimmerer-gathering-moss">Kimmerer on moss relations ↗</button>
+          <button type="button" class="source-card-link" data-reading-id="macfarlane-river">Macfarlane on living rivers ↗</button>
+        </div>
+        <p class="config-disclaimer">Model limits: eight diagrammatic spaces; deterministic rules; bounded attributes and resources. These abstractions cannot represent lived experience, ecological complexity, or unequal power. Read the rules and source cards critically.</p>
       </section>
 
       <section class="research" id="research" aria-labelledby="research-heading">
@@ -82,8 +168,12 @@
           <div><h3>Human direction</h3><p>The group proposed Octavia Butler, Audre Lorde, Douglas Adams, and Terry Pratchett; added Robert Macfarlane’s <em>Is a River Alive?</em> and Robin Wall Kimmerer; and identified Kimmerer’s <em>Braiding Sweetgrass</em>, <em>Gathering Moss</em>, and <em>The Serviceberry</em> as valuable sources. The group supplied Diana Beresford-Kroeger’s <em>To Speak for the Trees</em> publisher link, highlighted living ships and bioluminescent university buildings in <em>Binti</em>, and described Adams and Pratchett as sources of critical observations about impersonal or inhuman architecture. These are credited as the group’s ideas; literary prompts are not presented as direct quotations.</p><h3>AI contribution and editorial judgment</h3><p>AI added cards that distinguish fiction, critical lenses, and ecological writing from architectural history, and tied each to a specific question about non-human life, scale, reciprocity, or whose needs a system recognizes. Kandinsky’s manifesto, <em>The Creative Act</em>, and Greg Graffin’s “Punk Manifesto” were considered but not added: without a specific, source-supported connection to the research question, including them would risk stretching the scope. Haraway, Puig de la Bellacasa, Tsing, and Despret remain AI-suggested leads, not sources selected by the group.</p></div>
         </div>
         <div class="log-entry">
+          <span class="log-date">CONFIGURATOR ASSIGNMENT</span>
+          <div><h3>Human-provided brief</h3><p>The group later supplied the assignment “Make It Configurable” and asked to add its roughly 950-line configurator brief to the current published Reading Room. The brief describes “A History of Becoming”: a deterministic, generational simulation in which speculative avatars and modular architecture affect one another; successive states are recorded in a traceable diary; and users can branch, compare, and analyze outcomes. This new request follows the earlier decision to remove a confusing, smaller feedback-loop panel—the two decisions are distinct.</p><h3>AI implementation and limits</h3><p>AI added the simulation as a separate module without replacing the reading collection, including editable avatars and architecture, explicit interaction rules, branchable histories, pattern and comparison views, and local experiment persistence with validated JSON and diary export. The results are rule-based design provocations, not predictions or evidence about actual organisms. The group should compare each rule, assumption, and assessment criterion against the assignment PDF and revise the model accordingly.</p></div>
+        </div>
+        <div class="log-entry">
           <span class="log-date">DESIGN & EDITORIAL DECISIONS</span>
-          <div><h3>Human direction</h3><p>The group described a visual card pile, search and taxonomy filters, slide-out reading details, citations, and a public-facing learning goal. It then specified the interaction: selecting one card should lift it from a slightly blurred pile, show three related readings from different categories for cross-pollination, and keep the detail drawer on the right. The group later asked for the pile to shuffle on each page load so the same cards would not always sit on top. It explicitly chose not to host PDFs, asking instead for information, quotations, and citations. The group rejected the speculative “Working position” copy and later asked to remove the entire cybernetics configurator panel as confusing.</p><h3>AI response</h3><p>The app keeps cards, search, filters, the selected-card view, cross-category recommendations, and the detail drawer; the pile order is randomized once per page load and remains stable while visitors search or filter. The rejected argument and configurator panel are removed. No PDF upload or storage feature is included. This records the group’s design choices rather than attributing them to AI.</p></div>
+          <div><h3>Human direction</h3><p>The group described a visual card pile, search and taxonomy filters, slide-out reading details, citations, and a public-facing learning goal. It then specified the interaction: selecting one card should lift it from a slightly blurred pile, show three related readings from different categories for cross-pollination, and keep the detail drawer on the right. The group later asked for the pile to shuffle on each page load so the same cards would not always sit on top. It explicitly chose not to host PDFs, asking instead for information, quotations, and citations. The group rejected the speculative “Working position” copy and an earlier cybernetics configurator panel as confusing; it subsequently supplied a separate assignment brief for a more complete configurator.</p><h3>AI response</h3><p>The app keeps cards, search, filters, the selected-card view, cross-category recommendations, and the detail drawer; the pile order is randomized once per page load and remains stable while visitors search or filter. The rejected argument and earlier panel remain removed. The new configurator is a separate, assignment-directed feature. No PDF upload or hosting is included. This records the group’s design choices rather than attributing them to AI.</p></div>
         </div>
         <div class="log-examples">
           <h3>Three documented decisions and corrections</h3>
@@ -105,5 +195,8 @@
     </aside>
     <script src="data.js?v=featured-sources-07195f3"></script>
     <script src="app.js?v=featured-sources-07195f3"></script>
+    <script src="coevolution-model.js?v=coevolution-5"></script>
+    <script src="coevolution-storage.js?v=coevolution-5"></script>
+    <script src="coevolution-app.js?v=coevolution-5"></script>
   </body>
 </html>
