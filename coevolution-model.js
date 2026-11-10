@@ -8,7 +8,9 @@
   const SCHEMA_VERSION = 1;
   const VISUAL_FORMS = ['webbed', 'spiral', 'segmented', 'amoeboid', 'geometric', 'atom', 'leaf', 'radial'];
   const VISUAL_TEXTURES = ['hairy', 'slimy', 'matte', 'spiky', 'bumpy', 'veined'];
-  const VISUAL_MORPHOLOGIES = ['branching', 'coiled', 'segmented', 'radial', 'reticular', 'lobed'];
+  const VISUAL_MORPHOLOGIES = ['branching', 'spiral', 'radial', 'cellular', 'waveform', 'geometric', 'coiled', 'segmented', 'reticular', 'lobed'];
+  const PRIMARY_MORPHOLOGIES = ['branching', 'spiral', 'radial', 'cellular', 'waveform', 'geometric'];
+  const VISUAL_TRAITS = ['hairiness', 'bumpiness', 'waviness', 'angularity', 'layering', 'porosity', 'branching', 'connectivity', 'density', 'reach'];
   const ATTRIBUTES = {
     mobility: { label: 'Mobility', description: 'Capacity to move between spaces.' },
     environmentalTolerance: { label: 'Environmental tolerance', description: 'Capacity to withstand temperature and light conditions.' },
@@ -28,11 +30,16 @@
     'architecture.resource-redistribution': 'Resource pressure shifts a bounded amount toward occupied spaces.',
     'architecture.environmental-response': 'Repeated mismatch can shift local light toward occupant preferences.',
     'architecture.capacity-response': 'Sustained occupancy pressure can expand a space within its physical limit.',
+    'architecture.spatial-reconfiguration': 'Movement, resource use, and environmental fit reshape rooms and their positions.',
+    'architecture.space-formation': 'Shared use can generate a new space connected to the places that sustain it.',
+    'architecture.space-retirement': 'Persistently unused, peripheral spaces may be absorbed back into the plan.',
+    'architecture.boundary-adaptation': 'Repeated contact gradually inscribes avatar traits into a localized shared boundary; neighboring spaces inherit the same physical wall.',
     'avatar.environmental-acclimation': 'Environmental exposure changes tolerance, with an adaptability-scaled cap.',
     'avatar.infrastructure-dependence': 'Resource shortfall can increase dependence; sustained abundance can reduce it.',
     'avatar.social-isolation': 'Repeated isolation can reduce collective behaviour; contact can increase it.',
     'avatar.mobility-barrier': 'Repeated blocked movement can change mobility, bounded by adaptability.',
-    'avatar.specialization-tradeoff': 'Acclimation may reduce compatibility with conditions far from the experienced range.'
+    'avatar.specialization-tradeoff': 'Acclimation may reduce compatibility with conditions far from the experienced range.',
+    'avatar.architectural-imprint': 'Repeated contact with a modified boundary gradually transfers its traits into an avatar.'
   };
 
   const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -57,13 +64,13 @@
       return value / 4294967296;
     };
     const stableSeed = Number(seed) >>> 0;
-    const firstMorphology = ((stableSeed ^ (stableSeed >>> 16)) >>> 0) % VISUAL_MORPHOLOGIES.length;
+    const firstMorphology = ((stableSeed ^ (stableSeed >>> 16)) >>> 0) % PRIMARY_MORPHOLOGIES.length;
     const usedMorphologies = new Set(existingMorphologies);
-    const morphologyOffset = Array.from({ length: VISUAL_MORPHOLOGIES.length }, (_, offset) => offset)
-      .find((offset) => !usedMorphologies.has(VISUAL_MORPHOLOGIES[(firstMorphology + offset) % VISUAL_MORPHOLOGIES.length]));
+    const morphologyOffset = Array.from({ length: PRIMARY_MORPHOLOGIES.length }, (_, offset) => offset)
+      .find((offset) => !usedMorphologies.has(PRIMARY_MORPHOLOGIES[(firstMorphology + offset) % PRIMARY_MORPHOLOGIES.length]));
     return {
       seed: stableSeed,
-      morphology: VISUAL_MORPHOLOGIES[(firstMorphology + (morphologyOffset ?? 0)) % VISUAL_MORPHOLOGIES.length],
+      morphology: PRIMARY_MORPHOLOGIES[(firstMorphology + (morphologyOffset ?? 0)) % PRIMARY_MORPHOLOGIES.length],
       paletteHue: round(random() * 360, 1),
       spiralBias: round(random(), 3),
       branchBias: round(random(), 3),
@@ -77,6 +84,68 @@
       rotationBias: round(random(), 3),
       lineWeightBias: round(random(), 3)
     };
+  }
+
+  function normalizeState(state) {
+    if (!state || typeof state !== 'object') return state;
+    state.avatars?.forEach((avatar) => {
+      const normalized = makeAvatar(avatar, state.avatars.indexOf(avatar) + 1);
+      avatar.visualTraits = normalizeVisualTraits(avatar.visualTraits, Number.parseInt(hashText(`${avatar.id}:visual-traits`), 36) >>> 0);
+      avatar.visualTraitProvenance = avatar.visualTraitProvenance || {};
+      avatar.visual = normalized.visual;
+    });
+    if (state.architecture) state.architecture.boundaries = syncBoundaries(state.architecture);
+    return state;
+  }
+
+  function initialVisualTraits(seed) {
+    let value = Number(seed) >>> 0;
+    const random = () => {
+      value = (value * 1664525 + 1013904223) >>> 0;
+      return value / 4294967296;
+    };
+    return Object.fromEntries(VISUAL_TRAITS.map((trait) => [
+      trait,
+      Math.round(25 + random() * 52)
+    ]));
+  }
+
+  function normalizeVisualTraits(traits, seed) {
+    const defaults = initialVisualTraits(seed);
+    return Object.fromEntries(VISUAL_TRAITS.map((trait) => [
+      trait,
+      clamp(Number.isFinite(Number(traits?.[trait])) ? Number(traits[trait]) : defaults[trait], 0, 100)
+    ]));
+  }
+
+  function createBoundary(firstSpaceId, secondSpaceId) {
+    const spaceIds = [firstSpaceId, secondSpaceId].sort(stableCompare);
+    const id = `boundary-${hashText(spaceIds.join('|'))}`;
+    return {
+      id,
+      spaceIds,
+      useCount: 0,
+      lastContactGeneration: 0,
+      segments: Array.from({ length: 5 }, (_, index) => ({
+        index,
+        contactCount: 0,
+        traits: Object.fromEntries(VISUAL_TRAITS.map((trait) => [trait, 0])),
+        sources: []
+      }))
+    };
+  }
+
+  function syncBoundaries(architecture) {
+    const existing = new Map((architecture.boundaries || []).map((boundary) => [boundary.id, boundary]));
+    const next = new Map();
+    architecture.spaces.forEach((space) => {
+      space.connections.forEach((peerId) => {
+        if (stableCompare(space.id, peerId) >= 0) return;
+        const boundary = createBoundary(space.id, peerId);
+        next.set(boundary.id, existing.get(boundary.id) || boundary);
+      });
+    });
+    return [...next.values()].sort((left, right) => stableCompare(left.id, right.id));
   }
 
   function makeAvatar(input = {}, index = 1) {
@@ -112,6 +181,8 @@
       },
       interactionHistory: clone(input.interactionHistory || []),
       generationHistory: clone(input.generationHistory || []),
+      visualTraits: normalizeVisualTraits(input.visualTraits, Number.parseInt(hashText(`${id}:visual-traits`), 36) >>> 0),
+      visualTraitProvenance: clone(input.visualTraitProvenance || {}),
       visual
     };
     return avatar;
@@ -122,8 +193,8 @@
     const resourceAvailability = clamp(Number(options.resourceAvailability ?? 55), 0, 100);
     const adaptability = clamp(Number(options.adaptability ?? 45), 0, 100);
     const positions = [
-      [18, 22], [50, 18], [82, 23], [28, 52],
-      [68, 51], [16, 82], [50, 79], [84, 81]
+      [32, 30], [48, 30], [64, 30], [40, 46],
+      [56, 46], [32, 62], [48, 62], [64, 62]
     ];
     const spaces = positions.map(([x, y], index) => {
       const variation = ((index * 17) % 21) - 10;
@@ -135,6 +206,10 @@
         y,
         width: index === 3 || index === 6 ? 18 : 15,
         height: index === 3 || index === 6 ? 15 : 13,
+        planForm: 'rectilinear',
+        serviceDensity: 0,
+        useCount: 0,
+        lastUsedGeneration: 0,
         temperature: clamp(50 + variation + (index === 2 ? 18 : 0), 0, 100),
         light: clamp(56 + variation + (index === 5 ? -24 : 0), 0, 100),
         resourceCapacity,
@@ -158,7 +233,7 @@
       spaces[to].connections.push(spaces[from].id);
     });
     spaces.forEach((space) => space.connections.sort(stableCompare));
-    return {
+    const architecture = {
       spaces,
       connectivity: round(selectedEdges.length / (spaces.length * (spaces.length - 1) / 2) * 100),
       connectivitySetting: connectivity,
@@ -168,6 +243,8 @@
       transformationHistory: [],
       generation: 0
     };
+    architecture.boundaries = syncBoundaries(architecture);
+    return architecture;
   }
 
   function createInitialState(avatars = [], architectureOptions = {}) {
@@ -228,6 +305,10 @@
         if (avatar.visual.limbCount !== undefined && (!Number.isInteger(avatar.visual.limbCount) || avatar.visual.limbCount < 4 || avatar.visual.limbCount > 12)) errors.push(`${avatar.id} has invalid visual limb count; expected 4–12.`);
         if (avatar.visual.irregularity !== undefined && (!Number.isFinite(avatar.visual.irregularity) || avatar.visual.irregularity < 0 || avatar.visual.irregularity > 100)) errors.push(`${avatar.id} has invalid visual irregularity; expected 0–100.`);
       }
+      if (avatar.visualTraits !== undefined && (!avatar.visualTraits || typeof avatar.visualTraits !== 'object')) errors.push(`${avatar.id} has invalid visual traits.`);
+      else if (avatar.visualTraits) VISUAL_TRAITS.forEach((trait) => {
+        if (!Number.isFinite(avatar.visualTraits[trait]) || avatar.visualTraits[trait] < 0 || avatar.visualTraits[trait] > 100) errors.push(`${avatar.id} has invalid visual trait ${trait}; expected 0–100.`);
+      });
       for (const key of ['temperature', 'light']) {
         const preference = avatar.environmentalPreferences?.[key];
         if (!Number.isFinite(preference) || preference < 0 || preference > 100) errors.push(`${avatar.id} has invalid environmental preference ${key}; expected 0–100.`);
@@ -245,6 +326,12 @@
       spaceIds.add(space.id);
       if (!Number.isFinite(space.availableResources) || !Number.isFinite(space.resourceCapacity) || space.availableResources < 0 || space.availableResources > space.resourceCapacity) errors.push(`${space.id} has resources outside its capacity.`);
       if (!Number.isFinite(space.occupancyCapacity) || space.occupancyCapacity < 1) errors.push(`${space.id} has invalid occupancy capacity.`);
+      if (!Number.isFinite(space.x) || space.x < 0 || space.x > 100 || !Number.isFinite(space.y) || space.y < 0 || space.y > 100) errors.push(`${space.id} has invalid plan position.`);
+      if (!Number.isFinite(space.width) || space.width < 8 || space.width > 28 || !Number.isFinite(space.height) || space.height < 8 || space.height > 24) errors.push(`${space.id} has invalid plan dimensions.`);
+      if (space.planForm !== undefined && !['rectilinear', 'elongated', 'clustered', 'serviced', 'sheltered'].includes(space.planForm)) errors.push(`${space.id} has invalid plan form.`);
+      if (space.serviceDensity !== undefined && (!Number.isInteger(space.serviceDensity) || space.serviceDensity < 0 || space.serviceDensity > 6)) errors.push(`${space.id} has invalid service density.`);
+      if (space.useCount !== undefined && (!Number.isInteger(space.useCount) || space.useCount < 0)) errors.push(`${space.id} has invalid recorded use count.`);
+      if (space.lastUsedGeneration !== undefined && (!Number.isInteger(space.lastUsedGeneration) || space.lastUsedGeneration < 0 || space.lastUsedGeneration > state.generation)) errors.push(`${space.id} has invalid last-used generation.`);
       for (const key of ['temperature', 'light', 'adaptability']) {
         if (!Number.isFinite(space[key]) || space[key] < 0 || space[key] > 100) errors.push(`${space.id} has invalid ${key}; expected 0–100.`);
       }
@@ -258,6 +345,35 @@
         const peer = spaces.find((candidate) => candidate.id === connectionId);
         if (!peer) errors.push(`${space.id} refers to missing connection ${connectionId}.`);
         else if (!peer.connections.includes(space.id)) errors.push(`${space.id} ↔ ${connectionId} connection is not reciprocal.`);
+      }
+    }
+    if (state.architecture?.boundaries !== undefined) {
+      if (!Array.isArray(state.architecture.boundaries)) errors.push('Architecture boundaries must be a list.');
+      else {
+        const boundaryIds = new Set();
+        state.architecture.boundaries.forEach((boundary) => {
+          if (!boundary || typeof boundary !== 'object' || !Array.isArray(boundary.spaceIds) || boundary.spaceIds.length !== 2) {
+            errors.push('Architectural boundary must connect exactly two spaces.');
+            return;
+          }
+          if (!boundary.id || boundaryIds.has(boundary.id)) errors.push(`Architectural boundary ID is missing or duplicated: ${boundary.id || '(missing)'}.`);
+          boundaryIds.add(boundary.id);
+          const [first, second] = boundary.spaceIds;
+          const firstSpace = spaces.find((space) => space.id === first);
+          const secondSpace = spaces.find((space) => space.id === second);
+          if (!firstSpace || !secondSpace || !firstSpace.connections.includes(second) || !secondSpace.connections.includes(first)) {
+            errors.push(`${boundary.id} does not match a reciprocal architectural connection.`);
+          }
+          if (!Array.isArray(boundary.segments) || boundary.segments.length !== 5) errors.push(`${boundary.id} must contain five localized wall segments.`);
+          (boundary.segments || []).forEach((segment, index) => {
+            if (segment.index !== index) errors.push(`${boundary.id} has an invalid wall-segment index.`);
+            VISUAL_TRAITS.forEach((trait) => {
+              const value = segment.traits?.[trait];
+              if (!Number.isFinite(value) || value < 0 || value > 100) errors.push(`${boundary.id} has invalid ${trait} on segment ${index}; expected 0–100.`);
+            });
+            if (!Array.isArray(segment.sources)) errors.push(`${boundary.id} segment ${index} has invalid provenance.`);
+          });
+        });
       }
     }
     return [...new Set(errors)];
@@ -368,7 +484,7 @@
       distancesByAvatar.set(avatar.id, distances);
       const mobilityRange = Math.max(1, Math.floor(avatar.mobility / 22));
       const candidates = architecture.spaces
-        .filter((space) => (distances.get(space.id) || 0) <= mobilityRange && occupancy[space.id] < space.occupancyCapacity)
+        .filter((space) => distances.has(space.id) && distances.get(space.id) <= mobilityRange && occupancy[space.id] < space.occupancyCapacity)
         .map((space) => {
           const compatibility = avatarCompatibility(avatar, space);
           const resourceRatio = space.resourceCapacity ? space.availableResources / space.resourceCapacity : 0;
@@ -491,11 +607,54 @@
     return exposureByAvatar;
   }
 
+  function recordBoundaryContacts(state, placements, events) {
+    const architecture = state.architecture;
+    const boundaries = syncBoundaries(architecture);
+    const boundaryIds = new Set(boundaries.map((boundary) => boundary.id));
+    for (const assignment of placements.assignments.slice().sort((left, right) => stableCompare(left.avatarId, right.avatarId))) {
+      const avatar = state.avatars.find((item) => item.id === assignment.avatarId);
+      if (!avatar) continue;
+      const movement = events.find((event) => event.type === 'movement' && event.avatarIds.includes(avatar.id));
+      const path = movement?.pathSpaceIds || [];
+      const pairs = [];
+      for (let index = 0; index < path.length - 1; index += 1) pairs.push([path[index], path[index + 1]]);
+      if (!pairs.length) {
+        const space = architecture.spaces.find((item) => item.id === assignment.locationId);
+        const neighbors = (space?.connections || []).slice().sort(stableCompare);
+        if (neighbors.length) {
+          const index = Number.parseInt(hashText(`${avatar.visual.seed}:${state.generation + 1}:${space.id}`), 36) % neighbors.length;
+          pairs.push([space.id, neighbors[index]]);
+        }
+      }
+      const uniquePairs = new Map(pairs.map((pair) => {
+        const ids = pair.slice().sort(stableCompare);
+        const boundary = createBoundary(ids[0], ids[1]);
+        return [boundary.id, { boundary, ids }];
+      }));
+      uniquePairs.forEach(({ boundary, ids }) => {
+        if (!boundaryIds.has(boundary.id)) return;
+        const segmentIndex = Number.parseInt(hashText(`${avatar.id}:${boundary.id}`), 36) % 5;
+        const location = round((segmentIndex + .5) / 5, 2);
+        addEvent(events, state.generation + 1, 'boundary-contact', [avatar.id], ids,
+          `${avatar.name} contacted a localized point on the shared boundary between ${ids.join(' and ')}.`,
+          'architecture.boundary-adaptation', {
+            boundaryId: boundary.id,
+            segmentIndex,
+            contactLocation: location,
+            traitChanges: []
+          });
+      });
+    }
+    return boundaries;
+  }
+
   function transformArchitecture(state, interactions, placements, social, resources, exposures, events) {
     const output = clone(resources.architecture);
     const changes = [];
     const modifications = [];
     const architecture = state.architecture;
+    output.boundaries = syncBoundaries(output);
+    const previousBoundaries = clone(output.boundaries);
     output.spaces.forEach((space) => {
       const previous = architecture.spaces.find((item) => item.id === space.id).availableResources;
       const relatedEvents = resources.pressureBySpace[space.id].eventIds;
@@ -618,6 +777,291 @@
       modifications.push({ eventId: event.id, ruleId: event.ruleId, cost: 10, description: `Expanded ${outputSpace.id} and added one occupancy place.` });
     }
 
+    const occupantsBySpace = new Map(output.spaces.map((space) => [space.id, []]));
+    placements.assignments.forEach((assignment) => occupantsBySpace.get(assignment.locationId)?.push(state.avatars.find((avatar) => avatar.id === assignment.avatarId)));
+    const movementBySpace = new Map(output.spaces.map((space) => [space.id, { x: 0, y: 0, eventIds: [] }]));
+    events.filter((event) => event.type === 'movement' && event.pathSpaceIds?.length > 1).forEach((event) => {
+      const avatar = state.avatars.find((item) => item.id === event.avatarIds[0]);
+      if (!avatar) return;
+      for (let index = 0; index < event.pathSpaceIds.length - 1; index += 1) {
+        const from = output.spaces.find((space) => space.id === event.pathSpaceIds[index]);
+        const to = output.spaces.find((space) => space.id === event.pathSpaceIds[index + 1]);
+        if (!from || !to) continue;
+        const dx = to.x - from.x;
+        const dy = to.y - from.y;
+        const distance = Math.hypot(dx, dy) || 1;
+        const pull = 0.45 + avatar.spatialInfluence / 100 * 0.8 + avatar.mobility / 100 * 0.5;
+        const fromShift = movementBySpace.get(from.id);
+        const toShift = movementBySpace.get(to.id);
+        fromShift.x += dx / distance * pull;
+        fromShift.y += dy / distance * pull;
+        toShift.x -= dx / distance * pull;
+        toShift.y -= dy / distance * pull;
+        fromShift.eventIds.push(event.id);
+        toShift.eventIds.push(event.id);
+      }
+    });
+
+    output.spaces.forEach((space) => {
+      const occupantsHere = occupantsBySpace.get(space.id).filter(Boolean);
+      const previousSpace = architecture.spaces.find((item) => item.id === space.id);
+      const causeEventIds = events.filter((event) => event.spaceIds.includes(space.id) && event.avatarIds.length).map((event) => event.id);
+      if (occupantsHere.length) {
+        const previousUseCount = previousSpace.useCount || 0;
+        const previousLastUsed = previousSpace.lastUsedGeneration || 0;
+        space.useCount = previousUseCount + occupantsHere.length;
+        space.lastUsedGeneration = state.generation + 1;
+        addChange(changes, space.id, 'useCount', previousUseCount, space.useCount, causeEventIds, 'architecture.spatial-reconfiguration');
+        addChange(changes, space.id, 'lastUsedGeneration', previousLastUsed, space.lastUsedGeneration, causeEventIds, 'architecture.spatial-reconfiguration');
+
+        const average = (key) => occupantsHere.reduce((sum, avatar) => sum + avatar[key], 0) / occupantsHere.length;
+        const form = average('collectiveBehaviour') >= 62 && occupantsHere.length > 1
+          ? 'clustered'
+          : average('mobility') >= 65
+            ? 'elongated'
+            : average('resourceDependence') >= 68 || average('resourceRequirements') >= 72
+              ? 'serviced'
+              : average('environmentalTolerance') < 35
+                ? 'sheltered'
+                : 'rectilinear';
+        addChange(changes, space.id, 'planForm', previousSpace.planForm || 'rectilinear', form, causeEventIds, 'architecture.spatial-reconfiguration');
+        space.planForm = form;
+
+        const pressure = resources.pressureBySpace[space.id];
+        const influence = occupantsHere.reduce((sum, avatar) => sum + avatar.spatialInfluence, 0) / occupantsHere.length;
+        const resourcePressure = pressure.demand >= space.resourceCapacity * 0.3;
+        if (remainingBudget >= 6 && influence >= 55 && (resourcePressure || space.useCount >= 4)) {
+          const dimension = average('mobility') + average('collectiveBehaviour') >= average('resourceDependence') + average('resourceRequirements')
+            ? 'width'
+            : 'height';
+          const maximum = dimension === 'width' ? 26 : 20;
+          if (space[dimension] < maximum) {
+            const previous = space[dimension];
+            space[dimension] = Math.min(maximum, previous + (resourcePressure ? 2 : 1));
+            remainingBudget -= 6;
+            addChange(changes, space.id, dimension, previous, space[dimension], causeEventIds, 'architecture.spatial-reconfiguration');
+            modifications.push({ eventId: causeEventIds[0], ruleId: 'architecture.spatial-reconfiguration', cost: 6, description: `Expanded the ${dimension} of ${space.name} in response to shared use and demand.` });
+          }
+        }
+
+        const averageDependence = average('resourceDependence');
+        if (averageDependence >= 65 && resourcePressure && (space.serviceDensity || 0) < 6) {
+          const previous = space.serviceDensity || 0;
+          space.serviceDensity = previous + 1;
+          addChange(changes, space.id, 'serviceDensity', previous, space.serviceDensity, causeEventIds, 'architecture.spatial-reconfiguration');
+        }
+      }
+
+      const shift = movementBySpace.get(space.id);
+      if (remainingBudget >= 4 && shift.eventIds.length) {
+        const nextX = round(clamp(space.x + shift.x, Math.max(8, space.width / 2 + 3), Math.min(92, 97 - space.width / 2)));
+        const nextY = round(clamp(space.y + shift.y, Math.max(8, space.height / 2 + 5), Math.min(92, 95 - space.height / 2)));
+        if (nextX !== space.x || nextY !== space.y) {
+          space.x = nextX;
+          space.y = nextY;
+          remainingBudget -= 4;
+        }
+      }
+    });
+
+    if (remainingBudget >= 6) {
+      const dormant = output.spaces
+        .filter((space) => !occupantsBySpace.get(space.id).length && state.generation + 1 - (space.lastUsedGeneration || 0) >= 2)
+        .filter((space) => space.width > 10 || space.height > 9)
+        .sort((left, right) => (left.lastUsedGeneration || 0) - (right.lastUsedGeneration || 0) || stableCompare(left.id, right.id))[0];
+      if (dormant) {
+        const causeEvents = events.filter((event) => event.spaceIds.includes(dormant.id));
+        const event = addEvent(events, state.generation + 1, 'spatial-erosion', [], [dormant.id],
+          `${dormant.name} had no occupants this generation and its unused edge began to recede.`,
+          'architecture.spatial-reconfiguration', { lastUsedGeneration: dormant.lastUsedGeneration || 0 });
+        const dimension = dormant.width > 10 ? 'width' : 'height';
+        const previous = dormant[dimension];
+        dormant[dimension] = Math.max(8, dormant[dimension] - 2);
+        remainingBudget -= 6;
+        addChange(changes, dormant.id, dimension, previous, dormant[dimension], [event.id, ...causeEvents.map((item) => item.id)], 'architecture.spatial-reconfiguration');
+        if ((dormant.serviceDensity || 0) > 0) {
+          const previousServices = dormant.serviceDensity;
+          dormant.serviceDensity -= 1;
+          addChange(changes, dormant.id, 'serviceDensity', previousServices, dormant.serviceDensity, [event.id], 'architecture.spatial-reconfiguration');
+        }
+        modifications.push({ eventId: event.id, ruleId: event.ruleId, cost: 6, description: `Reduced the ${dimension} of unused room ${dormant.name}.` });
+      }
+    }
+
+    let formedSpace = false;
+    if (remainingBudget >= 8 && output.spaces.length < 12) {
+      const formationCandidate = output.spaces
+        .map((space) => ({
+          space,
+          occupants: occupantsBySpace.get(space.id).filter(Boolean),
+          demand: resources.pressureBySpace[space.id].demand
+        }))
+        .filter((candidate) => candidate.occupants.length > 1
+          && candidate.demand >= candidate.space.resourceCapacity * 0.3
+          && candidate.occupants.reduce((sum, avatar) => sum + avatar.spatialInfluence, 0) / candidate.occupants.length >= 60)
+        .sort((left, right) => right.demand - left.demand || stableCompare(left.space.id, right.space.id))[0];
+      if (formationCandidate) {
+        const host = formationCandidate.space;
+        const occupantsHere = formationCandidate.occupants;
+        const causes = events.filter((event) => event.spaceIds.includes(host.id) && event.avatarIds.some((id) => occupantsHere.some((avatar) => avatar.id === id)));
+        const event = addEvent(events, state.generation + 1, 'spatial-formation', occupantsHere.map((avatar) => avatar.id), [host.id],
+          `Shared use and spatial pressure around ${host.name} generated a new adjoining room.`,
+          'architecture.space-formation', { hostSpaceId: host.id, cost: 8, triggeredBy: causes.map((item) => item.id) });
+        const directions = [[20, 0], [-20, 0], [0, 18], [0, -18], [15, 13], [-15, 13], [15, -13], [-15, -13]];
+        const position = directions
+          .map(([dx, dy]) => ({ x: clamp(host.x + dx, 12, 88), y: clamp(host.y + dy, 10, 90) }))
+          .sort((left, right) => {
+            const clearance = (point) => Math.min(...output.spaces.map((space) => Math.hypot(point.x - space.x, point.y - space.y)));
+            return clearance(right) - clearance(left);
+          })[0];
+        const index = output.spaces.length + 1;
+        const newSpace = {
+          id: `space-g${String(state.generation + 1).padStart(3, '0')}-${String(index).padStart(2, '0')}`,
+          name: ['Shared chamber', 'Exchange room', 'Habitat annex', 'Sheltered niche'][state.generation % 4],
+          x: round(position.x),
+          y: round(position.y),
+          width: 12,
+          height: 10,
+          planForm: host.planForm || 'clustered',
+          serviceDensity: 1,
+          useCount: 0,
+          lastUsedGeneration: state.generation + 1,
+          temperature: round(occupantsHere.reduce((sum, avatar) => sum + avatar.environmentalPreferences.temperature, 0) / occupantsHere.length),
+          light: round(occupantsHere.reduce((sum, avatar) => sum + avatar.environmentalPreferences.light, 0) / occupantsHere.length),
+          resourceCapacity: Math.max(24, Math.round(host.resourceCapacity * 0.55)),
+          availableResources: Math.max(0, Math.round(host.availableResources * 0.35)),
+          occupancyCapacity: 2,
+          adaptability: host.adaptability,
+          modificationCost: 8,
+          connections: [host.id],
+          specialisation: 'shared',
+          transformationHistory: []
+        };
+        host.connections.push(newSpace.id);
+        host.connections.sort(stableCompare);
+        output.spaces.push(newSpace);
+        remainingBudget -= 8;
+        formedSpace = true;
+        const previousIds = architecture.spaces.map((space) => space.id);
+        const newIds = output.spaces.map((space) => space.id);
+        addChange(changes, 'architecture', 'spaces', previousIds, newIds, [event.id], event.ruleId);
+        addChange(changes, host.id, 'connections', architecture.spaces.find((space) => space.id === host.id).connections.join(','), host.connections.join(','), [event.id], event.ruleId);
+        modifications.push({ eventId: event.id, ruleId: event.ruleId, cost: 8, description: `Formed ${newSpace.name} beside ${host.name} in response to shared demand.` });
+      }
+    }
+
+    if (!formedSpace && remainingBudget >= 8 && output.spaces.length > 8) {
+      const retired = output.spaces
+        .filter((space) => !occupantsBySpace.has(space.id) || occupantsBySpace.get(space.id).length === 0)
+        .filter((space) => state.generation + 1 - (space.lastUsedGeneration || 0) >= 3 && space.connections.length === 1)
+        .sort((left, right) => (left.lastUsedGeneration || 0) - (right.lastUsedGeneration || 0) || stableCompare(left.id, right.id))[0];
+      if (retired) {
+        const neighbor = output.spaces.find((space) => space.id === retired.connections[0]);
+        const event = addEvent(events, state.generation + 1, 'spatial-retirement', [], [retired.id, neighbor.id],
+          `${retired.name} had remained unused and peripheral; the plan absorbed it and closed its connection to ${neighbor.name}.`,
+          'architecture.space-retirement', { retiredSpaceId: retired.id, neighborSpaceId: neighbor.id });
+        const previousIds = architecture.spaces.map((space) => space.id);
+        neighbor.connections = neighbor.connections.filter((id) => id !== retired.id);
+        output.spaces = output.spaces.filter((space) => space.id !== retired.id);
+        remainingBudget -= 8;
+        addChange(changes, 'architecture', 'spaces', previousIds, output.spaces.map((space) => space.id), [event.id], event.ruleId);
+        addChange(changes, neighbor.id, 'connections', architecture.spaces.find((space) => space.id === neighbor.id).connections.join(','), neighbor.connections.join(','), [event.id], event.ruleId);
+        modifications.push({ eventId: event.id, ruleId: event.ruleId, cost: 8, description: `Absorbed the unused peripheral room ${retired.name}.` });
+      }
+    }
+
+    const positionBeforeResolution = new Map(output.spaces.map((space) => [space.id, { x: space.x, y: space.y }]));
+    const positionCauses = new Map(output.spaces.map((space) => [space.id, new Set(movementBySpace.get(space.id)?.eventIds || [])]));
+    for (let pass = 0; pass < 8; pass += 1) {
+      for (let leftIndex = 0; leftIndex < output.spaces.length; leftIndex += 1) {
+        for (let rightIndex = leftIndex + 1; rightIndex < output.spaces.length; rightIndex += 1) {
+          const left = output.spaces[leftIndex];
+          const right = output.spaces[rightIndex];
+          const dx = right.x - left.x;
+          const dy = right.y - left.y;
+          const overlapX = (left.width + right.width) * .36 + 1 - Math.abs(dx);
+          const overlapY = Math.max(4.5, left.height * .38) + Math.max(4.5, right.height * .38) + 1 - Math.abs(dy);
+          if (overlapX <= 0 || overlapY <= 0) continue;
+          const relatedEvents = events.filter((event) => event.avatarIds.length && (event.spaceIds.includes(left.id) || event.spaceIds.includes(right.id)));
+          if (!relatedEvents.length) {
+            const event = addEvent(events, state.generation + 1, 'spatial-adjustment', [], [left.id, right.id],
+              `The changing room outlines around ${left.name} and ${right.name} required space to remain distinct in the plan.`,
+              'architecture.spatial-reconfiguration');
+            positionCauses.get(left.id).add(event.id);
+            positionCauses.get(right.id).add(event.id);
+          } else {
+            relatedEvents.forEach((event) => {
+              positionCauses.get(left.id).add(event.id);
+              positionCauses.get(right.id).add(event.id);
+            });
+          }
+          const moveX = overlapX < overlapY;
+          const direction = moveX ? (dx || (stableCompare(left.id, right.id) < 0 ? 1 : -1)) : (dy || (stableCompare(left.id, right.id) < 0 ? 1 : -1));
+          const separation = Math.min(4, (moveX ? overlapX : overlapY) / 2 + .5);
+          if (moveX) {
+            left.x = clamp(left.x - Math.sign(direction) * separation, Math.max(8, left.width / 2 + 3), Math.min(92, 97 - left.width / 2));
+            right.x = clamp(right.x + Math.sign(direction) * separation, Math.max(8, right.width / 2 + 3), Math.min(92, 97 - right.width / 2));
+          } else {
+            left.y = clamp(left.y - Math.sign(direction) * separation, Math.max(8, left.height / 2 + 5), Math.min(92, 95 - left.height / 2));
+            right.y = clamp(right.y + Math.sign(direction) * separation, Math.max(8, right.height / 2 + 5), Math.min(92, 95 - right.height / 2));
+          }
+        }
+      }
+    }
+    output.spaces.forEach((space) => {
+      space.x = round(space.x);
+      space.y = round(space.y);
+      const previous = architecture.spaces.find((item) => item.id === space.id) || positionBeforeResolution.get(space.id);
+      if (!previous) return;
+      const causeEventIds = [...positionCauses.get(space.id)];
+      if (space.x !== previous.x) addChange(changes, space.id, 'x', previous.x, round(space.x), causeEventIds, 'architecture.spatial-reconfiguration');
+      if (space.y !== previous.y) addChange(changes, space.id, 'y', previous.y, round(space.y), causeEventIds, 'architecture.spatial-reconfiguration');
+    });
+
+    output.boundaries = syncBoundaries(output);
+    const boundaryChangeEvents = [];
+    events.filter((event) => event.type === 'boundary-contact').forEach((event) => {
+      const boundary = output.boundaries.find((item) => item.id === event.boundaryId);
+      const segment = boundary?.segments[event.segmentIndex];
+      const avatar = state.avatars.find((item) => item.id === event.avatarIds[0]);
+      if (!boundary || !segment || !avatar) return;
+      segment.contactCount += 1;
+      boundary.useCount += 1;
+      boundary.lastContactGeneration = state.generation + 1;
+      boundaryChangeEvents.push(event.id);
+      const response = (.018 + avatar.adaptability / 100 * .065) * (avatar.spatialInfluence / 100);
+      event.traitChanges = [];
+      VISUAL_TRAITS.forEach((trait) => {
+        const previousValue = segment.traits[trait];
+        const sourceValue = avatar.visualTraits[trait];
+        const delta = (sourceValue - previousValue) * response;
+        if (Math.abs(delta) < .35) return;
+        const newValue = round(clamp(previousValue + delta, 0, 100), 2);
+        if (newValue === previousValue) return;
+        segment.traits[trait] = newValue;
+        event.traitChanges.push({ trait, previousValue, newValue });
+        segment.sources.push({
+          avatarId: avatar.id,
+          avatarName: avatar.name,
+          hue: Number(avatar.visual.paletteHue || 0),
+          trait,
+          strength: round(Math.abs(newValue - previousValue), 2),
+          generation: state.generation + 1,
+          eventId: event.id,
+          carriedFrom: (avatar.visualTraitProvenance?.[trait] || []).slice(-3)
+        });
+      });
+      if (event.traitChanges.length) {
+        segment.sources = segment.sources.slice(-40);
+        event.description = `${avatar.name} contacted a localized point on the shared boundary between ${boundary.spaceIds.join(' and ')}; ${event.traitChanges.length} visual trait${event.traitChanges.length === 1 ? '' : 's'} began to accumulate there.`;
+      } else {
+        event.description = `${avatar.name} contacted a localized point on the shared boundary between ${boundary.spaceIds.join(' and ')}; its recorded surface traits held steady.`;
+      }
+    });
+    if (JSON.stringify(previousBoundaries) !== JSON.stringify(output.boundaries)) {
+      addChange(changes, 'architecture', 'boundaries', previousBoundaries, clone(output.boundaries), boundaryChangeEvents, 'architecture.boundary-adaptation');
+    }
+
     output.generation = state.generation + 1;
     output.spaces.forEach((space) => {
       space.transformationHistory = [...space.transformationHistory, ...changes.filter((change) => change.entityId === space.id).map((change) => ({
@@ -630,7 +1074,7 @@
     });
     const previousConnectivity = architecture.connectivity;
     output.connectivity = round(output.spaces.reduce((sum, space) => sum + space.connections.length, 0) / Math.max(1, output.spaces.length * (output.spaces.length - 1)) * 100);
-    const connectionEvents = changes.filter((change) => change.property === 'connections').flatMap((change) => change.causeEventIds);
+    const connectionEvents = changes.filter((change) => ['connections', 'spaces'].includes(change.property)).flatMap((change) => change.causeEventIds);
     addChange(changes, 'architecture', 'connectivity', previousConnectivity, output.connectivity, connectionEvents, 'architecture.connectivity-response');
     output.transformationHistory = [
       ...output.transformationHistory,
@@ -659,7 +1103,7 @@
         const usage = resources.usageByAvatar.get(avatar.id);
         const encounters = social.get(avatar.id) || [];
         const cause = (type) => events.filter((event) => event.avatarIds.includes(avatar.id) && event.type === type).map((event) => event.id);
-        const before = { ...avatar };
+        const before = clone(avatar);
         const rate = Math.round(avatar.adaptability / 20);
         const personalChanges = [];
 
@@ -724,6 +1168,52 @@
           if (change) personalChanges.push(change);
         }
 
+        const boundaryContacts = events.filter((event) => event.type === 'boundary-contact' && event.avatarIds.includes(avatar.id));
+        if (boundaryContacts.length && avatar.adaptability > 0) {
+          const provenance = clone(avatar.visualTraitProvenance || {});
+          VISUAL_TRAITS.forEach((trait) => {
+            const encountered = boundaryContacts.map((event) => {
+              const boundary = state.architecture.boundaries?.find((item) => item.id === event.boundaryId);
+              return { event, segment: boundary?.segments[event.segmentIndex] };
+            }).filter((item) => item.segment);
+            if (!encountered.length) return;
+            const sourcedByOthers = encountered.filter(({ segment }) => segment.sources.some((source) => source.trait === trait && source.avatarId !== avatar.id));
+            const records = sourcedByOthers.length ? sourcedByOthers : encountered;
+            const roomTrait = records.reduce((sum, item) => sum + item.segment.traits[trait], 0) / records.length;
+            const previousValue = avatar.visualTraits[trait];
+            const difference = roomTrait - previousValue;
+            if (difference < 1) return;
+            const response = avatar.adaptability / 100 * .075;
+            const newValue = round(clamp(previousValue + difference * response, 0, 100), 2);
+            if (newValue === previousValue) return;
+            avatar.visualTraits[trait] = newValue;
+            const origins = records.flatMap(({ segment }) => segment.sources
+              .filter((source) => source.trait === trait)
+              .slice(-3)
+              .map((source) => ({
+                avatarId: source.avatarId,
+                eventId: source.eventId,
+                generation: source.generation,
+                carriedFrom: source.carriedFrom || []
+              })));
+            const contact = records[0].event;
+            const record = {
+              generation: state.generation + 1,
+              boundaryId: contact.boundaryId,
+              spaceIds: contact.spaceIds,
+              eventId: contact.id,
+              value: newValue,
+              inheritedFrom: origins
+            };
+            provenance[trait] = [...(provenance[trait] || []), record].slice(-30);
+          });
+          avatar.visualTraitProvenance = provenance;
+          const visualChange = JSON.stringify(before.visualTraits) === JSON.stringify(avatar.visualTraits)
+            ? null
+            : addChange(changes, avatar.id, 'visualTraits', clone(before.visualTraits), clone(avatar.visualTraits), boundaryContacts.map((event) => event.id), 'avatar.architectural-imprint');
+          if (visualChange) personalChanges.push(visualChange);
+        }
+
         avatar.locationId = assignment ? assignment.locationId : avatar.locationId;
         avatar.interactionHistory = [...avatar.interactionHistory, ...events.filter((event) => event.avatarIds.includes(avatar.id)).map((event) => event.id)];
         avatar.generationHistory = [...avatar.generationHistory, {
@@ -738,7 +1228,9 @@
 
   function criticalObservation(avatarChanges, architecturalChanges, interactions, state, nextState) {
     const clauses = [];
-    if (architecturalChanges.some((change) => change.property === 'connections')) clauses.push('the spatial network gained a connection');
+    if (architecturalChanges.some((change) => change.property === 'connections')) clauses.push('the plan gained or altered a passage');
+    if (architecturalChanges.some((change) => change.property === 'spaces')) clauses.push('the plan formed or absorbed a room');
+    if (architecturalChanges.some((change) => ['planForm', 'width', 'height', 'x', 'y', 'serviceDensity'].includes(change.property))) clauses.push('room form, area, position, or built-in services shifted');
     if (architecturalChanges.some((change) => change.property === 'availableResources')) clauses.push('resources were redistributed');
     if (architecturalChanges.some((change) => change.property === 'light')) clauses.push('a space’s light shifted');
     if (architecturalChanges.some((change) => change.property === 'occupancyCapacity')) clauses.push('a space expanded under occupancy pressure');
@@ -750,18 +1242,19 @@
     if (!clauses.length) return 'No transformation rule crossed its threshold in this generation. The unchanged state is retained as a valid outcome; the interaction record shows what did occur.';
     const occupiedBefore = new Set(interactions.filter((event) => ['occupation', 'movement'].includes(event.type)).flatMap((event) => event.spaceIds));
     const occupancyDescription = `${occupiedBefore.size} spaces hosted movement or occupation events`;
-    const changeCount = avatarChanges.length + architecturalChanges.length;
+    const changeCount = avatarChanges.length + architecturalChanges.filter((change) => !['useCount', 'lastUsedGeneration'].includes(change.property)).length;
     return `Across ${occupancyDescription}, ${clauses.join('; ')}. The diary records ${changeCount} measured state change${changeCount === 1 ? '' : 's'}; these outcomes follow this model’s rules and do not imply equal agency.`;
   }
 
   function runGeneration(currentState) {
     assertValidState(currentState);
-    const inputState = clone(currentState);
+    const inputState = normalizeState(clone(currentState));
     const events = [];
     const placements = chooseDestinations(inputState, events);
     const social = evaluateSocialInteractions(inputState, placements, events);
     const resources = allocateResources(inputState, placements, events);
     const exposures = calculateEnvironmentalEvents(inputState, placements, events);
+    recordBoundaryContacts(inputState, placements, events);
     const interactionSummary = { avatarEvents: placements.avatarEvents };
     const architectureResult = transformArchitecture(inputState, interactionSummary, placements, social, resources, exposures, events);
     const avatarResult = transformAvatars(inputState, placements, social, resources, exposures, events);
@@ -853,7 +1346,7 @@
         const avatar = state.avatars.find((item) => item.id === avatarId);
         if (!avatar) throw new RangeError(`Cannot edit unknown avatar in branch: ${avatarId}`);
         for (const [key, value] of Object.entries(patch)) {
-          if (Object.hasOwn(ATTRIBUTES, key) || key === 'resourceRequirements' || key === 'environmentalPreferences') {
+          if (Object.hasOwn(ATTRIBUTES, key) || key === 'resourceRequirements' || key === 'environmentalPreferences' || key === 'visualTraits' || key === 'visual') {
             if (key === 'environmentalPreferences') {
               if (!value || typeof value !== 'object') throw new TypeError(`Invalid branch avatar preferences for ${avatarId}.`);
               for (const preference of ['temperature', 'light']) {
@@ -865,6 +1358,25 @@
               };
               changed.push({ entityId: avatarId, property: key, previousValue: clone(avatar[key]), newValue: nextValue });
               avatar[key] = nextValue;
+              continue;
+            }
+            if (key === 'visualTraits') {
+              if (!value || typeof value !== 'object') throw new TypeError(`Invalid branch visual traits for ${avatarId}.`);
+              const nextValue = { ...avatar.visualTraits };
+              for (const [trait, rawValue] of Object.entries(value)) {
+                if (!VISUAL_TRAITS.includes(trait) || !Number.isFinite(Number(rawValue))) throw new TypeError(`Invalid branch visual trait ${avatarId}.${trait}.`);
+                nextValue[trait] = clamp(Number(rawValue), 0, 100);
+              }
+              changed.push({ entityId: avatarId, property: key, previousValue: clone(avatar.visualTraits), newValue: clone(nextValue) });
+              avatar.visualTraits = nextValue;
+              continue;
+            }
+            if (key === 'visual') {
+              if (!value || typeof value !== 'object' || Object.keys(value).some((field) => field !== 'morphology') || !VISUAL_MORPHOLOGIES.includes(value.morphology)) {
+                throw new TypeError(`Invalid branch visual grammar for ${avatarId}.`);
+              }
+              changed.push({ entityId: avatarId, property: 'visual.morphology', previousValue: avatar.visual.morphology, newValue: value.morphology });
+              avatar.visual.morphology = value.morphology;
               continue;
             }
             const numeric = Number(value);
@@ -942,6 +1454,20 @@
         for (const key of [...Object.keys(ATTRIBUTES), 'resourceRequirements']) {
           if (leftAvatar[key] !== rightAvatar[key]) avatarDifferences.push({ avatarId: leftAvatar.id, property: key, left: leftAvatar[key], right: rightAvatar[key] });
         }
+        VISUAL_TRAITS.forEach((trait) => {
+          if (leftAvatar.visualTraits?.[trait] !== rightAvatar.visualTraits?.[trait]) avatarDifferences.push({
+            avatarId: leftAvatar.id,
+            property: `visualTraits.${trait}`,
+            left: leftAvatar.visualTraits?.[trait],
+            right: rightAvatar.visualTraits?.[trait]
+          });
+        });
+        if (leftAvatar.visual.morphology !== rightAvatar.visual.morphology) avatarDifferences.push({
+          avatarId: leftAvatar.id,
+          property: 'visual.morphology',
+          left: leftAvatar.visual.morphology,
+          right: rightAvatar.visual.morphology
+        });
         for (const key of ['name', 'type']) {
           if (leftAvatar[key] !== rightAvatar[key]) avatarDifferences.push({ avatarId: leftAvatar.id, property: key, left: leftAvatar[key], right: rightAvatar[key] });
         }
@@ -968,6 +1494,24 @@
         }
         if (leftSpace.connections.join('|') !== rightSpace.connections.join('|')) architectureDifferences.push({ spaceId: leftSpace.id, property: 'connections', left: leftSpace.connections, right: rightSpace.connections });
       }
+      const rightBoundaries = new Map((rightHead.outputState.architecture.boundaries || []).map((boundary) => [boundary.id, boundary]));
+      (leftHead.outputState.architecture.boundaries || []).forEach((boundary) => {
+        const peer = rightBoundaries.get(boundary.id);
+        if (JSON.stringify(boundary) !== JSON.stringify(peer)) architectureDifferences.push({
+          spaceId: boundary.id,
+          property: 'boundary traits',
+          left: boundary,
+          right: peer || null
+        });
+      });
+      (rightHead.outputState.architecture.boundaries || []).forEach((boundary) => {
+        if (!(leftHead.outputState.architecture.boundaries || []).some((candidate) => candidate.id === boundary.id)) architectureDifferences.push({
+          spaceId: boundary.id,
+          property: 'boundary traits',
+          left: null,
+          right: boundary
+        });
+      });
     }
     return {
       sharedEntryIds: common,
@@ -1129,6 +1673,7 @@
         '',
         'INPUT ARCHITECTURE',
         ...entry.inputState.architecture.spaces.map((space) => `- ${space.id} ${space.name}: temperature ${space.temperature}, light ${space.light}, resources ${space.availableResources}/${space.resourceCapacity}, occupancy ${space.occupancyCapacity}; connections ${space.connections.join(', ') || 'none'}.`),
+        ...(entry.inputState.architecture.boundaries || []).map((boundary) => `- ${boundary.id} between ${boundary.spaceIds.join(' and ')}: ${boundary.segments.reduce((sum, segment) => sum + segment.contactCount, 0)} localized contacts; traits ${VISUAL_TRAITS.map((trait) => `${trait} ${Math.round(boundary.segments.reduce((sum, segment) => sum + segment.traits[trait], 0) / boundary.segments.length)}`).join(', ')}.`),
         '',
         'INTERACTIONS',
         ...(entry.interactions.length ? entry.interactions.map((event) => `- [${event.id}; ${event.ruleId}] ${event.description}`) : ['- No interaction events recorded.']),
@@ -1144,6 +1689,7 @@
         '',
         'OUTPUT ARCHITECTURE',
         ...entry.outputState.architecture.spaces.map((space) => `- ${space.id} ${space.name}: temperature ${space.temperature}, light ${space.light}, resources ${space.availableResources}/${space.resourceCapacity}, occupancy ${space.occupancyCapacity}; connections ${space.connections.join(', ') || 'none'}.`),
+        ...(entry.outputState.architecture.boundaries || []).map((boundary) => `- ${boundary.id} between ${boundary.spaceIds.join(' and ')}: ${boundary.segments.reduce((sum, segment) => sum + segment.contactCount, 0)} localized contacts; traits ${VISUAL_TRAITS.map((trait) => `${trait} ${Math.round(boundary.segments.reduce((sum, segment) => sum + segment.traits[trait], 0) / boundary.segments.length)}`).join(', ')}.`),
         '',
         `CRITICAL OBSERVATION: ${entry.criticalObservation}`,
         ''
@@ -1159,6 +1705,7 @@
   return {
     SCHEMA_VERSION,
     ATTRIBUTES,
+    VISUAL_TRAITS,
     RULES,
     clamp,
     clone,
@@ -1166,6 +1713,7 @@
     makeAvatar,
     createInitialArchitecture,
     createInitialState,
+    normalizeState,
     validateState,
     runGeneration,
     createBranch,

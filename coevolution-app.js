@@ -3,6 +3,7 @@
 
   const Model = window.CoevolutionModel;
   const Storage = window.CoevolutionStorage;
+  const Visuals = window.CoevolutionVisuals;
   const $ = (selector, scope = document) => scope.querySelector(selector);
   const escapeHTML = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
   const AVATAR_FIELDS = [
@@ -14,6 +15,26 @@
     ['spatialInfluence', 'Spatial influence'],
     ['resourceRequirements', 'Resource requirement']
   ];
+  const VISUAL_TRAIT_LABELS = {
+    hairiness: 'Hairiness',
+    bumpiness: 'Bumpiness',
+    waviness: 'Waviness',
+    angularity: 'Angularity',
+    layering: 'Layering',
+    porosity: 'Porosity',
+    branching: 'Branching',
+    connectivity: 'Connectivity',
+    density: 'Density',
+    reach: 'Reach'
+  };
+  const MORPHOLOGY_LABELS = {
+    branching: 'Branching',
+    spiral: 'Spiral',
+    radial: 'Radial',
+    cellular: 'Cellular',
+    waveform: 'Waveform',
+    geometric: 'Geometric'
+  };
   const ARCHITECTURE_FIELDS = [
     ['connectivitySetting', 'Initial network connectivity'],
     ['resourceAvailability', 'Resource availability'],
@@ -32,6 +53,13 @@
     collectiveBehaviour: 'How likely it is to coordinate or seek contact; higher collective behaviour adds branches to its drawn lines.',
     spatialInfluence: 'How strongly it presses spaces to change; higher influence expands its drawing and gives lines more weight.',
     resourceRequirements: 'How much supply it needs; higher requirements increase the drawing’s hatch density.'
+  };
+  const SPACE_SHELLS = {
+    rectilinear: 'M29 15 C23 15 19 20 20 27 L18 62 C17 71 23 76 32 76 L107 78 C117 78 122 73 120 64 L121 27 C122 19 116 14 107 15 Z',
+    elongated: 'M13 44 C15 28 26 20 43 21 C61 16 79 19 96 17 C116 16 128 25 129 40 C131 55 121 68 103 70 C84 74 66 71 47 73 C26 76 12 64 13 44 Z',
+    clustered: 'M29 19 C40 12 52 16 60 22 C68 12 84 13 90 23 C105 17 119 23 116 36 C130 41 130 57 118 63 C117 75 102 80 91 73 C80 83 66 78 61 70 C47 79 33 74 33 63 C18 60 16 45 26 38 C19 29 22 22 29 19 Z',
+    serviced: 'M27 16 C39 13 48 18 57 16 C67 14 69 21 78 21 C88 21 91 14 103 16 C116 17 122 25 120 36 C118 44 112 45 112 51 C112 57 120 59 119 67 C118 76 108 78 97 76 C84 73 76 79 65 77 C54 75 50 79 39 77 C25 75 19 68 21 58 C23 49 17 44 19 34 C20 25 20 18 27 16 Z',
+    sheltered: 'M24 18 C37 13 49 19 56 29 C63 38 68 42 77 41 C91 39 99 29 114 30 C128 31 128 47 119 56 C109 66 97 63 84 66 C68 69 59 80 43 78 C27 76 18 64 20 49 C21 39 16 28 24 18 Z'
   };
   const WORLD_PRESETS = {
     reciprocal: { name: 'A shared habitat', connectivity: 68, resourceAvailability: 76, adaptability: 72 },
@@ -62,8 +90,8 @@
   }
 
   function generationNarrative(entry) {
-    const spaces = new Map(entry.inputState.architecture.spaces.map((space) => [space.id, space.name]));
-    const avatars = new Map(entry.inputState.avatars.map((avatar) => [avatar.id, avatar.name]));
+    const spaces = new Map([...entry.inputState.architecture.spaces, ...entry.outputState.architecture.spaces].map((space) => [space.id, space.name]));
+    const avatars = new Map([...entry.inputState.avatars, ...entry.outputState.avatars].map((avatar) => [avatar.id, avatar.name]));
     const paragraphs = [];
     const movements = entry.interactions.filter((event) => ['movement', 'occupation', 'capacity-exclusion'].includes(event.type));
     if (movements.length) {
@@ -78,7 +106,7 @@
         if (event.type === 'capacity-exclusion') return `${name} could not find a reachable space with room`;
         return `${name} stayed in ${destination}`;
       });
-      paragraphs.push(`${arrivals.join('; ')}. The network determines which spaces are within reach; temperature, light, and available resources at those spaces shape which destination fits best. Each journey also leaves a visible trace on the route and places it passes.`);
+      paragraphs.push(`${arrivals.join('; ')}. The plan’s connections determine which rooms are within reach; temperature, light, and available resources shape which destination fits best. Each journey also leaves a visible trace on the route and places it passes.`);
     }
     const shortages = entry.interactions.filter((event) => event.type === 'resource-shortage');
     if (shortages.length) {
@@ -112,12 +140,43 @@
       return `${cause} shifted ${name}’s modeled ${trait} from ${change.previousValue} to ${change.newValue}`;
     });
     if (avatarResponses.length) paragraphs.push(`The habitat pushed back on its inhabitants too: ${avatarResponses.join('; ')}. These are the rule-based effects of conditions and movement, not measures of lived experience.`);
-    const architectureChanges = entry.architecturalChanges.filter((change) => change.property !== 'availableResources');
+    const boundaryContacts = entry.interactions.filter((event) => event.type === 'boundary-contact');
+    const boundaryResponses = boundaryContacts.filter((event) => event.traitChanges?.length).slice(0, 3).map((event) => {
+      const avatar = avatars.get(event.avatarIds[0]) || 'An avatar';
+      const spacePair = event.spaceIds.map((id) => spaces.get(id) || id).join(' ↔ ');
+      const strongest = event.traitChanges.slice().sort((left, right) => (right.newValue - right.previousValue) - (left.newValue - left.previousValue))[0];
+      return `${avatar} contacted the shared wall between ${spacePair}; its ${VISUAL_TRAIT_LABELS[strongest.trait]?.toLowerCase() || strongest.trait} trace grew from ${Math.round(strongest.previousValue)} to ${Math.round(strongest.newValue)} at one localized point`;
+    });
+    const traitTransfers = avatarChanges.filter((change) => change.property === 'visualTraits').slice(0, 3).map((change) => {
+      const avatar = avatars.get(change.entityId) || 'An avatar';
+      const transfers = Object.keys(change.newValue).filter((trait) => change.newValue[trait] > change.previousValue[trait] + .1);
+      if (!transfers.length) return null;
+      const provenance = Object.values(entry.outputState.avatars.find((item) => item.id === change.entityId)?.visualTraitProvenance || {}).flat();
+      const source = provenance.at(-1);
+      const roomNames = source?.spaceIds?.map((id) => spaces.get(id) || id).join(' and ');
+      return `${roomNames ? `${roomNames}’s shared wall` : 'A contacted shared wall'} returned ${transfers.slice(0, 2).map((trait) => VISUAL_TRAIT_LABELS[trait]?.toLowerCase() || trait).join(' and ')} to ${avatar}; its drawing now carries that architectural trace`;
+    }).filter(Boolean);
+    if (boundaryResponses.length || traitTransfers.length) {
+      paragraphs.push(`The wall and its inhabitants changed one another: ${[...boundaryResponses, ...traitTransfers].join('. ')}. The same wall state belongs to both neighboring spaces, so its marks can later reach other inhabitants.`);
+    }
+    const architectureChanges = entry.architecturalChanges.filter((change) => !['availableResources', 'useCount', 'lastUsedGeneration'].includes(change.property));
     if (architectureChanges.length) {
       const changes = architectureChanges.map((change) => {
         const space = spaces.get(change.entityId);
+        if (change.property === 'spaces') {
+          const previous = new Set(change.previousValue);
+          const next = new Set(change.newValue);
+          const formed = [...next].filter((id) => !previous.has(id)).map((id) => spaces.get(id) || 'a new room');
+          const absorbed = [...previous].filter((id) => !next.has(id)).map((id) => spaces.get(id) || 'a room');
+          if (formed.length) return `${formed.join(' and ')} formed as new space`;
+          if (absorbed.length) return `${absorbed.join(' and ')} was absorbed into the plan`;
+        }
         if (change.property === 'connections') return `a route between spaces changed`;
         if (change.property === 'connectivity') return `network connectivity shifted from ${change.previousValue} to ${change.newValue}`;
+        if (change.property === 'planForm') return `${space || change.entityId} reshaped into ${/^[aeiou]/i.test(change.newValue) ? 'an' : 'a'} ${change.newValue} room`;
+        if (change.property === 'width' || change.property === 'height') return `${space || change.entityId} ${change.newValue > change.previousValue ? 'grew' : 'receded'} in ${change.property}`;
+        if (change.property === 'x' || change.property === 'y') return `${space || change.entityId} shifted position`;
+        if (change.property === 'serviceDensity') return `${space || change.entityId} ${change.newValue > change.previousValue ? 'gained' : 'shed'} built-in service marks`;
         if (change.property === 'light') return `light in ${space || change.entityId} shifted from ${change.previousValue} to ${change.newValue}`;
         if (change.property === 'occupancyCapacity') return `${space || change.entityId} made room for ${change.newValue} occupants`;
         return `${space || change.entityId} changed in ${change.property}`;
@@ -129,12 +188,18 @@
     }
     const output = entry.outputState;
     const resources = output.architecture.spaces.reduce((sum, space) => sum + space.availableResources, 0).toFixed(1);
-    paragraphs.push(`At the end, ${output.avatars.length} avatars occupy a network with ${output.architecture.connectivity}% connectivity and ${resources} modeled resource units remaining. The account follows the simulation’s rules; it does not predict a real ecosystem.`);
+    paragraphs.push(`At the end, ${output.avatars.length} avatars occupy an abstract plan of ${output.architecture.spaces.length} connected rooms, with ${output.architecture.connectivity}% connectivity and ${resources} modeled resource units remaining. Rooms and routes can shift, grow, or emerge as use changes; this is a thought experiment, not a prediction of a real ecosystem.`);
     return paragraphs;
   }
 
   function newExperiment(name = 'Untitled becoming study') {
-    const rootState = Model.createInitialState(initialAvatars, defaultArchitecture);
+    const usedGrammars = [];
+    const cast = initialAvatars.map((avatar) => {
+      const visual = Model.createVisualDNA(randomInteger(0, 4294967295), usedGrammars);
+      usedGrammars.push(visual.morphology);
+      return { ...avatar, visual };
+    });
+    const rootState = Model.createInitialState(cast, defaultArchitecture);
     return {
       id: createId(),
       name,
@@ -177,8 +242,12 @@
           usedMorphologies.add(visual.morphology);
         }
         visual.morphology = morphologyByAvatarId.get(avatar.id);
+        const normalizedAvatar = Model.makeAvatar(avatar, index + 1);
+        avatar.visualTraits = avatar.visualTraits || normalizedAvatar.visualTraits;
+        avatar.visualTraitProvenance = avatar.visualTraitProvenance || {};
         avatar.visual = visual;
       });
+      Model.normalizeState(simulationState);
     };
     normalizeState(experiment.rootState);
     normalizeState(experiment.headState);
@@ -233,6 +302,8 @@
     const preference = avatar.environmentalPreferences || {};
     const trait = (key) => Model.clamp(Number(avatar[key]) || 0, 0, 100) / 100;
     const dna = avatar.visual || Model.createVisualDNA(Array.from(avatar.id).reduce((sum, char) => sum + char.charCodeAt(0), 0));
+    const visualTraits = avatar.visualTraits || {};
+    const formTrait = (key) => Model.clamp(Number(visualTraits[key]) || 0, 0, 100) / 100;
     const hue = (Number(dna.paletteHue || 0) + (Number(preference.temperature || 0) - 50) * .55 + (Number(preference.light || 0) - 50) * .28 + trait('mobility') * 24 + 360) % 360;
     const paletteCount = Math.max(1, Math.min(5, 1 + Math.round(Number(dna.paletteDiversity || 0) * 2 + trait('adaptability') * 2.5 + trait('collectiveBehaviour') * 1.5)));
     return {
@@ -247,11 +318,12 @@
       tolerance: trait('environmentalTolerance'),
       collective: trait('collectiveBehaviour'),
       influence: trait('spatialInfluence'),
+      visualTraits: Object.fromEntries(Model.VISUAL_TRAITS.map((key) => [key, formTrait(key)])),
       rotation: Number(dna.rotationBias || 0) * 90 + trait('mobility') * 35,
-      lineWeight: .8 + Number(dna.lineWeightBias || 0) * .7 + trait('spatialInfluence') * .45,
+      lineWeight: .8 + Number(dna.lineWeightBias || 0) * .7 + trait('spatialInfluence') * .45 + formTrait('density') * .3,
       paletteDiversity: Number(dna.paletteDiversity || 0),
       dashScale: Number(dna.dashScale || 1) * (.85 + trait('environmentalTolerance') * .35),
-      spread: 27 + Number(dna.spreadBias || 0) * 8 + trait('mobility') * 5 + trait('spatialInfluence') * 11,
+      spread: 27 + Number(dna.spreadBias || 0) * 8 + trait('mobility') * 5 + trait('spatialInfluence') * 8 + formTrait('reach') * 8,
       branchCount: 2 + Math.round(Number(dna.branchBias || 0) * 2 + trait('collectiveBehaviour') * 4),
       contourCount: 1 + Math.round(Number(dna.contourBias || 0) * 2 + trait('adaptability') * 3),
       spiralCount: 1 + Math.round(Number(dna.spiralBias || 0) + trait('resourceDependence') * 2 + trait('resourceRequirements')),
@@ -294,7 +366,7 @@
     return [cx + dx * Math.cos(angle) - dy * Math.sin(angle), cy + dx * Math.sin(angle) + dy * Math.cos(angle)];
   }
 
-  function renderAvatarStructure(profile, colorFor) {
+  function renderAvatarCore(profile, colorFor) {
     const phase = profile.rotation * Math.PI / 180;
     const radius = profile.spread;
     const path = (className, points, colorIndex = 0, close = false) => {
@@ -304,7 +376,7 @@
     const circle = (rx, ry, colorIndex = 0, className = 'avatar-contour', rotation = 0) =>
       `<path class="${className}" d="${ellipsePath(60, 60, rx, ry)}" style="stroke:${colorFor(colorIndex)}" transform="rotate(${rotation.toFixed(1)} 60 60)" />`;
 
-    if (profile.morphology === 'coiled') {
+    if (profile.morphology === 'coiled' || profile.morphology === 'spiral') {
       const turns = 1.15 + profile.spiralCount * .42 + profile.dependence * .7;
       const points = Array.from({ length: 92 }, (_, index) => {
         const t = index / 91;
@@ -347,7 +419,7 @@
       return `${spokes}${circles}${circle(4 + profile.influence * 3, 4 + profile.influence * 3, 0)}`;
     }
 
-    if (profile.morphology === 'reticular') {
+    if (profile.morphology === 'reticular' || profile.morphology === 'cellular') {
       const rings = [radius * .34, radius * .68, radius];
       const points = rings.map((ringRadius, ringIndex) => {
         const pointCount = 6 + ringIndex * 3;
@@ -387,6 +459,34 @@
       return `${outlines}${folds}`;
     }
 
+    if (profile.morphology === 'waveform') {
+      const waves = 2 + Math.round(profile.visualTraits.waviness * 3);
+      const lines = Array.from({ length: waves }, (_, lineIndex) => {
+        const radiusY = radius * (.26 + lineIndex * .16);
+        const points = Array.from({ length: 42 }, (_, index) => {
+          const x = 60 - radius * .82 + index * radius * 1.64 / 41;
+          const y = 60 + Math.sin(index / 41 * Math.PI * 2 * (1 + profile.visualTraits.waviness * 2) + phase + lineIndex) * radiusY * .22;
+          return [x, y];
+        });
+        return path('avatar-contour', points, lineIndex);
+      }).join('');
+      return lines;
+    }
+
+    if (profile.morphology === 'geometric') {
+      const corners = 5 + Math.round(profile.visualTraits.angularity * 7);
+      const layers = 1 + Math.round(profile.visualTraits.layering * 2);
+      return Array.from({ length: layers }, (_, layer) => {
+        const layerRadius = radius * (.92 - layer * .19);
+        const points = Array.from({ length: corners }, (_, index) => {
+          const angle = phase + index * Math.PI * 2 / corners;
+          const scale = index % 2 ? .78 : 1;
+          return [60 + Math.cos(angle) * layerRadius * scale, 60 + Math.sin(angle) * layerRadius * scale];
+        });
+        return path('avatar-contour', points, layer, true);
+      }).join('');
+    }
+
     const stems = 2 + Math.round(profile.collective * 2);
     const branches = Array.from({ length: stems }, (_, index) => {
       const angle = phase + index * Math.PI * 2 / stems;
@@ -407,36 +507,84 @@
     return `${circle(radius * .76, radius * .62, 1)}${branches}`;
   }
 
-  function renderAvatarGlyph(avatar, compact = false, imprint = null) {
-    const profile = avatarDrawingProfile(avatar);
-    const hue = imprint ? mixHue(profile.hue, imprint.hue, imprint.strength * .58) : profile.hue;
-    const palette = Array.from({ length: profile.paletteCount }, (_, index) => {
-      const paletteHue = (hue + index * (17 + profile.paletteDiversity * 42) + 360) % 360;
-      const lightness = 28 + (index % 3) * 8;
-      return `hsl(${paletteHue.toFixed(1)} ${(26 + profile.paletteDiversity * 20).toFixed(1)}% ${lightness}%)`;
-    });
-    const colorFor = (index) => palette[index % palette.length];
-    const hatchCount = Math.round(profile.requirements * 7 + profile.dependence * 3);
-    const hatches = Array.from({ length: hatchCount }, (_, index) => {
-      const row = Math.floor(index / 4);
-      const column = index % 4;
-      const x = 68 + column * 3.5;
-      const y = 42 + row * 3.5;
-      return `<path class="avatar-hatch" d="M${x.toFixed(1)} ${y.toFixed(1)} l2.2 2.2" style="stroke:${colorFor(index + 1)}" />`;
-    }).join('');
-    const dashLength = (2 + profile.dashScale * 2).toFixed(1);
-    const guides = `<path class="avatar-guide" d="M60 14 V22 M60 98 V106 M14 60 H22 M98 60 H106" style="stroke-dasharray:${dashLength} ${(dashLength * .75).toFixed(1)}" />`;
-    const imprintLines = imprint?.strength > .08
-      ? `<path class="avatar-imprint" d="${irregularContour(60, 60, profile.spread * .88, profile.spread * .72, profile.seed + 511, 12, .06 + imprint.density * .06)}" style="stroke:${colorFor(1)};stroke-width:${(.8 + Math.min(.65, imprint.visitedSpaces * .08)).toFixed(1)}px;opacity:${(.34 + imprint.strength * .58).toFixed(2)}" />`
-      : '';
-    const routeImprint = imprint?.routeVisits
-      ? `<path class="avatar-route-imprint" d="${irregularContour(60, 60, profile.spread * .72, profile.spread * .54, profile.seed + 733, 12, .04)}" style="stroke:hsl(${imprint.routeHue} 26% 38%);stroke-width:${(.7 + Math.min(.8, imprint.routeVisits * .08)).toFixed(1)}px;stroke-dasharray:${imprint.routeMobility > .62 ? '5 2' : imprint.routeCollective > .62 ? '1.5 2.5' : '3 2'};opacity:${(.4 + imprint.routeStrength * .48).toFixed(2)}" />`
-      : '';
-    const dash = (2 + profile.dashScale * 2).toFixed(1);
-    return `<svg viewBox="0 0 120 120" class="generated-avatar ${compact ? 'compact-glyph' : ''}" role="img" aria-label="Trait-generated architectural drawing for ${escapeHTML(avatar.name)}${imprint?.strength > .08 ? ', visually influenced by encountered spaces' : ''}" style="--avatar-ink:${colorFor(0)};--avatar-secondary:${colorFor(1)};--avatar-line-opacity:${(.58 + profile.influence * .35).toFixed(2)};--avatar-line-width:${(profile.lineWeight + profile.dependence * .35).toFixed(2)}px;--avatar-dash:${dash}px">
-      ${guides}${renderAvatarStructure(profile, colorFor)}${hatches}${imprintLines}${routeImprint}
-      <path class="avatar-reference" d="M56 60 h8 M60 56 v8" />
-    </svg>`;
+  function renderAvatarStructure(profile, colorFor) {
+    const traits = profile.visualTraits;
+    const phase = profile.rotation * Math.PI / 180;
+    const radius = profile.spread;
+    const point = (angle, distance, yScale = 1) => [60 + Math.cos(angle) * distance, 60 + Math.sin(angle) * distance * yScale];
+    const marks = [];
+
+    const hairs = Math.round(traits.hairiness * 9);
+    for (let index = 0; index < hairs; index += 1) {
+      const angle = phase + index * Math.PI * 2 / hairs;
+      const start = point(angle, radius * .73, .78);
+      const end = point(angle + Math.sin(index * 2.3) * .12, radius * (1.02 + traits.hairiness * .12), .78);
+      marks.push(`<path class="avatar-branch" d="M${start.map((value) => value.toFixed(1)).join(' ')} L${end.map((value) => value.toFixed(1)).join(' ')}" style="stroke:${colorFor(index + 1)};opacity:${(.3 + traits.hairiness * .65).toFixed(2)}" />`);
+    }
+
+    const bumps = Math.round(traits.bumpiness * 8);
+    for (let index = 0; index < bumps; index += 1) {
+      const angle = phase + index * Math.PI * 2 / bumps;
+      const [x, y] = point(angle, radius * .83, .78);
+      const size = 1.2 + traits.bumpiness * 2.2;
+      marks.push(`<circle class="avatar-trait-bump" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${size.toFixed(1)}" style="stroke:${colorFor(index)}" />`);
+    }
+
+    if (traits.waviness > .16) {
+      const waves = 1 + Math.round(traits.waviness * 2);
+      for (let layer = 0; layer < waves; layer += 1) {
+        const points = Array.from({ length: 40 }, (_, index) => {
+          const angle = phase + index * Math.PI * 2 / 39;
+          const wave = Math.sin(angle * (4 + Math.round(traits.waviness * 8))) * traits.waviness * 4;
+          const [x, y] = point(angle, radius * (.55 + layer * .13) + wave, .78);
+          return [x, y];
+        });
+        const coordinates = points.map(([x, y]) => `${x.toFixed(1)} ${y.toFixed(1)}`).join(' L');
+        marks.push(`<path class="avatar-contour avatar-trait-wave" d="M${coordinates}" style="stroke:${colorFor(layer + 1)};opacity:${(.25 + traits.waviness * .62).toFixed(2)}" />`);
+      }
+    }
+
+    const layers = Math.round(traits.layering * 3);
+    for (let layer = 0; layer < layers; layer += 1) {
+      const contour = irregularContour(60, 60, radius * (.42 + layer * .13), radius * (.36 + layer * .1), profile.seed + layer * 31, 8 + layer, .12 + traits.bumpiness * .12);
+      marks.push(`<path class="avatar-contour avatar-trait-layer" d="${contour}" style="stroke:${colorFor(layer + 2)};opacity:${(.22 + traits.layering * .55).toFixed(2)}" />`);
+    }
+
+    const pores = Math.round(traits.porosity * 12);
+    for (let index = 0; index < pores; index += 1) {
+      const angle = phase + index * Math.PI * 2 / Math.max(1, pores);
+      const [x, y] = point(angle, radius * (.28 + (index % 3) * .16), .78);
+      const r = .55 + traits.porosity * .015;
+      marks.push(`<circle class="avatar-trait-pore" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.toFixed(1)}" style="stroke:${colorFor(index + 1)}" />`);
+    }
+
+    const branches = Math.round(traits.branching * 5);
+    for (let index = 0; index < branches; index += 1) {
+      const angle = phase + index * Math.PI * 2 / Math.max(1, branches);
+      const start = point(angle, radius * .22, .78);
+      const joint = point(angle, radius * .62, .78);
+      const end = point(angle + (index % 2 ? 1 : -1) * (.28 + traits.branching * .34), radius * (.86 + traits.reach * .12), .78);
+      marks.push(`<path class="avatar-branch" d="M${start.map((value) => value.toFixed(1)).join(' ')} L${joint.map((value) => value.toFixed(1)).join(' ')} L${end.map((value) => value.toFixed(1)).join(' ')}" style="stroke:${colorFor(index + 2)};opacity:${(.22 + traits.branching * .65).toFixed(2)}" />`);
+    }
+
+    const links = Math.round(traits.connectivity * 4);
+    for (let index = 0; index < links; index += 1) {
+      const first = point(phase + index * Math.PI * 2 / Math.max(1, links), radius * .32, .78);
+      const second = point(phase + (index + 2) * Math.PI * 2 / Math.max(1, links), radius * .72, .78);
+      marks.push(`<path class="avatar-vein avatar-trait-link" d="M${first.map((value) => value.toFixed(1)).join(' ')} Q60 60 ${second.map((value) => value.toFixed(1)).join(' ')}" style="stroke:${colorFor(index)};opacity:${(.2 + traits.connectivity * .62).toFixed(2)}" />`);
+    }
+
+    if (traits.angularity > .15) {
+      const corners = 3 + Math.round(traits.angularity * 5);
+      const points = Array.from({ length: corners }, (_, index) => point(phase + index * Math.PI * 2 / corners, radius * (index % 2 ? .69 : .91), .78));
+      marks.push(`<path class="avatar-vein avatar-trait-angle" d="M${points.map(([x, y]) => `${x.toFixed(1)} ${y.toFixed(1)}`).join(' L')}" style="stroke:${colorFor(2)};opacity:${(.18 + traits.angularity * .6).toFixed(2)}" />`);
+    }
+
+    return `${renderAvatarCore(profile, colorFor)}${marks.join('')}`;
+  }
+
+  function renderAvatarGlyph(avatar, compact = false, imprint = null, roomOutline = null) {
+    return Visuals.renderAvatar(avatar);
   }
 
   function avatarToken(avatar, compact = false, imprint = null) {
@@ -475,16 +623,22 @@
   }
 
   function visualRecordStyle(record, fallbackHue) {
-    if (!record?.weight) return { hue: fallbackHue, mobility: .5, dependence: .3, adaptability: .35, collective: .35, tolerance: .5, requirements: .2, influence: .3, strength: 0, weight: 0, contacts: 0, uses: 0, avatarCount: 0, avatarNames: [] };
+    if (!record?.weight) return { hue: fallbackHue, morphology: 'radial', mobility: .5, dependence: .3, adaptability: .35, collective: .35, tolerance: .5, requirements: .2, influence: .3, strength: 0, weight: 0, contacts: 0, uses: 0, avatarCount: 0, avatarNames: [] };
     const hue = (Math.atan2(record.hueY, record.hueX) * 180 / Math.PI + 360) % 360;
+    const mobility = record.mobility / record.weight;
+    const dependence = record.dependence / record.weight;
+    const collective = record.collective / record.weight;
+    const tolerance = record.tolerance / record.weight;
+    const morphology = collective >= .65 ? 'reticular' : mobility >= .65 ? 'branching' : dependence >= .68 ? 'segmented' : tolerance < .35 ? 'lobed' : 'radial';
     return {
       hue,
-      strength: Math.min(.9, record.weight / (record.weight + 6) * .75 + Math.min(record.uses, 12) / 12 * .25),
-      mobility: record.mobility / record.weight,
-      dependence: record.dependence / record.weight,
+      morphology,
+      strength: Math.min(.94, .28 + .43 * (1 - Math.exp(-record.uses / 3)) + .18 * (1 - Math.exp(-record.weight / 4))),
+      mobility,
+      dependence,
       adaptability: record.adaptability / record.weight,
-      collective: record.collective / record.weight,
-      tolerance: record.tolerance / record.weight,
+      collective,
+      tolerance,
       requirements: record.requirements / record.weight,
       influence: record.influence / record.weight,
       weight: record.weight,
@@ -558,7 +712,7 @@
       const influence = visualRecordStyle(record, environmentHue);
       spaceStyles.set(spaceId, {
         ...influence,
-        hue: mixHue(environmentHue, influence.hue, influence.strength * .72),
+        hue: mixHue(environmentHue, influence.hue, influence.strength * .9),
         environmentHue
       });
     }
@@ -598,11 +752,25 @@
         routeCollective += style.collective * weight;
       }
       if (total) {
+        const primarySpaceId = [...journey.spaces.entries()]
+          .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]))[0]?.[0];
+        const primarySpace = [...lineage].reverse()
+          .map((entry) => entry.outputState.architecture.spaces.find((space) => space.id === primarySpaceId))
+          .find(Boolean)
+          || firstState.architecture.spaces.find((space) => space.id === primarySpaceId);
+        const roomStyle = spaceStyles.get(primarySpaceId);
+        const roomResourceRatio = primarySpace?.resourceCapacity
+          ? primarySpace.availableResources / primarySpace.resourceCapacity
+          : 0;
         avatarImprints.set(avatarId, {
           hue: (Math.atan2(hueY, hueX) * 180 / Math.PI + 360) % 360,
-          strength: Math.min(.88, .18 + strength / total * .72 + Math.min(.16, Math.max(0, journey.spaces.size - 1) * .035)),
+          strength: Math.min(1, .34 + strength / total * .88 + Math.min(.2, Math.max(0, journey.spaces.size - 1) * .05)),
           density: density / total,
           visitedSpaces: journey.spaces.size,
+          planForm: primarySpace?.planForm || 'rectilinear',
+          roomHue: roomStyle?.hue ?? 145,
+          roomResourceCount: Math.round(Math.max(0, Math.min(1, roomResourceRatio)) * 5),
+          roomServiceDensity: primarySpace?.serviceDensity || 0,
           routeHue: routeWeight ? (Math.atan2(routeHueY, routeHueX) * 180 / Math.PI + 360) % 360 : null,
           routeStrength: routeWeight ? routeStrength / routeWeight : 0,
           routeMobility: routeWeight ? routeMobility / routeWeight : 0,
@@ -695,8 +863,18 @@
     return `<div class="range-row avatar-range"><label for="${escapeHTML(avatar.id)}-${field}">${label}</label><output for="${escapeHTML(avatar.id)}-${field}">${Math.round(avatar[field])}</output><input id="${escapeHTML(avatar.id)}-${field}" type="range" min="0" max="100" step="1" value="${Math.round(avatar[field])}" data-avatar-id="${escapeHTML(avatar.id)}" data-field="${field}" /><p class="range-note">${AVATAR_STORIES[field]}</p></div>`;
   }
 
+  function visualTraitRange(avatar, trait) {
+    const id = `${avatar.id}-visual-${trait}`;
+    return `<div class="range-row avatar-range"><label for="${escapeHTML(id)}">${VISUAL_TRAIT_LABELS[trait]}</label><output for="${escapeHTML(id)}">${Math.round(avatar.visualTraits[trait])}</output><input id="${escapeHTML(id)}" type="range" min="0" max="100" step="1" value="${Math.round(avatar.visualTraits[trait])}" data-avatar-id="${escapeHTML(avatar.id)}" data-visual-trait="${trait}" /><p class="range-note">A persistent geometric characteristic, transferred by repeated contact with shared walls.</p></div>`;
+  }
+
   function renderAvatarEditor() {
     const host = $('#avatar-editor-list');
+    const grammarOptions = (avatar) => {
+      const options = { ...MORPHOLOGY_LABELS };
+      if (!options[avatar.visual.morphology]) options[avatar.visual.morphology] = `${avatar.visual.morphology} (saved grammar)`;
+      return Object.entries(options).map(([key, label]) => `<option value="${key}" ${avatar.visual.morphology === key ? 'selected' : ''}>${label}</option>`).join('');
+    };
     host.innerHTML = state.draft.avatars.map((avatar, index) => `
       <details class="avatar-card" ${index === 0 ? 'open' : ''} data-avatar-card="${escapeHTML(avatar.id)}">
         <summary><span class="avatar-summary-name"><span class="avatar-glyph" data-avatar-glyph="${escapeHTML(avatar.id)}">${renderAvatarGlyph(avatar)}</span><span class="avatar-summary-name-text">${escapeHTML(avatar.name)}</span></span><small>${escapeHTML(avatar.type)}</small></summary>
@@ -707,6 +885,11 @@
           ${AVATAR_FIELDS.map(([field, label]) => avatarRange(avatar, field, label)).join('')}
           <label>Preferred temperature<input type="number" min="0" max="100" step="1" value="${avatar.environmentalPreferences.temperature}" data-avatar-id="${escapeHTML(avatar.id)}" data-preference="temperature" /><small class="field-note">The temperature this being tends to seek.</small></label>
           <label>Preferred light<input type="number" min="0" max="100" step="1" value="${avatar.environmentalPreferences.light}" data-avatar-id="${escapeHTML(avatar.id)}" data-preference="light" /><small class="field-note">The brightness this being tends to seek.</small></label>
+          <details class="visual-trait-panel wide">
+            <summary>Visual grammar and transferable traits</summary>
+            <label>Primary geometric family<select data-avatar-id="${escapeHTML(avatar.id)}" data-avatar-grammar>${grammarOptions(avatar)}</select><small class="field-note">The original grammar stays recognizable while acquired traits alter its drawing.</small></label>
+            <div class="visual-trait-grid">${Model.VISUAL_TRAITS.map((trait) => visualTraitRange(avatar, trait)).join('')}</div>
+          </details>
         </div>
         <div class="avatar-actions"><button type="button" data-avatar-action="duplicate" data-avatar-id="${escapeHTML(avatar.id)}">Duplicate</button><button type="button" class="danger" data-avatar-action="remove" data-avatar-id="${escapeHTML(avatar.id)}" ${state.draft.avatars.length <= 1 ? 'disabled' : ''}>Remove</button></div>
       </details>`).join('');
@@ -717,6 +900,12 @@
     renderArchitectureControls();
     renderAvatarEditor();
     $('#starter-cast').innerHTML = state.draft.avatars.map((avatar) => `<article class="starter-being">${avatarToken(avatar)}<div class="starter-being-copy"><strong>${escapeHTML(avatar.name)}</strong><small>${escapeHTML(avatar.type)}</small><p>${escapeHTML(avatar.description || 'An example being with its own preferences and needs.')}</p></div></article>`).join('');
+    $('#configure-world-diagram').innerHTML = Visuals.renderPlan(state.draft, {
+      showNames: true,
+      showAvatars: true,
+      compact: true,
+      ariaLabel: 'Initial interconnected room geometry and avatar placements'
+    });
     document.querySelectorAll('[data-world-preset]').forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.worldPreset === state.selectedPreset)));
   }
 
@@ -754,96 +943,332 @@
     }
   }
 
-  function architectureNodeSvg(style, seed, resourceRatio = .5) {
-    const hue = style.hue;
-    const visitScale = 1 + Math.min(style.uses, 12) * .018;
-    const rx = (56 + resourceRatio * 9) * visitScale;
-    const ry = (33 + resourceRatio * 6) * visitScale;
-    const shell = irregularContour(70, 46, rx, ry, seed, 12, .07 + style.adaptability * .06);
-    const layers = Math.min(5, 1 + Math.floor(style.uses / 2) + Math.round(style.tolerance * 2));
-    const contours = Array.from({ length: layers }, (_, index) => `<path class="space-contour" d="${irregularContour(70, 46, rx * (.82 - index * .13), ry * (.8 - index * .13), seed + index * 91 + 7, 12, .06)}" />`).join('');
-    const rayCount = 2 + Math.round(style.collective * 5);
-    const phase = ((seed * .037) % 360) * Math.PI / 180;
-    const structuralLines = Array.from({ length: rayCount }, (_, index) => {
-      const angle = phase + index * Math.PI * 2 / rayCount;
-      const endX = 70 + Math.cos(angle) * (18 + style.mobility * 27);
-      const endY = 46 + Math.sin(angle) * (10 + style.mobility * 18);
-      return `<path d="M70 46 L${endX.toFixed(1)} ${endY.toFixed(1)}" />`;
-    }).join('');
-    const hatches = Array.from({ length: Math.round((style.dependence * .55 + style.requirements * .45) * 10) }, (_, index) => {
-      const column = index % 5;
-      const row = Math.floor(index / 5);
-      const x = 34 + column * 5;
-      const y = 27 + row * 4;
-      return `<path d="M${x} ${y} l3 -2" />`;
-    }).join('');
-    const stroke = `hsl(${hue.toFixed(1)} 23% 34%)`;
-    const secondary = `hsl(${(hue + 9).toFixed(1)} 17% 49%)`;
-    return `<svg class="space-geometry" viewBox="0 0 140 92" aria-hidden="true" style="--node-ink:${stroke};--node-secondary:${secondary};--node-line:${(1 + style.strength * 1.2 + Math.min(style.uses, 8) * .12).toFixed(1)}px">
-      <path class="space-shell" d="${shell}" />
-      ${contours}
-      <g class="space-structure">${structuralLines}</g>
-      <g class="space-hatch">${hatches}</g>
-      <path class="space-register" d="M9 10 h9 M9 10 v9 M122 82 h9 M131 73 v9" />
-    </svg>`;
+  function clipPowerCell(space, spaces, sites) {
+    const site = sites.get(space.id);
+    let polygon = [[42, 42], [958, 42], [958, 558], [42, 558]];
+    spaces.forEach((other) => {
+      if (other.id === space.id || polygon.length < 3) return;
+      const peer = sites.get(other.id);
+      const a = 2 * (peer.x - site.x);
+      const b = 2 * (peer.y - site.y);
+      const c = peer.x ** 2 + peer.y ** 2 - site.x ** 2 - site.y ** 2 + site.weight ** 2 - peer.weight ** 2;
+      const value = ([x, y]) => a * x + b * y - c;
+      const clipped = [];
+      polygon.forEach((point, index) => {
+        const next = polygon[(index + 1) % polygon.length];
+        const currentValue = value(point);
+        const nextValue = value(next);
+        const currentInside = currentValue <= .001;
+        const nextInside = nextValue <= .001;
+        if (currentInside) clipped.push(point);
+        if (currentInside !== nextInside) {
+          const ratio = currentValue / (currentValue - nextValue);
+          clipped.push([
+            point[0] + (next[0] - point[0]) * ratio,
+            point[1] + (next[1] - point[1]) * ratio
+          ]);
+        }
+      });
+      polygon = clipped;
+    });
+    return polygon;
   }
 
-  function renderWorld(simulationState, entry = null, lineage = []) {
+  function planVertex(point) {
+    const seed = `${point[0].toFixed(1)}:${point[1].toFixed(1)}`.split('').reduce((sum, char) => (sum * 31 + char.charCodeAt(0)) >>> 0, 7);
+    const random = seededRandom(seed);
+    return [
+      point[0] + (random() - .5) * 7,
+      point[1] + (random() - .5) * 7
+    ];
+  }
+
+  function planCellPath(polygon) {
+    const points = polygon.map(planVertex);
+    const midpoint = (first, second) => [(first[0] + second[0]) / 2, (first[1] + second[1]) / 2];
+    let path = `M${midpoint(points.at(-1), points[0]).map((value) => value.toFixed(1)).join(' ')}`;
+    points.forEach((point, index) => {
+      path += ` Q${point.map((value) => value.toFixed(1)).join(' ')} ${midpoint(point, points[(index + 1) % points.length]).map((value) => value.toFixed(1)).join(' ')}`;
+    });
+    return `${path} Z`;
+  }
+
+  function planCellCenter(polygon) {
+    return polygon.reduce((center, point) => [center[0] + point[0] / polygon.length, center[1] + point[1] / polygon.length], [0, 0]);
+  }
+
+  function planEdgeKey(first, second) {
+    return [first, second].map((point) => point.map((value) => value.toFixed(1)).join(',')).sort().join('|');
+  }
+
+  function boundaryTraceMarkup(start, control, end, boundary, fallbackHue) {
+    if (!boundary) return '';
+    const pointAt = (t, offset = 0) => {
+      const inverse = 1 - t;
+      const x = inverse ** 2 * start[0] + 2 * inverse * t * control[0] + t ** 2 * end[0];
+      const y = inverse ** 2 * start[1] + 2 * inverse * t * control[1] + t ** 2 * end[1];
+      const dx = 2 * inverse * (control[0] - start[0]) + 2 * t * (end[0] - control[0]);
+      const dy = 2 * inverse * (control[1] - start[1]) + 2 * t * (end[1] - control[1]);
+      const length = Math.hypot(dx, dy) || 1;
+      return [x - dy / length * offset, y + dx / length * offset];
+    };
+    const pathFor = (points) => `M${points.map(([x, y]) => `${x.toFixed(1)} ${y.toFixed(1)}`).join(' L')}`;
+    const traces = [];
+    boundary.segments.forEach((segment) => {
+      const center = (segment.index + .5) / boundary.segments.length;
+      const around = Math.min(.09, .035 + segment.contactCount * .003);
+      const from = Math.max(.02, center - around);
+      const to = Math.min(.98, center + around);
+      const value = (trait) => Number(segment.traits?.[trait] || 0) / 100;
+      const addStroke = (trait, d, width, opacity = .7) => {
+        const source = segment.sources.slice().reverse().find((item) => item.trait === trait);
+        const hue = source?.hue ?? fallbackHue;
+        traces.push(`<path class="boundary-trait boundary-${trait}" d="${d}" style="--trait-hue:${hue.toFixed(1)};--trait-width:${width.toFixed(1)}px;--trait-opacity:${opacity.toFixed(2)}" />`);
+      };
+
+      const hair = value('hairiness');
+      if (hair > .06) {
+        const count = 1 + Math.round(hair * 4);
+        for (let index = 0; index < count; index += 1) {
+          const t = from + (to - from) * (index + 1) / (count + 1);
+          const root = pointAt(t);
+          const extent = 3 + hair * 9 + value('reach') * 5;
+          [-1, 1].forEach((side) => {
+            const tip = pointAt(t, side * extent);
+            const fork = pointAt(t + (side * around * .42), side * extent * .64);
+            addStroke('hairiness', pathFor([root, fork, tip]), 1 + hair * 1.15, .35 + hair * .62);
+          });
+        }
+      }
+
+      const bump = value('bumpiness');
+      if (bump > .07) {
+        const count = 1 + Math.round(bump * 3);
+        for (let index = 0; index < count; index += 1) {
+          const t = from + (to - from) * (index + 1) / (count + 1);
+          const centerPoint = pointAt(t, (index % 2 ? 1 : -1) * (1.5 + bump * 2));
+          const radius = 1 + bump * 2.8;
+          const source = segment.sources.slice().reverse().find((item) => item.trait === 'bumpiness');
+          traces.push(`<circle class="boundary-trait boundary-bumpiness" cx="${centerPoint[0].toFixed(1)}" cy="${centerPoint[1].toFixed(1)}" r="${radius.toFixed(1)}" style="--trait-hue:${(source?.hue ?? fallbackHue).toFixed(1)};--trait-opacity:${(.3 + bump * .65).toFixed(2)}" />`);
+        }
+      }
+
+      const wave = value('waviness');
+      if (wave > .06) {
+        const points = Array.from({ length: 11 }, (_, index) => {
+          const t = from + (to - from) * index / 10;
+          return pointAt(t, Math.sin(index / 10 * Math.PI * 4) * wave * 5);
+        });
+        addStroke('waviness', pathFor(points), 1.2 + wave * 1.6, .35 + wave * .6);
+      }
+
+      const angle = value('angularity');
+      if (angle > .06) {
+        const points = Array.from({ length: 7 }, (_, index) => {
+          const t = from + (to - from) * index / 6;
+          return pointAt(t, (index % 2 ? 1 : -1) * angle * 5);
+        });
+        addStroke('angularity', pathFor(points), 1.2 + angle * 1.8, .4 + angle * .58);
+      }
+
+      const layers = value('layering');
+      if (layers > .06) {
+        [-1, 1].forEach((side) => {
+          addStroke('layering', pathFor([pointAt(from, side * (2 + layers * 4)), pointAt(to, side * (2 + layers * 4))]), .8 + layers, .3 + layers * .62);
+        });
+      }
+
+      const pores = value('porosity');
+      if (pores > .08) {
+        const count = 1 + Math.round(pores * 4);
+        for (let index = 0; index < count; index += 1) {
+          const t = from + (to - from) * (index + .5) / count;
+          const [x, y] = pointAt(t);
+          traces.push(`<circle class="boundary-trait boundary-porosity" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(1 + pores * 1.4).toFixed(1)}" style="--trait-hue:${fallbackHue.toFixed(1)};--trait-opacity:${(.35 + pores * .6).toFixed(2)}" />`);
+        }
+      }
+
+      const branches = value('branching');
+      if (branches > .08) {
+        const base = pointAt(center);
+        [-1, 1].forEach((side) => {
+          const fork = pointAt(center + side * around * .35, side * (3 + branches * 5));
+          const tip = pointAt(center + side * around, side * (5 + branches * 8));
+          addStroke('branching', pathFor([base, fork, tip]), .9 + branches * 1.1, .3 + branches * .6);
+        });
+      }
+
+      const connectivity = value('connectivity');
+      if (connectivity > .15) {
+        const centerPoint = pointAt(center);
+        const radius = 2 + connectivity * 3;
+        const source = segment.sources.slice().reverse().find((item) => item.trait === 'connectivity');
+        traces.push(`<circle class="boundary-trait boundary-connectivity" cx="${centerPoint[0].toFixed(1)}" cy="${centerPoint[1].toFixed(1)}" r="${radius.toFixed(1)}" style="--trait-hue:${(source?.hue ?? fallbackHue).toFixed(1)};--trait-opacity:${(.35 + connectivity * .6).toFixed(2)}" />`);
+      }
+
+      const density = value('density');
+      if (density > .06) {
+        const count = 1 + Math.round(density * 4);
+        for (let index = 0; index < count; index += 1) {
+          const t = from + (to - from) * (index + 1) / (count + 1);
+          const [x, y] = pointAt(t);
+          const mark = pointAt(t, (index % 2 ? 1 : -1) * (2 + density * 3));
+          addStroke('density', pathFor([[x, y], mark]), .8 + density, .28 + density * .6);
+        }
+      }
+    });
+    return traces.join('');
+  }
+
+  function renderWorldLegacy(simulationState, entry = null, lineage = []) {
     const diagram = $('#world-diagram');
-    const positions = new Map(simulationState.architecture.spaces.map((space) => [space.id, space]));
     const visuals = visualHistory(lineage);
     const recentRoutes = new Set();
     const recentSpaces = new Set();
+    const recentBoundaries = new Set();
     (entry?.interactions || []).forEach((event) => {
+      if (event.type === 'boundary-contact') recentBoundaries.add(event.boundaryId);
       if (!['movement', 'occupation'].includes(event.type)) return;
       (event.pathSpaceIds || []).forEach((spaceId) => recentSpaces.add(spaceId));
       for (let index = 0; index < (event.pathSpaceIds || []).length - 1; index += 1) {
         recentRoutes.add([event.pathSpaceIds[index], event.pathSpaceIds[index + 1]].sort().join('|'));
       }
     });
-    const lines = simulationState.architecture.spaces.flatMap((space) => space.connections
-      .filter((otherId) => space.id < otherId)
-      .map((otherId) => {
-        const peer = positions.get(otherId);
-        const key = [space.id, otherId].sort().join('|');
-        const style = visuals.routeStyles.get(key) || visualRecordStyle(null, 145);
-        const x1 = space.x * 10;
-        const y1 = space.y * 6;
-        const x2 = peer.x * 10;
-        const y2 = peer.y * 6;
-        const bend = style.weight ? (8 + style.mobility * 28) * (space.id.charCodeAt(space.id.length - 1) % 2 ? 1 : -1) : 0;
-        const curveX = (x1 + x2) / 2 - (y2 - y1) / 100 * bend;
-        const curveY = (y1 + y2) / 2 + (x2 - x1) / 100 * bend;
-        const strokeWidth = (1.2 + style.strength * 1.6 + Math.min(2.4, style.uses * .38) + style.influence * .5).toFixed(1);
-        const dash = style.collective > .66 ? '2 3' : style.mobility > .66 ? '7 3' : 'none';
-        const routeNames = style.avatarNames.length ? style.avatarNames.join(', ') : 'no avatar recorded yet';
-        return `<path class="world-route${recentRoutes.has(key) ? ' route-used-this-round' : ''}" d="M${x1} ${y1} Q${curveX.toFixed(1)} ${curveY.toFixed(1)} ${x2} ${y2}" style="--route-hue:${style.hue};--route-width:${strokeWidth}px;--route-opacity:${Math.min(.95, .34 + style.strength * .42 + Math.min(.38, style.uses * .055)).toFixed(2)};--route-dash:${dash}"><title>${style.uses} recorded traversal${style.uses === 1 ? '' : 's'} · ${escapeHTML(routeNames)}</title></path>`;
-      })).join('');
-    const avatarsBySpace = new Map(simulationState.architecture.spaces.map((space) => [space.id, []]));
-    simulationState.avatars.forEach((avatar) => {
-      if (avatarsBySpace.has(avatar.locationId)) avatarsBySpace.get(avatar.locationId).push(avatar);
-    });
-    const nodes = simulationState.architecture.spaces.map((space) => {
+
+    const spaces = simulationState.architecture.spaces;
+    const boundaries = simulationState.architecture.boundaries || [];
+    const boundariesByPair = new Map(boundaries.map((boundary) => [boundary.spaceIds.slice().sort().join('|'), boundary]));
+    const sites = new Map(spaces.map((space) => {
+      const randomSeed = Array.from(space.id).reduce((sum, char) => (sum * 31 + char.charCodeAt(0)) >>> 0, 7);
+      const random = seededRandom(randomSeed);
       const style = visuals.spaceStyles.get(space.id) || visualRecordStyle(null, 145);
-      const occupants = avatarsBySpace.get(space.id);
-      const resourceRatio = space.resourceCapacity ? space.availableResources / space.resourceCapacity : 0;
-      const influenceNote = style.uses
-        ? `<span class="space-influence-note">${style.uses} visit${style.uses === 1 ? '' : 's'} · ${escapeHTML(style.avatarNames.slice(0, 2).join(', '))}${style.avatarNames.length > 2 ? ` +${style.avatarNames.length - 2}` : ''}</span>`
-        : '';
-      return `<div class="world-space${recentSpaces.has(space.id) ? ' space-used-this-round' : ''}" style="left:${space.x}%;top:${space.y}%;--resource-level:${Math.round(space.availableResources / space.resourceCapacity * 100)}%;--node-hue:${style.hue.toFixed(1)};--node-influence:${style.strength.toFixed(2)}">
-        ${architectureNodeSvg(style, space.x + space.y, resourceRatio)}
-        <div class="space-content"><strong>${escapeHTML(space.name)}</strong>
-        <small>${Math.round(space.temperature)}° T · ${Math.round(space.light)} L · ${Math.round(space.availableResources)}/${space.resourceCapacity} R · cap ${space.occupancyCapacity}</small>
-        <span class="avatar-tokens">${occupants.map((avatar) => avatarToken(avatar, true, visuals.avatarImprints.get(avatar.id))).join('')}</span>
-        ${influenceNote}</div>
-      </div>`;
+      const area = Math.sqrt(Math.max(1, Number(space.width) * Number(space.height)));
+      const weight = Math.min(132, 48 + area * 2.4 + Math.min(48, style.uses * 4.5) + style.strength * 9);
+      return [space.id, {
+        x: Math.max(78, Math.min(922, 100 + (Number(space.x) - 32) * 25 + (random() - .5) * 18)),
+        y: Math.max(70, Math.min(530, 80 + (Number(space.y) - 30) * 11 + (random() - .5) * 18)),
+        weight
+      }];
+    }));
+    const cells = spaces.map((space) => {
+      const polygon = clipPowerCell(space, spaces, sites);
+      if (polygon.length < 3) return null;
+      return { space, polygon, center: planCellCenter(polygon), path: planCellPath(polygon) };
+    }).filter(Boolean);
+    const cellsById = new Map(cells.map((cell) => [cell.space.id, cell]));
+    const sharedEdges = new Map();
+    cells.forEach((cell) => {
+      cell.polygon.forEach((point, index) => {
+        const edgeEnd = cell.polygon[(index + 1) % cell.polygon.length];
+        const edgeKey = planEdgeKey(point, edgeEnd);
+        if (!sharedEdges.has(edgeKey)) sharedEdges.set(edgeKey, { first: point, second: edgeEnd, owners: [] });
+        sharedEdges.get(edgeKey).owners.push(cell.space.id);
+      });
+    });
+
+    const cellShapes = cells.map(({ space, polygon, center, path }) => {
+      const style = visuals.spaceStyles.get(space.id) || visualRecordStyle(null, 145);
+      const roomBoundaries = boundaries.filter((boundary) => boundary.spaceIds.includes(space.id));
+      const traceStrength = roomBoundaries.length
+        ? roomBoundaries.reduce((sum, boundary) => sum + boundary.segments.reduce((segmentSum, segment) => segmentSum + Object.values(segment.traits).reduce((traitSum, value) => traitSum + value, 0) / Model.VISUAL_TRAITS.length, 0) / boundary.segments.length, 0) / roomBoundaries.length / 100
+        : 0;
+      const fillLightness = 95 - Math.max(style.strength, traceStrength * .82) * 13;
+      const fillSaturation = 24 + Math.max(style.strength, traceStrength) * 40;
+      const fill = `hsl(${style.hue.toFixed(1)} ${fillSaturation.toFixed(1)}% ${fillLightness.toFixed(1)}%)`;
+      const resourceCount = Math.round(Math.max(0, Math.min(1, Number(space.availableResources) / Math.max(1, Number(space.resourceCapacity)))) * 5);
+      const occupants = simulationState.avatars.filter((avatar) => avatar.locationId === space.id);
+      const avatarWidth = Math.min(40, 118 / Math.max(1, occupants.length));
+      const avatarStart = center[0] - (occupants.length * avatarWidth + Math.max(0, occupants.length - 1) * 2) / 2;
+      const avatars = occupants.map((avatar, index) => {
+        const imprint = visuals.avatarImprints.get(avatar.id);
+        const xs = polygon.map((point) => point[0]);
+        const ys = polygon.map((point) => point[1]);
+        const bounds = { width: Math.max(...xs) - Math.min(...xs), height: Math.max(...ys) - Math.min(...ys) };
+        const roomScale = 82 / Math.max(bounds.width, bounds.height, 1);
+        const roomOutline = imprint?.strength > .08
+          ? `<path class="avatar-place-imprint" d="${path}" transform="translate(60 60) scale(${roomScale.toFixed(3)}) translate(-${center[0].toFixed(1)} -${center[1].toFixed(1)})" style="stroke:hsl(${style.hue.toFixed(1)} 68% 35%);stroke-width:${(2 / roomScale).toFixed(2)}px;stroke-dasharray:${Number(space.serviceDensity) > 1 ? '2 1' : 'none'};opacity:${(.6 + imprint.strength * .35).toFixed(2)}" />`
+          : null;
+        const glyph = renderAvatarGlyph(avatar, true, imprint, roomOutline).replace('<svg viewBox=', `<svg x="${(avatarStart + index * (avatarWidth + 2)).toFixed(1)}" y="${(center[1] + 8).toFixed(1)}" width="${avatarWidth.toFixed(1)}" height="${avatarWidth.toFixed(1)}" viewBox=`);
+        return `<g class="plan-avatar" aria-label="${escapeHTML(avatar.name)}">${glyph}</g>`;
+      }).join('');
+      const resources = Array.from({ length: 5 }, (_, index) => `<circle class="plan-resource${index < resourceCount ? ' available' : ''}" cx="${(center[0] + (index - 2) * 9).toFixed(1)}" cy="${(center[1] + 59).toFixed(1)}" r="2.8" />`).join('');
+      const className = `plan-cell${recentSpaces.has(space.id) ? ' used-this-round' : ''}${!entry?.inputState.architecture.spaces.some((oldSpace) => oldSpace.id === space.id) ? ' formed-this-round' : ''}`;
+      const nameSize = space.name.length > 16 ? 14 : 16;
+      return `<g class="${className}" data-space-id="${escapeHTML(space.id)}" style="--cell-ink:hsl(${style.hue.toFixed(1)} ${Math.min(82, 43 + Math.max(style.strength, traceStrength) * 34).toFixed(1)}% 27%);--cell-fill:${fill};--cell-line:${(2.2 + Math.min(5, style.uses * .42 + traceStrength * 3)).toFixed(1)}px;--cell-dash:${style.collective >= .65 ? '1.5 2.5' : style.mobility >= .65 ? '8 3' : style.dependence >= .68 ? '2 2' : 'none'}">
+        <path class="plan-cell-fill" d="${path}" />
+        <title>${escapeHTML(space.name)} — ${style.uses} recorded uses; ${style.avatarNames.length ? `shaped by ${escapeHTML(style.avatarNames.join(', '))}` : 'not yet used'}</title>
+        <text class="plan-room-name" x="${center[0].toFixed(1)}" y="${(center[1] - 29).toFixed(1)}" font-size="${nameSize}">${escapeHTML(space.name)}</text>
+        <text class="plan-room-conditions" x="${center[0].toFixed(1)}" y="${(center[1] - 10).toFixed(1)}">T ${Math.round(space.temperature)}° · L ${Math.round(space.light)}</text>
+        ${avatars}
+        <g aria-label="${resourceCount} of 5 resource markers available">${resources}</g>
+      </g>`;
     }).join('');
-    diagram.innerHTML = `<svg class="world-connections" viewBox="0 0 1000 600" preserveAspectRatio="none" aria-hidden="true">${lines}</svg>${nodes}`;
+
+    const walls = [...sharedEdges.values()].map(({ first, second, owners }) => {
+      const pair = owners.length === 2 ? owners.slice().sort().join('|') : '';
+      const routeStyle = pair ? visuals.routeStyles.get(pair) : null;
+      const ownerStyle = owners.map((id) => visuals.spaceStyles.get(id)).filter(Boolean).sort((left, right) => right.uses - left.uses)[0];
+      const wallStyle = routeStyle?.uses ? routeStyle : ownerStyle || visualRecordStyle(null, 145);
+      const start = planVertex(first);
+      const end = planVertex(second);
+      const middle = [(start[0] + end[0]) / 2, (start[1] + end[1]) / 2];
+      const boundary = pair ? boundariesByPair.get(pair) : null;
+      const changed = boundary && recentBoundaries.has(boundary.id);
+      const articulation = boundaryTraceMarkup(start, middle, end, boundary, wallStyle.hue);
+      return `<g class="plan-wall-group${changed ? ' wall-contact-this-round' : ''}" data-boundary-id="${escapeHTML(boundary?.id || '')}">
+        <path class="plan-wall" d="M${start.map((value) => value.toFixed(1)).join(' ')} Q${middle.map((value) => value.toFixed(1)).join(' ')} ${end.map((value) => value.toFixed(1)).join(' ')}" style="--wall-ink:hsl(${wallStyle.hue.toFixed(1)} ${Math.min(84, 48 + wallStyle.strength * 34).toFixed(1)}% 29%);--wall-line:${(2.2 + Math.min(5, Math.max(wallStyle.uses * .42, (boundary?.useCount || 0) * .28))).toFixed(1)}px;--wall-dash:${wallStyle.collective >= .65 ? '1.5 2.5' : wallStyle.mobility >= .65 ? '8 3' : wallStyle.dependence >= .68 ? '2 2' : 'none'}" />
+        ${articulation}
+      </g>`;
+    }).join('');
+
+    const doors = [];
+    sharedEdges.forEach(({ first, second, owners }) => {
+      if (owners.length !== 2) return;
+      const [firstId, secondId] = owners;
+      const firstSpace = simulationState.architecture.spaces.find((space) => space.id === firstId);
+      if (!firstSpace?.connections.includes(secondId)) return;
+      const key = [firstId, secondId].sort().join('|');
+      const style = visuals.routeStyles.get(key) || visualRecordStyle(null, 145);
+      const x = (first[0] + second[0]) / 2;
+      const y = (first[1] + second[1]) / 2;
+      const angle = Math.atan2(second[1] - first[1], second[0] - first[0]) * 180 / Math.PI;
+      const boundary = boundariesByPair.get(key);
+      const porosity = boundary ? boundary.segments.reduce((sum, segment) => sum + segment.traits.porosity, 0) / boundary.segments.length / 100 : 0;
+      const radius = 7 + Math.min(5, style.uses * .35) + porosity * 3;
+      const routeNames = style.avatarNames.length ? style.avatarNames.join(', ') : 'no avatar recorded yet';
+      doors.push(`<g class="plan-door${recentRoutes.has(key) ? ' used-this-round' : ''}${boundary && recentBoundaries.has(boundary.id) ? ' wall-contact-this-round' : ''}" transform="translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${angle.toFixed(1)})" style="--door-ink:hsl(${style.hue.toFixed(1)} 66% 30%);--door-size:${radius.toFixed(1)}px">
+        <title>Threshold between ${escapeHTML(cellsById.get(firstId)?.space.name || firstId)} and ${escapeHTML(cellsById.get(secondId)?.space.name || secondId)}; shaped by ${escapeHTML(routeNames)} across ${style.uses} recorded crossings</title>
+        <ellipse class="plan-door-shell" rx="${radius.toFixed(1)}" ry="5.5" />
+        <path class="plan-door-sill" d="M-${(radius - 2).toFixed(1)} 0 H${(radius - 2).toFixed(1)}" />
+      </g>`);
+    });
+
+    diagram.innerHTML = `<svg class="world-plan" viewBox="0 0 1000 600" role="img" aria-label="Organic rooms press against one another. Avatar marks, colored boundaries, and thresholds show where inhabitants have left traces.">
+      <g class="plan-cells">${cellShapes}</g>
+      <g class="plan-walls" aria-hidden="true">${walls}</g>
+      <g class="plan-doors">${doors.join('')}</g>
+    </svg>`;
     $('#world-generation').textContent = `GEN ${String(simulationState.generation).padStart(3, '0')} · ${simulationState.architecture.connectivity}% CONNECTIVITY`;
-    $('#world-legend').innerHTML = `<span class="visual-key">A moving highlight marks this round’s journeys. Paths thicken with repeat use and carry travelers’ traits into their drawings. Visited spaces gather those traits; their climate and resources shape avatar choices and changes.</span>${simulationState.avatars.map((avatar) => `<span class="legend-item">${avatarToken(avatar, true, visuals.avatarImprints.get(avatar.id))}${escapeHTML(avatar.name)}</span>`).join('')}`;
+    $('#world-legend').innerHTML = `<span class="visual-key">Each being leaves a trace. The rooms carry those traces forward—and mark the beings in return.</span>${simulationState.avatars.map((avatar) => `<span class="legend-item">${avatarToken(avatar, true, visuals.avatarImprints.get(avatar.id))}${escapeHTML(avatar.name)}</span>`).join('')}`;
     const events = entry?.interactions || [];
     $('#interaction-count').textContent = `${events.length} EVENTS`;
     $('#latest-events').innerHTML = events.length ? events.map((event) => `<div class="event-record"><strong>${escapeHTML(event.type)} · ${escapeHTML(event.ruleId)}</strong><p>${escapeHTML(event.description)}</p></div>`).join('') : '<p>No interaction events recorded in this generation.</p>';
+  }
+
+  function renderWorld(simulationState, entry = null) {
+    const diagram = $('#world-diagram');
+    diagram.innerHTML = Visuals.renderPlan(simulationState, {
+      showNames: true,
+      showAvatars: true,
+      ariaLabel: `Generation ${simulationState.generation} interconnected room plan`
+    });
+    $('#world-generation').textContent = `GEN ${String(simulationState.generation).padStart(3, '0')} · ${simulationState.architecture.connectivity}% CONNECTIVITY`;
+    $('#world-legend').innerHTML = `<span class="visual-key">Room borders are shared. Their localized textures and avatar forms change only with recorded traits and encounters.</span>${simulationState.avatars.map((avatar) => `<span class="legend-item">${avatarToken(avatar, true)}${escapeHTML(avatar.name)} · ${escapeHTML(avatar.visual.morphology)}</span>`).join('')}`;
+    const events = entry?.interactions || [];
+    $('#interaction-count').textContent = `${events.length} EVENTS`;
+    $('#latest-events').innerHTML = events.length
+      ? events.map((event) => `<div class="event-record"><strong>${escapeHTML(event.type)} · ${escapeHTML(event.ruleId)}</strong><p>${escapeHTML(event.description)}</p></div>`).join('')
+      : '<p>No interaction events recorded in this generation.</p>';
   }
 
   function renderSimulation() {
@@ -868,7 +1293,7 @@
       <p>System adaptability ${simulationState.architecture.adaptability} · resource setting ${simulationState.architecture.resourceAvailability}</p></div>`;
   }
 
-  function systemMapSvg(simulationState, comparisonState, isAfter, visuals) {
+  function systemMapSvgLegacy(simulationState, comparisonState, isAfter, visuals) {
     const spaces = simulationState.architecture.spaces;
     const otherConnections = new Set(comparisonState.architecture.spaces.flatMap((space) => space.connections
       .map((peer) => [space.id, peer].sort().join('|'))));
@@ -909,6 +1334,15 @@
       return `<g><path class="map-space" d="${shape}" fill="none" stroke="hsl(${style.hue.toFixed(1)} 23% 37%)" stroke-width="${(0.7 + style.strength * .6 + Math.min(style.uses, 8) * .08).toFixed(1)}"><title>${escapeHTML(space.name)}: ${style.uses} recorded visit${style.uses === 1 ? '' : 's'} by ${escapeHTML(style.avatarNames.join(', ') || 'no avatar yet')}; ${Math.round(space.temperature)} temperature, ${Math.round(space.availableResources)} of ${space.resourceCapacity} resource</title></path>${inner}${markers}<path d="M${(x - 2).toFixed(1)} ${y.toFixed(1)} h4 M${x.toFixed(1)} ${(y - 2).toFixed(1)} v4" stroke="#747467" stroke-width=".45" /><text x="${x.toFixed(1)}" y="${(y + 13).toFixed(1)}">${escapeHTML(space.id.slice(-2))}</text></g>`;
     }).join('');
     return `<svg viewBox="0 0 250 145" role="img" aria-label="Generative architectural map of spaces, paths, and accumulated visitor traces">${lines}${nodes}</svg>`;
+  }
+
+  function systemMapSvg(simulationState, comparisonState, isAfter) {
+    return Visuals.renderPlan(simulationState, {
+      showNames: false,
+      showAvatars: true,
+      compact: true,
+      ariaLabel: `Shared-room diagram for generation ${simulationState.generation}`
+    });
   }
 
   function avatarVisualHistory(entry, beforeVisuals, afterVisuals) {
@@ -966,7 +1400,7 @@
     `;
   }
 
-  function renderTrajectorySummary(lineage) {
+  function renderTrajectorySummaryLegacy(lineage) {
     const start = lineage[0]?.inputState || state.draft;
     const current = lineage.at(-1)?.outputState || activeBranch().headState;
     const startVisuals = visualHistory([]);
@@ -990,6 +1424,28 @@
         </article>
       </div>
       <div class="trajectory-key"><span><i class="key-route"></i> paths carry encounter color and weight</span><span><i class="key-node"></i> node linework reflects avatar traits</span><span><i class="key-avatar"></i> avatar drawings borrow from encountered spaces</span></div>`;
+  }
+
+  function renderTrajectorySummary(lineage) {
+    const start = lineage[0]?.inputState || state.experiment.rootState || state.draft;
+    const generations = [
+      { generation: 0, simulationState: start, entry: null },
+      ...lineage.map((entry) => ({ generation: entry.generation, simulationState: entry.outputState, entry }))
+    ];
+    const branchLabel = escapeHTML(activeBranch().label);
+    const frames = generations.map(({ generation, simulationState, entry }) => {
+      const contacts = entry?.interactions.filter((event) => event.type === 'boundary-contact').length || 0;
+      const changes = entry ? entry.avatarChanges.length + entry.architecturalChanges.length : 0;
+      return `<article class="trajectory-frame${generation === generations[generations.length - 1].generation ? ' current' : ''}">
+        <header><strong>Generation ${String(generation).padStart(3, '0')}</strong><small>${simulationState.architecture.spaces.length} rooms · ${simulationState.architecture.connectivity}% connected</small></header>
+        <div class="trajectory-map">${Visuals.renderPlan(simulationState, { showNames: false, showAvatars: true, compact: true })}</div>
+        <p>${entry ? `${contacts} wall contacts · ${changes} recorded changes` : 'Initial conditions'}</p>
+      </article>`;
+    }).join('');
+    $('#trajectory-summary').innerHTML = `
+      <div class="trajectory-heading"><div><p class="eyebrow">A living record of the whole path</p><h4>Generation by generation</h4></div><p>${lineage.length} generation${lineage.length === 1 ? '' : 's'} · ${branchLabel}</p></div>
+      <p class="trajectory-explainer">The same room and avatar geometry is carried across each frame. Follow changing room positions, shared wall textures, and avatar forms as they accumulate recorded traits.</p>
+      <div class="trajectory-sequence">${frames}</div>`;
   }
 
   function renderDiary() {
@@ -1099,10 +1555,18 @@
   function renderEvolution() {
     const lineage = activeLineage();
     const head = activeBranch().headState;
+    const initial = lineage[0]?.inputState || state.experiment.rootState;
     const events = lineage.reduce((sum, entry) => sum + entry.interactions.length, 0);
     const changes = lineage.reduce((sum, entry) => sum + entry.avatarChanges.length + entry.architecturalChanges.length, 0);
     $('#evolution-story').innerHTML = Model.evolutionNarrative(lineage).map((paragraph) => `<p>${escapeHTML(paragraph)}</p>`).join('');
     $('#evolution-summary').innerHTML = `<span class="metric-chip">${lineage.length} recorded generations on ${escapeHTML(activeBranch().label)}</span><span class="metric-chip">${head.architecture.connectivity}% network connectivity</span><span class="metric-chip">${head.avatars.length} current avatars</span><span class="metric-chip">${events} interactions · ${changes} state changes</span>`;
+    const avatarRoster = (simulationState) => simulationState.avatars.map((avatar) => `<div class="evolution-avatar"><span class="avatar-glyph">${renderAvatarGlyph(avatar)}</span><span><strong>${escapeHTML(avatar.name)}</strong><small>${escapeHTML(avatar.visual.morphology)} · ${Math.round(avatar.visualTraits.hairiness)} hair · ${Math.round(avatar.visualTraits.waviness)} wave · ${Math.round(avatar.visualTraits.angularity)} angle</small></span></div>`).join('');
+    $('#evolution-visual-comparison').innerHTML = `
+      <div class="trajectory-heading"><div><p class="eyebrow">Same scale · same geometry rules</p><h4>Initial arrangement → evolved arrangement</h4></div><p>Generation 000 → ${String(head.generation).padStart(3, '0')}</p></div>
+      <div class="evolution-visual-pair">
+        <article class="evolution-visual-card"><header><strong>Initial · Generation 000</strong><small>${initial.architecture.spaces.length} rooms · ${initial.architecture.connectivity}% connected</small></header><div class="trajectory-map">${Visuals.renderPlan(initial, { showNames: false, showAvatars: true, compact: true })}</div><div class="evolution-avatar-roster">${avatarRoster(initial)}</div></article>
+        <article class="evolution-visual-card current"><header><strong>Evolved · Generation ${String(head.generation).padStart(3, '0')}</strong><small>${head.architecture.spaces.length} rooms · ${head.architecture.connectivity}% connected</small></header><div class="trajectory-map">${Visuals.renderPlan(head, { showNames: false, showAvatars: true, compact: true })}</div><div class="evolution-avatar-roster">${avatarRoster(head)}</div></article>
+      </div>`;
     const patterns = Model.detectPatterns(lineage);
     $('#pattern-list').innerHTML = patterns.length ? patterns.map((pattern) => `<div class="pattern-card"><strong>${escapeHTML(pattern.label)}</strong><p>${escapeHTML(pattern.evidence)}</p></div>`).join('') : '<p>No cross-generation pattern is evidenced yet. Run at least one generation; some patterns require a longer sequence.</p>';
     renderChart(lineage);
@@ -1188,6 +1652,8 @@
         if (source[field] !== next[field]) patch[field] = next[field];
       }
       if (JSON.stringify(source.environmentalPreferences) !== JSON.stringify(next.environmentalPreferences)) patch.environmentalPreferences = Model.clone(next.environmentalPreferences);
+      if (JSON.stringify(source.visualTraits) !== JSON.stringify(next.visualTraits)) patch.visualTraits = Model.clone(next.visualTraits);
+      if (source.visual.morphology !== next.visual.morphology) patch.visual = { morphology: next.visual.morphology };
       if (Object.keys(patch).length) edits.avatars[source.id] = patch;
     }
     for (const source of sourceState.architecture.spaces) {
@@ -1429,12 +1895,14 @@
         if (!space) return;
         space[spaceField] = Number(event.target.value);
         event.target.previousElementSibling.textContent = event.target.value;
+        $('#configure-world-diagram').innerHTML = Visuals.renderPlan(state.draft, { showNames: true, showAvatars: true, compact: true });
         scheduleSave();
         return;
       }
       if (!field) return;
       state.draft.architecture[field] = Number(event.target.value);
       event.target.previousElementSibling.textContent = event.target.value;
+      $('#configure-world-diagram').innerHTML = Visuals.renderPlan(state.draft, { showNames: true, showAvatars: true, compact: true });
       scheduleSave();
     });
     $('#avatar-editor-list').addEventListener('input', (event) => {
@@ -1451,7 +1919,15 @@
       }
       const preference = event.target.dataset.preference;
       if (preference) avatar.environmentalPreferences[preference] = Model.clamp(Number(event.target.value) || 0, 0, 100);
+      const visualTrait = event.target.dataset.visualTrait;
+      if (visualTrait && Model.VISUAL_TRAITS.includes(visualTrait)) {
+        avatar.visualTraits[visualTrait] = Model.clamp(Number(event.target.value) || 0, 0, 100);
+        const output = event.target.parentElement.querySelector('output');
+        if (output) output.value = event.target.value;
+      }
+      if (event.target.hasAttribute('data-avatar-grammar')) avatar.visual.morphology = event.target.value;
       refreshAvatarVisual(avatar);
+      $('#configure-world-diagram').innerHTML = Visuals.renderPlan(state.draft, { showNames: true, showAvatars: true, compact: true });
       scheduleSave();
     });
     $('#avatar-editor-list').addEventListener('click', (event) => {

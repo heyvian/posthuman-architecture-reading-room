@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css?v=featured-sources-07195f3" />
     <link rel="stylesheet" href="assignment.css?v=featured-sources-07195f3" />
-    <link rel="stylesheet" href="configurator.css?v=coevolution-5" />
+    <link rel="stylesheet" href="configurator.css?v=coevolution-15" />
   </head>
   <body>
     <header class="topbar">
@@ -83,6 +83,10 @@
             <div class="starter-cast" id="starter-cast"></div>
             <p class="starter-note">These are fictional starting conditions, not claims about real species. Choose a world, then let one generation unfold.</p>
           </div>
+          <section class="configure-world-preview" aria-labelledby="configure-world-heading">
+            <div class="panel-heading"><h4 id="configure-world-heading">Starting spatial arrangement</h4><span>SHARED WALLS · OCCUPANTS</span></div>
+            <div id="configure-world-diagram" class="world-diagram"></div>
+          </section>
           <div class="configure-layout advanced-only" id="advanced-configure" hidden>
             <section class="config-panel">
               <h4>Architectural system</h4>
@@ -98,12 +102,12 @@
         </section>
         <section class="config-view" id="view-simulate" role="tabpanel" aria-labelledby="tab-simulate" hidden>
           <div class="view-heading"><div><p class="eyebrow">An explicit rule set · sequential generations</p><h3>Simulate encounters</h3></div><p>Each run uses the previous generation’s complete output. Movement, resource use, environmental fit, encounters, and resulting transformations are recorded.</p></div>
-          <div class="generation-story" id="generation-story"><p>Choose a starting situation, then let the first generation unfold. Follow where the beings go, what they encounter, and what shifts in the shared environment.</p></div>
           <div class="simulation-controls"><button type="button" class="button primary" id="run-one">Meet one generation</button><button type="button" class="button" data-run-count="5">Let five generations unfold</button><button type="button" class="button advanced-only" data-run-count="10" hidden>Run ten generations</button><span id="generation-status" role="status"></span></div>
           <div class="simulation-layout">
-            <div class="world-panel"><div class="panel-heading"><h4>Current spatial network</h4><span id="world-generation">GEN 000</span></div><div id="world-diagram" class="world-diagram" aria-label="Diagram of the current architectural spaces and avatar locations"></div><div class="world-legend" id="world-legend"></div></div>
+            <div class="world-panel"><div class="panel-heading"><h4>Emergent spatial plan</h4><span id="world-generation">GEN 000</span></div><div id="world-diagram" class="world-diagram" aria-label="Abstract floor plan showing changing rooms, connections, and avatar locations"></div><div class="world-legend" id="world-legend"></div></div>
             <div class="event-panel advanced-only" hidden><div class="panel-heading"><h4>Latest interactions</h4><span id="interaction-count">0 EVENTS</span></div><div id="latest-events" class="latest-events"><p>Run a generation to see recorded encounters.</p></div></div>
           </div>
+          <div class="generation-story" id="generation-story"><p>Choose a starting situation, then let the first generation unfold. Follow where the beings go, what they encounter, and what shifts in the shared environment.</p></div>
         </section>
         <section class="config-view" id="view-diary" role="tabpanel" aria-labelledby="tab-diary" hidden>
           <div class="view-heading"><div><p class="eyebrow">Follow one path through time</p><h3>Generation diary</h3></div><p>Read the short account first. Open the evidence when you want to see the before-and-after states, interactions, and rules behind it.</p></div>
@@ -115,6 +119,7 @@
           <div class="view-heading"><div><p class="eyebrow">What changed over time?</p><h3>Evolution & comparison</h3></div><p>Start with a plain-language reading of the recorded path. The chart and comparisons show what that account is based on.</p></div>
           <div id="evolution-story" class="evolution-story"><p>Run a few generations to see which patterns emerge.</p></div>
           <div id="evolution-summary" class="evolution-summary"></div>
+          <div id="evolution-visual-comparison" class="evolution-visual-comparison"></div>
           <div class="evolution-layout"><section class="evolution-panel"><h4>Recorded patterns</h4><div id="pattern-list"></div></section><section class="evolution-panel"><h4>Branch comparison</h4><div class="comparison-controls"><label>Path A <select id="compare-left"></select></label><label>Path B <select id="compare-right"></select></label></div><div id="comparison-result"></div></section></div>
           <div class="chart-panel"><h4>Architecture and avatar change over generations</h4><div id="evolution-chart" class="evolution-chart"></div></div>
         </section>
@@ -195,8 +200,9 @@
     </aside>
     <script src="data.js?v=featured-sources-07195f3"></script>
     <script src="app.js?v=featured-sources-07195f3"></script>
-    <script src="coevolution-model.js?v=coevolution-5"></script>
-    <script src="coevolution-storage.js?v=coevolution-5"></script>
-    <script src="coevolution-app.js?v=coevolution-5"></script>
+    <script src="coevolution-model.js?v=coevolution-15"></script>
+    <script src="coevolution-storage.js?v=coevolution-15"></script>
+    <script src="coevolution-visuals.js?v=coevolution-15"></script>
+    <script src="coevolution-app.js?v=coevolution-15"></script>
   </body>
 </html>
