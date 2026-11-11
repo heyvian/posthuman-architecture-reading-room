@@ -34,9 +34,10 @@ const pilePositions = [
 const pileScales = [0.94, 1.03, 0.98, 1.08, 0.92];
 
 const escapeHTML = (value) => String(value).replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+const themeClass = (theme) => `theme-${theme.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
 
 function renderFilters() {
-  filterBox.innerHTML = ['All ideas', ...allThemes].map((theme) => `<button class="filter-chip ${activeTheme === theme ? 'selected' : ''}" data-theme="${escapeHTML(theme)}" aria-pressed="${activeTheme === theme}">${escapeHTML(theme)}</button>`).join('');
+  filterBox.innerHTML = ['All ideas', ...allThemes].map((theme) => `<button class="filter-chip ${theme === 'All ideas' ? '' : themeClass(theme)} ${activeTheme === theme ? 'selected' : ''}" data-theme="${escapeHTML(theme)}" aria-pressed="${activeTheme === theme}">${escapeHTML(theme)}</button>`).join('');
   filterBox.querySelectorAll('button').forEach((button) => button.addEventListener('click', () => {
     activeTheme = button.dataset.theme;
     renderFilters();
@@ -69,7 +70,7 @@ function renderCard(item, index, mode = 'pile') {
     ? `style="--pile-x:${pile[0]}%;--pile-y:${pile[1]}%;--pile-angle:${pile[2]}deg;--pile-scale:${pileScales[index % pileScales.length]};--pile-depth:${index}"`
     : '';
   return `
-    <button class="reading-card ${escapeHTML(item.color)} ${mode === 'picked' ? 'picked-card' : ''}" ${pileStyle} data-id="${escapeHTML(item.id)}" aria-label="Pick up ${escapeHTML(item.title)}">
+    <button class="reading-card ${themeClass(item.theme)} ${mode === 'picked' ? 'picked-card' : ''}" ${pileStyle} data-id="${escapeHTML(item.id)}" aria-label="Pick up ${escapeHTML(item.title)}">
       <span class="card-meta"><span>${escapeHTML(item.type)}</span><span>${String(index + 1).padStart(2, '0')} / ${escapeHTML(item.year)}</span></span>
       <span class="card-art" aria-hidden="true"><span class="art-symbol">${escapeHTML(item.symbol)}</span><span class="art-caption">${escapeHTML(item.theme.toUpperCase())}<br />STUDIES IN RELATION</span></span>
       <span class="card-copy"><span class="card-theme">${escapeHTML(item.theme)}</span><span class="card-title">${escapeHTML(item.title)}</span><span class="card-subtitle">${escapeHTML(item.subtitle)}</span><span class="card-quote"><span class="quote-kind">${escapeHTML(item.quoteType || 'Reading prompt')}</span><span class="quote-text">${escapeHTML(item.quote)}</span>${item.quoteCredit ? `<span class="quote-credit">— ${escapeHTML(item.quoteCredit)}</span>` : ''}</span><span class="card-tags">${item.tags.slice(0, 3).map((tag) => `<span>${escapeHTML(tag)}</span>`).join('')}</span></span>
@@ -120,7 +121,7 @@ function openReading(id) {
   pickedMain.innerHTML = renderCard(item, cardIndex, 'picked');
   pickedMain.querySelector('.reading-card').addEventListener('click', () => openReading(item.id));
   relatedCards.innerHTML = relatedReadings(item).map((related, index) => `
-    <button class="related-card ${escapeHTML(related.color)}" data-id="${escapeHTML(related.id)}" aria-label="Pick up related reading: ${escapeHTML(related.title)}">
+    <button class="related-card ${themeClass(related.theme)}" data-id="${escapeHTML(related.id)}" aria-label="Pick up related reading: ${escapeHTML(related.title)}">
       <span class="related-art">${escapeHTML(related.symbol)}</span>
       <span class="related-copy"><span class="card-theme">${escapeHTML(related.theme)}</span><strong>${escapeHTML(related.title)}</strong><small>${escapeHTML(related.type)}</small></span>
     </button>`).join('');
@@ -129,7 +130,7 @@ function openReading(id) {
   library.classList.add('has-selection');
   drawerContent.innerHTML = `
     <p class="eyebrow drawer-kicker">${escapeHTML(item.type)} &nbsp;·&nbsp; ${escapeHTML(item.year)}</p>
-    <div class="drawer-art ${escapeHTML(item.color)}"><span>${escapeHTML(item.symbol)}</span><small>${escapeHTML(item.theme.toUpperCase())} / FIELD NOTE</small></div>
+    <div class="drawer-art ${themeClass(item.theme)}"><span>${escapeHTML(item.symbol)}</span><small>${escapeHTML(item.theme.toUpperCase())} / FIELD NOTE</small></div>
     <p class="card-theme">${escapeHTML(item.theme)}</p>
     <h2>${escapeHTML(item.title)}</h2><p class="drawer-subtitle">${escapeHTML(item.subtitle)}</p>
     <blockquote><span class="quote-kind">${escapeHTML(item.quoteType || 'Reading prompt')}</span><span class="quote-text">${escapeHTML(item.fullQuote || item.quote)}</span>${item.quoteCredit ? `<cite class="quote-credit">— ${escapeHTML(item.quoteCredit)}</cite>` : ''}</blockquote>

@@ -11,10 +11,11 @@ Open `index.html` in a browser. This prototype uses plain HTML, CSS, and JavaScr
 ## What is here
 
 - Searchable reading cards scattered and overlapped across a tabletop, with graphic covers, quotes, tags, and taxonomy filters
+- A distinct color for each idea category, shared by its filter and reading cards
 - A selected-card view that softens the pile and surfaces three related readings from distinct categories
 - A slide-out detail view with summaries, references, and citation fields; it adapts to a bottom drawer on narrower screens
 - Search across reading prompts, tags, source notes, and citations
-- 40 reading cards spanning cybernetics, architecture, more-than-human theory, ecology, and speculative fiction
+- 38 reading cards spanning cybernetics, architecture, more-than-human theory, ecology, and speculative fiction
 - A newly shuffled card order on each page load, held steady while searching and filtering
 - Two featured course readings under “Sources in conversation,” selected for their close fit with the research question and linked directly to their reading cards
 - A native interactive “A History of Becoming” ecology model directly below the card pile, with adjustable conditions, playback controls, and a history timeline
@@ -24,7 +25,7 @@ Open `index.html` in a browser. This prototype uses plain HTML, CSS, and JavaScr
 
 Edit `data.js` to curate reading cards. Keep direct excerpts distinguishable from original editorial reading prompts. Attribute every excerpt and include its supplied-PDF locator where available; verify wording and pagination against the published edition before formal use. `quote` is the short card-face excerpt; `fullQuote` expands it in the detail view, and `quoteLocator` records its source location. Cards based on image-only scans use reading prompts rather than direct excerpts. Add reliable links to publisher, archive, or library records in `sources` when available; the full citation remains in `citation`.
 
-The MoMA Magazine and ACM Digital Library links came from the group’s pitch and still need bibliographic verification. The initial course PDFs are course outlines and reading-list handouts; the group later supplied eleven reading PDFs and seven additional unique readings, plus four reattached copies of earlier readings. Short excerpts from text-readable files are labeled with PDF-page locators; the Banham, Woods, “Discreteness,” Tafuri, Venturi, Eisenman, and Foucault scans yielded no selectable text and are not quoted. Cards for Kimmerer’s additional books, Beresford-Kroeger, and the literary works use attributed reading prompts because their full texts were not supplied. The direct *Braiding Sweetgrass* excerpt is sourced to the publisher page and needs a page number checked in the group’s edition.
+The MoMA Magazine and ACM Digital Library links came from the group’s pitch and still need bibliographic verification. The initial course PDFs are course outlines and reading-list handouts; the group later supplied eleven reading PDFs and seven additional unique readings, plus four reattached copies of earlier readings. Short excerpts from text-readable files are labeled with PDF-page locators; the Banham, Woods, “Discreteness,” Tafuri, Venturi, Eisenman, and Foucault scans yielded no selectable text and are not quoted. Selected literary cards contain short excerpts supplied by the owner; links and locators identify accessible sources where available. The direct *Braiding Sweetgrass* excerpt is sourced to the publisher page and needs a page number checked in the group’s edition.
 
 The *Binti* card also references Janet Seow’s supplied scholarly article on Africanfuturism and Black girlhood; its architectural interpretation comes from the project’s research question. The *Hitchhiker’s Guide* card draws on the owner’s examples and links to a fan reference covering technology across the series.
 
