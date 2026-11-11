@@ -15,7 +15,7 @@ Open `index.html` in a browser. This prototype uses plain HTML, CSS, and JavaScr
 - A selected-card view that softens the pile and surfaces three related readings from distinct categories
 - A slide-out detail view with summaries, references, and citation fields; it adapts to a bottom drawer on narrower screens
 - Search across reading prompts, tags, source notes, and citations
-- 38 reading cards spanning cybernetics, architecture, more-than-human theory, ecology, and speculative fiction
+- 40 reading cards spanning cybernetics, architecture, more-than-human theory, ecology, and speculative fiction
 - A newly shuffled card order on each page load, held steady while searching and filtering
 - Two featured course readings under “Sources in conversation,” selected for their close fit with the research question and linked directly to their reading cards
 - A native interactive “A History of Becoming” ecology model directly below the card pile, with adjustable conditions, playback controls, and a history timeline
