@@ -599,6 +599,7 @@
 
 .quote-text {
   display: block;
+  white-space: pre-line;
 }
 
 .quote-credit {
@@ -1245,4 +1246,40 @@
   .related-copy small {
     display: none;
   }
+}
+
+.theme-cybernetics { --idea-paper: #f7f2dc; --idea-color: #dfcf8c; --idea-ink: #594f24; }
+.theme-living-systems { --idea-paper: #edf4e9; --idea-color: #a9c5a5; --idea-ink: #365439; }
+.theme-speculative-worlds { --idea-paper: #f4edf6; --idea-color: #c8afd0; --idea-ink: #593c63; }
+.theme-emergence-and-systems { --idea-paper: #eaf3f3; --idea-color: #a6c8c9; --idea-ink: #35595a; }
+.theme-more-than-human-theory { --idea-paper: #edf0f7; --idea-color: #b0b9d6; --idea-ink: #424d70; }
+.theme-architecture-and-agency { --idea-paper: #f8efeb; --idea-color: #d7aea0; --idea-ink: #70463b; }
+.theme-power-and-difference { --idea-paper: #f5eee4; --idea-color: #cbb395; --idea-ink: #654d34; }
+
+.filter-chip[class*="theme-"]::before {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 6px;
+  border: 1px solid #0003;
+  background: var(--idea-color);
+  content: "";
+}
+
+.reading-card[class*="theme-"] {
+  background-color: var(--idea-paper);
+}
+
+.reading-card:not(.picked-card)[class*="theme-"] .card-art,
+.picked-card[class*="theme-"] .card-art,
+.related-card[class*="theme-"] .related-art,
+.drawer-art[class*="theme-"] {
+  background: var(--idea-color);
+}
+
+.reading-card:not(.picked-card)[class*="theme-"] .art-symbol,
+.picked-card[class*="theme-"] .art-symbol,
+.related-card[class*="theme-"] .related-art,
+.drawer-art[class*="theme-"] > span {
+  color: var(--idea-ink);
 }
