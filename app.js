@@ -49,7 +49,7 @@ function visibleReadings() {
   return pileReadings.filter((item) => {
     const matchesTheme = activeTheme === 'All ideas' || item.theme === activeTheme;
     const sourceText = item.sources.map((source) => `${source.label} ${source.note}`).join(' ');
-    const haystack = [item.title, item.subtitle, item.type, item.theme, item.summary, item.why, item.quote, item.fullQuote || '', item.quoteType, item.quoteCredit || '', item.quoteLocator || '', item.excerptNote || '', item.citation, sourceText, item.tags.join(' ')].join(' ').toLowerCase();
+    const haystack = [item.title, item.subtitle, item.type, item.theme, item.summary, item.why, item.quote, item.fullQuote || '', item.quoteType, item.quoteCredit || '', item.quoteLocator || '', item.citation, sourceText, item.tags.join(' ')].join(' ').toLowerCase();
     return matchesTheme && (!query || haystack.includes(query));
   });
 }
@@ -136,9 +136,8 @@ function openReading(id) {
     ${item.quoteLocator ? `<p class="quote-locator">${escapeHTML(item.quoteLocator)}</p>` : ''}
     <section class="detail-section"><h3>In brief</h3><p>${escapeHTML(item.summary)}</p></section>
     <section class="detail-section"><h3>Why it matters</h3><p>${escapeHTML(item.why)}</p></section>
-    ${item.excerptNote ? `<section class="detail-section"><h3>Quote verification</h3><p>${escapeHTML(item.excerptNote)}</p></section>` : ''}
     <section class="detail-section"><h3>Explore through</h3><div class="detail-tags">${item.tags.map((tag) => `<span>${escapeHTML(tag)}</span>`).join('')}</div></section>
-    <section class="detail-section"><h3>References & further reading</h3>${item.sources.length ? `<ul class="source-list">${item.sources.map((source) => `<li><a href="${escapeHTML(source.url)}" target="_blank" rel="noopener noreferrer">${escapeHTML(source.label)} <span aria-hidden="true">↗</span></a><p>${escapeHTML(source.note)}</p></li>`).join('')}</ul>` : '<p>No external link is attached to this card. Use the full citation above to locate a copy.</p>'}</section>
+    <section class="detail-section"><h3>References & further reading</h3>${item.sources.length ? `<ul class="source-list">${item.sources.map((source) => `<li><a href="${escapeHTML(source.url)}" target="_blank" rel="noopener noreferrer">${escapeHTML(source.label)} <span aria-hidden="true">↗</span></a><p>${escapeHTML(source.note)}</p></li>`).join('')}</ul>` : '<p>No external link available.</p>'}</section>
     <section class="detail-section citation"><h3>Citation</h3><p>${escapeHTML(item.citation)}</p></section>`;
   drawer.classList.add('open');
   drawer.setAttribute('aria-hidden', 'false');
