@@ -10,12 +10,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css?v=featured-sources-07195f3" />
-    <link rel="stylesheet" href="assignment.css?v=becoming-v27" />
+    <link rel="stylesheet" href="assignment.css?v=becoming-v42" />
   </head>
   <body>
     <header class="topbar">
       <a class="wordmark" href="#" aria-label="Reading room home"><span class="mark">M—H</span><span>CYBERNETICS<br />& ARCHITECTURE</span></a>
-      <nav aria-label="Main navigation"><a class="active" href="#library">Reading room</a><a href="#becoming">Becoming</a><a href="#research">Research</a><a href="#process-log">Process log</a></nav>
+      <nav aria-label="Main navigation"><a class="active" href="#library">Reading room</a><a href="#becoming">A History of Becoming</a><a href="#research">Research</a><a href="#process-log">Process log</a></nav>
       <span class="edition">ARCH 602&nbsp; / &nbsp;2026</span>
     </header>
 
@@ -45,15 +45,15 @@
 
       <section class="becoming-section" id="becoming" aria-labelledby="becoming-heading">
         <div class="becoming-heading library-heading">
-          <div><p class="eyebrow">Interactive model · spatial adaptation</p><h2 id="becoming-heading">Becoming</h2></div>
-          <span class="becoming-tick" id="timeLabel" aria-live="polite">Tick 0</span>
+          <div><p class="eyebrow">Interactive model · spatial adaptation</p><h2 id="becoming-heading">A History of Becoming</h2></div>
+          <span class="becoming-tick" id="timeLabel">Tick 0</span>
         </div>
-        <p class="becoming-intro">An environment shaped by its inhabitants—and shaping their bodies, movement, and possibilities for cohabitation. Adjust the conditions, explore the evolving ecology, and inspect its history and traces.</p>
+        <p class="becoming-intro">An environment shaped by its inhabitants—and, in turn, inhabitants whose bodies are shaped by their surroundings, influencing possibilities and opportunities for cohabitation. Adjust the conditions, explore the evolving ecology, and inspect its history and traces.</p>
         <div class="becoming-layout" id="becoming-app">
           <section class="becoming-main" aria-label="Ecology simulation">
             <div class="becoming-panel">
               <div class="becoming-canvas-wrap">
-                <canvas id="view" width="1120" height="760" aria-label="Interactive ecology. Select an inhabitant or boundary to inspect it." tabindex="0"></canvas>
+                <canvas id="view" width="1120" height="760" aria-label="Evolving ecology of inhabitants, regions, and a boundary"></canvas>
               </div>
               <div class="becoming-controls" aria-label="Simulation controls">
                 <button class="becoming-button becoming-button-primary" id="play" type="button">Pause</button>
@@ -61,47 +61,61 @@
                 <button class="becoming-button" id="reset" type="button">Reset</button>
                 <button class="becoming-button" id="restart" type="button">New seed</button>
               </div>
+              <p class="becoming-hint">Each page load starts a new world. Pause to stop playback; Step advances one tick. Reset restarts the current world, while New seed creates a different one. Both clear the timeline.</p>
               <div class="becoming-history">
                 <span>Past</span>
                 <input id="timeline" type="range" min="0" max="0" value="0" aria-label="Simulation history" />
                 <span>Now</span>
               </div>
-              <p class="becoming-hint" id="historyHint">Click an inhabitant or wall to inspect its feedback. Drag the timeline to examine past states; the simulation pauses while viewing history.</p>
+              <p class="becoming-hint" id="historyHint">Drag the timeline to view recent history; playback pauses.</p>
               <div class="becoming-legend" aria-label="Inhabitant types">
                 <span><i class="becoming-dot grower"></i>Branching growers</span>
                 <span><i class="becoming-dot builder"></i>Spiral builders</span>
                 <span><i class="becoming-dot mover"></i>Wave movers</span>
+                <span><i class="becoming-dot resource"></i>Shared resources</span>
               </div>
               <section class="becoming-guide" aria-labelledby="becoming-guide-heading">
                 <div class="becoming-guide-heading">
                   <p class="eyebrow">Spatial adaptation</p>
                   <h3 id="becoming-guide-heading">How places change inhabitants</h3>
-                  <p>Each species keeps its own anatomy. Time spent in a region changes its form <strong>and</strong> behaviour; these changes persist after leaving, then slowly fade.</p>
+                  <p>Each species has its own form. The top image shows the initial population average; the bottom shows the current average. Time in regions changes individuals, and their memories gradually fade after they leave. Repeated encounters also slowly change the inherited baseline for the whole species, including offspring. Reset starts it over.</p>
                 </div>
                 <div class="becoming-species-grid">
                   <article class="becoming-species">
                     <div class="becoming-species-top">
-                      <svg viewBox="0 0 70 65" aria-hidden="true"><g stroke="#36825b" stroke-width="2" fill="none" stroke-linecap="round"><path d="M35 58V30 M35 43L18 26 M35 37L51 21 M18 26L10 12 M18 26L6 30 M51 21L57 8 M51 21L64 19 M35 30L29 14"/></g></svg>
                       <div><h4>Growers</h4><span>Branching bodies</span></div>
                     </div>
+                    <div class="becoming-avatar-comparison">
+                      <div><span>Initial generation</span><canvas id="initialGrower" width="128" height="128" role="img" aria-label="Initial generated Grower"></canvas></div>
+                      <div><span>Current average</span><canvas id="currentGrower" width="128" height="128" role="img" aria-label="Current average Grower"></canvas></div>
+                    </div>
+                    <p class="becoming-baseline" id="baselineGrower"></p>
                     <div class="becoming-effect gather"><b>Gather</b><span>More branches and subdivisions</span></div>
                     <div class="becoming-effect rest"><b>Rest</b><span>Shorter, denser branches</span></div>
                     <div class="becoming-effect exchange"><b>Exchange</b><span>Fine dotted branch tips</span></div>
                   </article>
                   <article class="becoming-species">
                     <div class="becoming-species-top">
-                      <svg viewBox="0 0 70 65" aria-hidden="true"><path d="M36 33C36 28 29 28 28 34C27 43 40 46 46 37C54 24 40 13 27 19C10 27 15 51 34 54C58 57 65 27 48 13" fill="none" stroke="#c17859" stroke-width="2" stroke-linecap="round"/></svg>
                       <div><h4>Builders</h4><span>Coiled bodies</span></div>
                     </div>
+                    <div class="becoming-avatar-comparison">
+                      <div><span>Initial generation</span><canvas id="initialBuilder" width="128" height="128" role="img" aria-label="Initial generated Builder"></canvas></div>
+                      <div><span>Current average</span><canvas id="currentBuilder" width="128" height="128" role="img" aria-label="Current average Builder"></canvas></div>
+                    </div>
+                    <p class="becoming-baseline" id="baselineBuilder"></p>
                     <div class="becoming-effect gather"><b>Gather</b><span>More satellite coils</span></div>
                     <div class="becoming-effect rest"><b>Rest</b><span>More spiral turns</span></div>
                     <div class="becoming-effect exchange"><b>Exchange</b><span>Wider, more open coils</span></div>
                   </article>
                   <article class="becoming-species">
                     <div class="becoming-species-top">
-                      <svg viewBox="0 0 70 65" aria-hidden="true"><g stroke="#4b86af" stroke-width="2" fill="none"><path d="M5 18Q13 7 21 18T37 18T53 18T69 18 M5 32Q13 21 21 32T37 32T53 32T69 32 M5 46Q13 35 21 46T37 46T53 46T69 46"/></g></svg>
                       <div><h4>Movers</h4><span>Waveform bodies</span></div>
                     </div>
+                    <div class="becoming-avatar-comparison">
+                      <div><span>Initial generation</span><canvas id="initialMover" width="128" height="128" role="img" aria-label="Initial generated Mover"></canvas></div>
+                      <div><span>Current average</span><canvas id="currentMover" width="128" height="128" role="img" aria-label="Current average Mover"></canvas></div>
+                    </div>
+                    <p class="becoming-baseline" id="baselineMover"></p>
                     <div class="becoming-effect gather"><b>Gather</b><span>More parallel strands</span></div>
                     <div class="becoming-effect rest"><b>Rest</b><span>Gentler, slower waves</span></div>
                     <div class="becoming-effect exchange"><b>Exchange</b><span>Finer, faster waves and dots</span></div>
@@ -119,6 +133,15 @@
                 <div><strong id="nWave">8</strong><span>Movers</span></div>
               </div>
             </div>
+            <section class="becoming-panel becoming-information" aria-labelledby="how-heading">
+              <h3 id="how-heading">How it works</h3>
+              <p><strong>Resources</strong> are shown as pale green dots. Each dot represents a wedge of the environment, shared by inhabitants in that wedge. A larger supply can draw them toward an area, support wellbeing, and help reproduction. Abundance changes how quickly the supply recovers; Exchange regions also replenish it.</p>
+              <p>Interior imprints sit on a hexagonal grid and mirror the inhabitant that made them: Growers leave branching forms, Builders leave coils, and Movers leave waves. Exchange experience makes imprints more likely and substantially amplifies each species’ wall-making action. Imprints fade unless renewed; weaker traces fade faster.</p>
+              <p><strong>Growers</strong> extend branching shelters at the boundary. Sustained contact with strong branches or interior imprints can add small areas to neighboring region edges.</p>
+              <p><strong>Builders</strong> create layered recesses and sharp corners, creating new niches and encouraging more elaborate coils. Strong layers and coil imprints can gradually erode the parts of regions they touch; wall layers act faster than imprints.</p>
+              <p><strong>Movers</strong> wear passages and generate rippled edges. Their waveforms respond to wall complexity and nearby movement.</p>
+              <p>No inhabitants die or harm one another. At the outer wall, they have an equal chance of following it or deflecting away. In crowded places they can seek other spaces, while activity encourages regions to grow. Each species can have up to 20 inhabitants; reproduction pauses at that limit. Offspring inherit traits and some individual memories.</p>
+            </section>
           </section>
           <aside class="becoming-sidebar">
             <section class="becoming-panel becoming-conditions" aria-labelledby="conditions-heading">
@@ -131,12 +154,12 @@
               <div class="becoming-slider">
                 <div><label for="innovation">Innovation</label><output id="innovationValue" for="innovation">65%</output></div>
                 <input id="innovation" type="range" min="0" max="100" value="65" />
-                <p>At 55%, wall responsiveness matches the previous 100%; higher settings allow more dramatic change.</p>
+                <p>Higher values make inhabitants' contact reshape the outer wall more strongly.</p>
               </div>
               <div class="becoming-slider">
                 <div><label for="abundance">Abundance</label><output id="abundanceValue" for="abundance">55%</output></div>
                 <input id="abundance" type="range" min="0" max="100" value="55" />
-                <p>Controls how quickly shared resources regenerate.</p>
+                <p>Controls how quickly shared resources regenerate. The pale green dots inside the wall show the supply: larger, darker dots mean more resources.</p>
               </div>
               <div class="becoming-slider">
                 <div><label for="solidarity">Solidarity</label><output id="solidarityValue" for="solidarity">50%</output></div>
@@ -146,76 +169,81 @@
               <div class="becoming-slider">
                 <div><label for="adaptability">Adaptability</label><output id="adaptabilityValue" for="adaptability">65%</output></div>
                 <input id="adaptability" type="range" min="0" max="100" value="65" />
-                <p>Controls how quickly bodily traits develop and fade through experience; memories persist much longer after leaving.</p>
+                <p>Higher values make bodily traits and individual memories change more quickly with experience or time away.</p>
               </div>
               <div class="becoming-slider">
                 <div><label for="impermanence">Impermanence</label><output id="impermanenceValue" for="impermanence">45%</output></div>
                 <input id="impermanence" type="range" min="0" max="100" value="45" />
-                <p>Controls how readily established regions change their use, without removing them.</p>
+                <p>Higher values make established regions change use more readily, responding sooner to smaller groups and placing less weight on past experience.</p>
               </div>
               <div class="becoming-slider">
                 <div><label for="rate">Simulation speed</label><output id="rateValue" for="rate">2×</output></div>
                 <input id="rate" type="range" min="1" max="50" value="2" />
-                <p>Changes playback speed up to 50×, not ecological rules. Higher speeds may use more processing power.</p>
+                <p>Changes playback speed up to 50×, not ecological rules. Actual speed depends on your device.</p>
               </div>
             </section>
             <section class="becoming-panel becoming-information" aria-labelledby="regions-heading">
               <h3 id="regions-heading">Living regions</h3>
-              <p><span class="region-color rest-color">●</span> Rest slows movement and creates a glow, but changes each species differently. <span class="region-color gather-color">●</span> Gather attracts neighbours and changes each species differently. <span class="region-color exchange-color">●</span> Exchange causes vibration and regenerates shared resources; its bodily effects differ by species.</p>
-              <p>Time spent in each region changes bodies and creates lasting behavioural abilities. Territories emerge near actual groups of inhabitants. Rest, Gather, and Exchange are equally likely; sustained inhabitation establishes regions. Bureaucracy and Solidarity influence region emergence and establishment without adding inhabitants. Established places protect against outer-wall encroachment without restricting passage. The enclosure starts at roughly 85% of the canvas and gently contracts unless inhabitants push back.</p>
-              <div class="becoming-metric"><span>Active territories</span><strong id="zoneCount">0</strong></div>
-              <div class="becoming-metric"><span>Established places</span><strong id="permanentCount">0</strong></div>
-            </section>
-            <section class="becoming-panel becoming-information" aria-labelledby="inspect-heading">
-              <h3 id="inspect-heading">Selected / What changed?</h3>
-              <div id="inspect" aria-live="polite">Select an inhabitant or boundary segment. Watch inhabitants create shelters, corners, and passages. Their bodies adapt to local conditions, and the resulting architecture changes where they gather and adapt.</div>
+              <div class="becoming-region-list">
+                <article class="becoming-region rest-region">
+                  <h4><span class="region-color rest-color" aria-hidden="true">●</span> Rest</h4>
+                  <p>Inhabitants slow down and glow here. Their memories of rest help them travel faster, even after they leave.</p>
+                </article>
+                <article class="becoming-region gather-region">
+                  <h4><span class="region-color gather-color" aria-hidden="true">●</span> Gather</h4>
+                  <p>Inhabitants are drawn toward neighbours. Gather memory encourages them to stay near others of their species.</p>
+                </article>
+                <article class="becoming-region exchange-region">
+                  <h4><span class="region-color exchange-color" aria-hidden="true">●</span> Exchange</h4>
+                  <p>Inhabitants vibrate here, and shared resources regenerate. Exchange memory strengthens their imprints and influence on the wall.</p>
+                </article>
+              </div>
+              <h4 class="becoming-information-subheading">How regions evolve</h4>
+              <p><strong>Formation.</strong> Regions emerge where inhabitants gather, up to 36 in total, including established regions. New regions fit around existing ones; neighboring regions of the same type can merge and count as one.</p>
+              <p><strong>Change.</strong> Use gradually changes a region's size and shape. A frequently occupied region can become established; sustained changes in use can eventually change its type. High Impermanence makes this more responsive to smaller groups. Bureaucracy and Solidarity affect how regions form and become established.</p>
+              <p><strong>Growth and erosion.</strong> Strong Grower traces can add small areas at an edge. Sustained Builder traces can erode an edge—even of an established region—and may remove a small region entirely. Wall contact acts faster than an imprint.</p>
+              <p>Unless eroded away, regions remain when unoccupied. Regions do not block movement, and the outer wall stays outside their footprints. Each region also changes each species' body differently, as shown in the comparison beside the simulation.</p>
+              <div class="becoming-metric"><span>Tentative regions</span><strong id="zoneCount">0</strong></div>
+              <div class="becoming-metric"><span>Established regions</span><strong id="permanentCount">0</strong></div>
             </section>
             <section class="becoming-panel becoming-information" aria-labelledby="events-heading">
               <h3 id="events-heading">Recent events</h3>
               <div id="events" aria-live="polite"></div>
             </section>
-            <section class="becoming-panel becoming-information" aria-labelledby="how-heading">
-              <h3 id="how-heading">How it works</h3>
-              <p>Interior imprints mirror the inhabitant that made them: Growers leave branching forms, Builders leave coils, and Movers leave waves. Exchange experience makes imprints more likely and substantially amplifies each species’ wall-making action. Imprints fade unless renewed.</p>
-              <p><strong>Growers</strong> extend branching shelters at the boundary, making more room for other inhabitants.</p>
-              <p><strong>Builders</strong> create layered recesses and sharp corners, creating new niches and encouraging more elaborate coils.</p>
-              <p><strong>Movers</strong> wear passages and generate rippled edges. Their waveforms respond to wall complexity and nearby movement.</p>
-              <p>No inhabitants die or harm one another. When a place becomes crowded, inhabitants adapt, seek different spaces, and collectively encourage the region to expand. Reproduction pauses at the population limit; existing inhabitants remain. Offspring inherit modified traits.</p>
-            </section>
           </aside>
         </div>
-        <p class="becoming-foot"><strong>Research connections:</strong> Gordon Pask / Usman Haque: reciprocal feedback and conversation; Nicholas Negroponte: responsive environments; Kisho Kurokawa: metabolism and ongoing renewal. The model’s regions, spatial memory, establishment thresholds, and numerical rules are original speculative interpretations, not rules extracted from those texts. It models noncompetitive cohabitation and mutual adaptation, not a validated ecological or physical prediction.</p>
+        <p class="becoming-foot"><strong>Research connections:</strong> Adaptability explores an analogy with reciprocal change in Haque’s account of Pask; Impermanence draws on Jencks’s account of Metabolism and renewal; Solidarity explores overlapping relationships in Alexander’s city. These are speculative extensions, not rules extracted from the texts. The simulation’s programmed responses are not Pask’s conversation theory, and its noncompetitive cohabitation and mutual adaptation are not validated ecological predictions.</p>
       </section>
 
       <section class="research" id="research" aria-labelledby="research-heading">
-        <div class="library-heading"><div><p class="eyebrow">Group pitch and course reading list</p><h2 id="research-heading">Sources in conversation</h2></div><p class="collection-count"><span id="reading-total">00</span> READING CARDS</p></div>
-        <p class="research-intro">The cards bring together the group’s original pitch and supplied source links, readings named in the ARCH 602 course PDFs, and additional theoretical and literary directions. Course handouts identify readings but are not substitutes for the full texts. Verify bibliographic details, arguments, quotations, and page numbers against the edition you read. Direct excerpts are labeled; other card lines are original reading prompts.</p>
+        <div class="library-heading"><div><p class="eyebrow">Research, readings and ideas</p><h2 id="research-heading">Sources in conversation</h2></div><p class="collection-count"><span id="reading-total">00</span> READING CARDS</p></div>
+        <p class="research-intro">The collection brings architectural theory, cybernetics, ecology, and speculative fiction into conversation. Direct excerpts are attributed; other card lines are original questions for exploring the readings.</p>
         <div class="pitch-sources">
-          <article><span>01 / PROVIDED IN PITCH</span><h3>MoMA Magazine</h3><a href="https://production-gcp.moma.org/magazine/articles/1409" target="_blank" rel="noopener noreferrer">Open supplied article ↗</a><p>Confirm title, author, date, and how it supports the research question.</p></article>
-          <article><span>02 / PROVIDED IN PITCH</span><h3>ACM Digital Library</h3><a href="https://dl.acm.org/doi/10.1145/3789492.3796449" target="_blank" rel="noopener noreferrer">Open supplied paper ↗</a><p>Confirm authors, publication details, scholarly status, and argument.</p></article>
-          <article class="featured-source"><span>03 / STRONG FIT · CYBERNETICS</span><h3>The Architectural Relevance of Gordon Pask</h3><p>Haque’s account of Pask treats environments as participants in ongoing conversations. That is a close match for asking how architecture might learn from non-human users rather than only act on their behalf. The supplied excerpt specifically describes shared environments and participants learning from one another.</p><p class="source-citation">Usman Haque, “The Architectural Relevance of Gordon Pask,” <em>Architectural Design</em> 77, no. 4 (2007). Verify page range and issue details against the supplied reading.</p><button class="source-card-link" type="button" data-reading-id="pask-haque">Open reading card ↗</button></article>
-          <article class="featured-source"><span>04 / STRONG FIT · MODELS & REPRESENTATION</span><h3>The Inner Life of Models</h3><p>Wiscombe and Trotter argue that models are shaped by deliberate choices about scale, material, and detail. That makes this reading especially useful for examining how a design model can make some users’ needs legible while leaving others out—the core challenge in representing non-human futures.</p><p class="source-citation">Tom Wiscombe and Marrikka Trotter, “The Inner Life of Models” (2020). Supplied course PDF; verify publication venue and pagination against the published text.</p><button class="source-card-link" type="button" data-reading-id="wiscombe-inner-life-models">Open reading card ↗</button></article>
+          <article><span>01 / PROJECT SOURCE</span><h3>MoMA Magazine</h3><a href="https://production-gcp.moma.org/magazine/articles/1409" target="_blank" rel="noopener noreferrer">Open article ↗</a><p>A source from the original project pitch.</p></article>
+          <article><span>02 / PROJECT SOURCE</span><h3>ACM Digital Library</h3><a href="https://dl.acm.org/doi/10.1145/3789492.3796449" target="_blank" rel="noopener noreferrer">Open paper ↗</a><p>A source from the original project pitch.</p></article>
+          <article class="featured-source"><span>03 / CYBERNETICS</span><h3>The Architectural Relevance of Gordon Pask</h3><p>Haque’s account of Pask treats environments as participants in ongoing conversations. It opens a way to ask how architecture might learn from non-human users rather than only act on their behalf.</p><p class="source-citation">Usman Haque, “The Architectural Relevance of Gordon Pask,” <em>Architectural Design</em> 77, no. 4 (2007).</p><button class="source-card-link" type="button" data-reading-id="pask-haque">Open reading card ↗</button></article>
+          <article class="featured-source"><span>04 / MODELS & REPRESENTATION</span><h3>The Inner Life of Models</h3><p>Wiscombe and Trotter describe models as shaped by choices about scale, material, and detail. Their reading raises a question for non-human futures: whose needs become legible in a design model, and whose are left out?</p><p class="source-citation">Tom Wiscombe and Marrikka Trotter, “The Inner Life of Models,” <em>Log</em> 50 (Fall 2020): 91–102.</p><button class="source-card-link" type="button" data-reading-id="wiscombe-inner-life-models">Open reading card ↗</button></article>
         </div>
       </section>
 
       <section class="process-log" id="process-log" aria-labelledby="process-log-heading">
         <div class="library-heading"><div><p class="eyebrow">Human-led research · AI use record</p><h2 id="process-log-heading">Process log</h2></div><p class="collection-count">CONVERSATION RECORD</p></div>
-        <p class="log-intro">This record documents the project direction and AI assistance visible in this conversation. It credits the group’s supplied ideas and materials; it does not claim to record work done outside this conversation. The group should add its own source-checking, edits, and any other tools used before submitting the final 1–2 page process log.</p>
+        <p class="log-intro">This record documents the project direction, supplied materials, design decisions, and AI assistance visible in the project conversation. Much of the project was built with GitHub Copilot in the Copilot desktop app. At this update, the app was version 1.2.0 and used Auto mode, which can select different AI models.</p>
         <div class="log-entry">
           <span class="log-date">PROJECT QUESTION & PITCH</span>
-          <div><h3>Human direction</h3><p>The group supplied its topic, the exact research question about post-humanism and future needs of non-human users, two starting URLs (MoMA Magazine and ACM Digital Library), and the name Sweet Chili Heat with members Evan Winther, Steff Siu, Vian Esterhuizen, and Victoria Shaw. The group’s question—not an AI-generated topic—anchors the app.</p><h3>AI contribution and check</h3><p>AI organized the pitch into the reading-room framing and added a cybernetics feedback-loop model. The two supplied links could not be bibliographically verified during this work; their titles, authors, dates, and relevance remain for the group to check.</p></div>
+          <div><h3>Human direction</h3><p>The group supplied its topic, the exact research question about post-humanism and future needs of non-human users, two starting URLs (MoMA Magazine and ACM Digital Library), and the name Sweet Chili Heat with members Evan Winther, Steff Siu, Vian Esterhuizen, and Victoria Shaw. The group’s question—not an AI-generated topic—anchors the app.</p><h3>AI contribution</h3><p>AI organized the pitch into the reading-room framing and added a cybernetics feedback-loop model.</p></div>
         </div>
         <div class="log-entry">
           <span class="log-date">COURSE MATERIALS</span>
-          <div><h3>Human-provided sources</h3><p>The group attached eight ARCH 602 PDFs, including the course outline and module handouts on foundational treatises, mathematics and plasticity, modernism, cybernetics and Japanese Metabolists, architectural “isms,” deconstruction, adjacent discourses, and visionary digital intensities. The cybernetics handout names Gordon Pask, Nicholas Negroponte, Christopher Alexander, Reyner Banham, Yona Friedman, and the Metabolists; other handouts list Philip Ball, Sanford Kwinter, and D’Arcy Wentworth Thompson.</p><h3>AI contribution and check</h3><p>AI extracted reading-list information and used relevant entries to seed cards. These attachments are course handouts and reading lists, not the full texts of every listed work. Most card lines are therefore labeled as original reading prompts, not quotations. The group should check every citation against the actual reading and its chosen edition.</p></div>
+          <div><h3>Human-provided sources</h3><p>The group attached eight ARCH 602 PDFs, including the course outline and module handouts on foundational treatises, mathematics and plasticity, modernism, cybernetics and Japanese Metabolists, architectural “isms,” deconstruction, adjacent discourses, and visionary digital intensities. The cybernetics handout names Gordon Pask, Nicholas Negroponte, Christopher Alexander, Reyner Banham, Yona Friedman, and the Metabolists; other handouts list Philip Ball, Sanford Kwinter, and D’Arcy Wentworth Thompson.</p><h3>AI contribution</h3><p>AI used the reading lists to seed cards. The cards distinguish original reading prompts from attributed quotations.</p></div>
         </div>
         <div class="log-entry">
           <span class="log-date">ADDITIONAL COURSE TEXTS & PRIMARY SOURCE</span>
-          <div><h3>Human-provided materials</h3><p>The group then supplied eleven course-reading PDFs: Sean Keller’s “Fenland Tech” (the file name incorrectly says Schnapp, 2004); Nicholas Negroponte’s <em>Toward a Theory of Architecture Machines</em>; Reyner Banham’s “A Home Is Not a House”; Charles Jencks’s introduction to Kisho Kurokawa’s <em>Metabolism in Architecture</em>; Christopher Alexander’s “A City Is Not a Tree”; Usman Haque’s “The Architectural Relevance of Gordon Pask”; Hadas A. Steiner’s “Bubbles”; Tom Wiscombe and Marrikka Trotter’s “The Inner Life of Models”; “The Object Turn: A Conversation”; Tom Wiscombe’s “Discreteness”; and a Lebbeus Woods biography and interview. The group also supplied an image of selected passages from the 1958 Amsterdam Declaration.</p><h3>AI contribution and verification limits</h3><p>AI extracted short, attributed passages from text-readable PDFs and added them with PDF-page locators, research-question connections, and citations. The Banham, Woods, and “Discreteness” files did not yield selectable text; their cards are labeled as prompts and do not invent quotations. The PDF locator is not a substitute for checking the published edition or its pagination.</p></div>
+          <div><h3>Human-provided materials</h3><p>The group then supplied eleven course-reading PDFs: Sean Keller’s “Fenland Tech”; Nicholas Negroponte’s <em>Toward a Theory of Architecture Machines</em>; Reyner Banham’s “A Home Is Not a House”; Charles Jencks’s introduction to Kisho Kurokawa’s <em>Metabolism in Architecture</em>; Christopher Alexander’s “A City Is Not a Tree”; Usman Haque’s “The Architectural Relevance of Gordon Pask”; Hadas A. Steiner’s “Bubbles”; Tom Wiscombe and Marrikka Trotter’s “The Inner Life of Models”; “The Object Turn: A Conversation”; Tom Wiscombe’s “Discreteness”; and a Lebbeus Woods biography and interview. The group also supplied an image of selected passages from the 1958 Amsterdam Declaration.</p><h3>AI contribution</h3><p>AI extracted short, attributed passages from text-readable PDFs and added them with PDF-page locators, research-question connections, and citations. The Banham, Woods, and “Discreteness” cards use reading prompts rather than direct quotations.</p></div>
         </div>
         <div class="log-entry">
           <span class="log-date">FURTHER COURSE READINGS</span>
-          <div><h3>Human-provided materials</h3><p>The group reattached the Wiscombe, Gannon, Woods, and “Discreteness” readings and supplied seven new PDFs: Manfredo Tafuri’s “Toward a Critique of Architectural Ideology,” Robert Venturi’s <em>Complexity and Contradiction in Architecture</em>, Jacques Derrida’s “Point de folie—Maintenant l’architecture,” Peter Eisenman’s “Aspects of Modernism,” Bernard Tschumi’s “The Architectural Paradox,” Michel Foucault’s “Panopticism,” and Gilles Deleuze’s “Plato and the Simulacrum.” The reattached readings remain on their existing cards rather than being duplicated.</p><h3>AI contribution and verification limits</h3><p>AI added seven cards and connected each reading to the research question while distinguishing the authors’ subjects from the group’s more-than-human application. Short excerpts from the readable Derrida, Tschumi, and Deleuze PDFs are attributed and located. The Tafuri, Venturi, Eisenman, and Foucault files did not yield selectable text, so their cards use reading prompts and citations instead of invented quotations.</p></div>
+          <div><h3>Human-provided materials</h3><p>The group reattached the Wiscombe, Gannon, Woods, and “Discreteness” readings and supplied seven new PDFs: Manfredo Tafuri’s “Toward a Critique of Architectural Ideology,” Robert Venturi’s <em>Complexity and Contradiction in Architecture</em>, Jacques Derrida’s “Point de folie—Maintenant l’architecture,” Peter Eisenman’s “Aspects of Modernism,” Bernard Tschumi’s “The Architectural Paradox,” Michel Foucault’s “Panopticism,” and Gilles Deleuze’s “Plato and the Simulacrum.” The reattached readings remain on their existing cards rather than being duplicated.</p><h3>AI contribution</h3><p>AI added seven cards and connected each reading to the research question while distinguishing the authors’ subjects from the group’s more-than-human application. Short excerpts from the readable Derrida, Tschumi, and Deleuze PDFs are attributed and located. The Tafuri, Venturi, Eisenman, and Foucault cards use reading prompts and citations.</p></div>
         </div>
         <div class="log-entry">
           <span class="log-date">FEATURED COURSE SOURCES</span>
@@ -231,13 +259,37 @@
         </div>
         <div class="log-entry">
           <span class="log-date">INTERACTIVE ECOLOGY MODEL</span>
-          <div><h3>Human-provided prototype</h3><p>The project owner supplied <em>becoming_ecology_v26.html</em> and requested its functionality as a new area below the reading cards.</p><h3>Integration and scope</h3><p>AI reimplemented the model natively in the reading room, preserving its playback, parameter controls, history timeline, entity and wall inspection, and reciprocal adaptation. The interface was restyled to use the site’s typography and colors. The simulation remains an explicitly speculative model, not a validated ecological or physical prediction; it does not change reading-card search or store PDFs.</p></div>
+          <div><h3>Human-provided prototype</h3><p>The project owner supplied <em>becoming_ecology_v26.html</em>, generated in parallel by ChatGPT, and requested its functionality as a new area below the reading cards.</p><h3>Integration and scope</h3><p>AI reimplemented the model natively in the reading room, preserving its playback, parameter controls, history timeline, and reciprocal adaptation. The original inhabitant and wall inspection was later removed at the owner's request. The interface was restyled to use the site’s typography and colors. The simulation remains an explicitly speculative model, not a validated ecological or physical prediction; it does not change reading-card search or store PDFs.</p></div>
+        </div>
+        <div class="log-entry">
+          <span class="log-date">A HISTORY OF BECOMING · CO-EVOLUTION & READINGS</span>
+          <div>
+            <h3>Human direction</h3>
+            <p>The project owner asked for an environment and inhabitants that visibly change one another over time, rather than a fixed architectural diagram. They directed the development of organic, non-overlapping regions; merging, growth and edge erosion; species-shaped imprints; a smaller starting enclosure with room to grow; and a comparison between initial and current generated inhabitants. They also suggested connections to the Situationists and the Metabolists.</p>
+            <h3>AI development and design choices</h3>
+            <p>AI implemented three kinds of inhabitant—Growers, Builders and Movers—and Rest, Gather and Exchange regions. Inhabitants leave traces and reshape the wall; time in regions changes their forms and behavior. Individual memories fade, while repeated encounters slowly shift a species-wide inherited baseline during a run. Regions can emerge, change shape or type, merge, gain small additions, or erode at their edges. This makes space both a product of and an influence on imagined non-human inhabitants, rather than a static backdrop. Shared resources, adjustable conditions, species comparisons and history make parts of this feedback visible. The owner requested clearer explanations and performance improvements; AI reorganized the guide and reduced redundant drawing while retaining the simulation rules.</p>
+            <h3>Readings in conversation</h3>
+            <div class="log-model-readings">
+              <p><strong>Usman Haque, “The Architectural Relevance of Gordon Pask.”</strong> Its account of environments and participants learning from one another offers a cybernetic lens for the model’s reciprocal feedback. The simulation uses programmed rules; it is not itself a demonstration of Pask’s conversation theory.</p>
+              <p><strong>Charles Jencks’s introduction to Kisho Kurokawa’s <em>Metabolism in Architecture</em>.</strong> Jencks describes Metabolism through a biological analogy. The model’s changing regions and enclosure explore architecture as something that develops over time, without reproducing a Metabolist proposal or an actual biological process.</p>
+              <p><strong>Constant and Guy Debord, “Amsterdam Declaration.”</strong> The group-provided image of selected passages suggests a connection to actively constructing environments rather than treating them as neutral containers. The model extends that question to imagined non-human inhabitants; this is the group’s interpretive direction, not a claim that the declaration itself centers non-human users.</p>
+              <p><strong>Tom Wiscombe and Marrikka Trotter, “The Inner Life of Models.”</strong> Their discussion of models as selective constructions helps make the simulation’s limits visible: its three species, resources, rules and peaceful coexistence are design choices, not a complete account of ecological life.</p>
+            </div>
+            <div class="log-reading-links" aria-label="Related reading cards">
+              <button class="source-card-link" type="button" data-reading-id="pask-haque">Haque on Pask ↗</button>
+              <button class="source-card-link" type="button" data-reading-id="metabolism">Metabolism ↗</button>
+              <button class="source-card-link" type="button" data-reading-id="amsterdam-declaration">Amsterdam Declaration ↗</button>
+              <button class="source-card-link" type="button" data-reading-id="wiscombe-inner-life-models">The Inner Life of Models ↗</button>
+            </div>
+            <h3>Interpretation</h3>
+            <p>These connections are interpretations rather than claims that the readings prescribe the model’s specific mechanics. The simulation is a speculative prompt for discussion, not a validated ecological or physical prediction.</p>
+          </div>
         </div>
         <div class="log-examples">
           <h3>Three documented decisions and corrections</h3>
           <ol>
             <li><strong>Source ownership:</strong> the group supplied the research question, pitch links, roster, course handouts, eighteen unique reading PDFs, the Amsterdam Declaration image, literary interests, and its own interpretive connections. AI used these as the content basis; it did not originate the project topic or those human-provided ideas.</li>
-            <li><strong>Quote accuracy:</strong> verified short excerpts are credited to the supplied text and PDF-page locator; image-only scans are not quoted. The Kimmerer excerpt is credited to the publisher’s book page, with the page number left for edition-level verification. Fiction and books whose full text was not supplied use clearly labeled reading prompts, not fabricated quotations.</li>
+            <li><strong>Source distinction:</strong> short excerpts are credited to their texts and PDF-page locators; the Kimmerer excerpt is attributed to the publisher’s book page. Other cards use clearly labeled reading prompts rather than quotations.</li>
             <li><strong>Scope correction:</strong> the group rejected assistant-written argument text, asked for no PDF hosting, and then removed the full configurator panel. AI removed those features and kept the site focused on the reading cards and citations.</li>
           </ol>
         </div>
@@ -251,8 +303,9 @@
       <button class="close-button" id="close-drawer" aria-label="Close details">×</button>
       <div id="drawer-content"></div>
     </aside>
-    <script src="data.js?v=featured-sources-07195f3"></script>
-    <script src="app.js?v=featured-sources-07195f3"></script>
-    <script src="becoming.js?v=becoming-v27"></script>
+    <script src="data.js?v=source-review-1"></script>
+    <script src="app.js?v=presentation-copy-1"></script>
+    <script src="becoming-regions.js?v=becoming-v45"></script>
+    <script src="becoming.js?v=becoming-v47"></script>
   </body>
 </html>

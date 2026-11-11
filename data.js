@@ -11,14 +11,14 @@ window.readings = [
     quote: 'How do we design for post-humanism in architecture, and how do we consider future needs of non-human users?',
     quoteType: 'Human-provided research question',
     quoteCredit: 'Sweet Chili Heat pitch',
-    summary: 'The group asks how architectural discourse might include non-human users and how cybernetics can help model responsive relationships between buildings and their environments.',
-    why: 'This is the project’s human-authored starting point. The reading collection should help the group refine—not replace—the question through primary sources, architectural cases, and more-than-human perspectives.',
+    summary: 'The project asks how architectural discourse might include non-human users and how cybernetics can model responsive relationships between buildings and their environments.',
+    why: 'The question connects primary sources, architectural cases, and more-than-human perspectives to explore how design might respond to other forms of life.',
     tags: ['Cybernetics', 'Post-humanism', 'Non-human users', 'Group pitch'],
     sources: [
-      { label: 'MoMA Magazine link supplied in the pitch', url: 'https://production-gcp.moma.org/magazine/articles/1409', note: 'The group supplied this URL. Verify its title, author, date, and relevance against the page before citing it.' },
-      { label: 'ACM Digital Library link supplied in the pitch', url: 'https://dl.acm.org/doi/10.1145/3789492.3796449', note: 'The group supplied this DOI. Verify authors, publication details, access, and relevance against the record.' }
+      { label: 'MoMA Magazine', url: 'https://production-gcp.moma.org/magazine/articles/1409', note: 'A source linked in the project pitch.' },
+      { label: 'ACM Digital Library', url: 'https://dl.acm.org/doi/10.1145/3789492.3796449', note: 'A source linked in the project pitch.' }
     ],
-    citation: 'Sweet Chili Heat. “How do we design for post-humanism in architecture? How do we consider future needs of non-human users?” ARCH 602 group pitch, provided in conversation, November 3, 2026.'
+    citation: 'Sweet Chili Heat. “How do we design for post-humanism in architecture? How do we consider future needs of non-human users?” ARCH 602 research pitch.'
   },
   {
     id: 'living-architecture',
@@ -32,7 +32,7 @@ window.readings = [
     quote: 'What would it mean to design a building as habitat for lives beyond the human?',
     quoteType: 'Reading prompt',
     summary: 'A project direction for exploring architecture in relation to plants, fungi, animals, microbes, water, and changing environmental conditions.',
-    why: 'This theme can connect the cybernetics question to questions of habitat, maintenance, agency, and reciprocal dependence. Use specific built projects and verified sources to keep the inquiry architectural.',
+    why: 'Living architecture connects cybernetics to habitat, maintenance, agency, and reciprocal dependence.',
     tags: ['Living systems', 'Ecology', 'More-than-human', 'Habitat'],
     sources: [],
     citation: 'Curatorial topic developed from the group’s stated interest in living architecture and future needs of non-human users.'
@@ -48,11 +48,11 @@ window.readings = [
     symbol: '✳',
     quote: 'How do identity, movement, environment, and technology shape a world that is not built for one kind of body?',
     quoteType: 'Reading prompt',
-    summary: 'The group points to Binti’s living ships and the bioluminescent buildings on the university planet as speculative examples of architecture entangled with living systems.',
-    why: 'These user-identified examples make the novella a vivid design-imagination prompt: what changes when a building or vehicle is alive, luminous, and not simply a human-controlled object? Verify scenes and page references in the group’s edition; this card paraphrases the group’s reading direction and does not quote the novella.',
+    summary: 'The project’s interest in Binti includes living ships and bioluminescent buildings as a speculative vision of architecture entangled with living systems. The full text was not supplied for verification.',
+    why: 'The story opens a question for design: what changes when a building or vehicle is alive, luminous, and not simply a human-controlled object?',
     tags: ['Nnedi Okorafor', 'Speculative fiction', 'Living architecture', 'Bioluminescence', 'Living ships'],
     sources: [],
-    citation: 'Okorafor, Nnedi. Binti. New York: Tor.com, 2015. Confirm the publication details against the edition used.'
+    citation: 'Okorafor, Nnedi. Binti. New York: Tor.com, 2015.'
   },
   {
     id: 'pask-haque',
@@ -63,16 +63,15 @@ window.readings = [
     year: '2007',
     color: 'acid',
     symbol: '↔',
-    quote: 'shared environments might coexist in a mutually constructive relationship',
-    fullQuote: 'If we think of having conversations with our environments in which we each have to learn from each other, then Pask’s early experiments …',
+    quote: 'humans, devices and their shared environments might coexist in a mutually constructive relationship.',
     quoteType: 'Text excerpt · supplied PDF p. 2',
     quoteCredit: 'Usman Haque, “The Architectural Relevance of Gordon Pask”',
-    quoteLocator: 'Supplied PDF, p. 2; verify against the published edition.',
+    quoteLocator: 'Supplied PDF, p. 2 (printed p. 55).',
     summary: 'The course reading list names Usman Haque’s essay on cybernetician Gordon Pask. It provides a route into conversation theory and the idea that environments can be interactive rather than fixed objects.',
-    why: 'This is a close fit for the group’s cybernetics topic. Read the essay itself to identify what Pask’s ideas mean in architectural terms and where an extension to non-human users is the group’s own interpretation.',
+    why: 'Pask’s ideas offer a way to think about responsive architecture as a relationship. Extending that conversation to non-human users is this project’s interpretation.',
     tags: ['Gordon Pask', 'Usman Haque', 'Conversation theory', 'Interaction'],
     sources: [],
-    citation: 'Haque, Usman. “The Architectural Relevance of Gordon Pask.” Architectural Design 77, no. 4 (2007). Verify page range and issue details against the supplied reading.'
+    citation: 'Haque, Usman. “The Architectural Relevance of Gordon Pask.” Architectural Design 77, no. 4 (2007).'
   },
   {
     id: 'negroponte-machines',
@@ -83,16 +82,17 @@ window.readings = [
     year: '1969',
     color: 'acid',
     symbol: '⌘',
-    quote: 'the resulting solution is unquestionably attributed to the designer’s ingenuity and labors',
-    fullQuote: 'When a designer supplies a machine with step-by-step instructions … the resulting solution is unquestionably attributed to the designer’s ingenuity and labors.',
+    quote: 'machines that can learn about architecture',
     quoteType: 'Text excerpt · supplied PDF p. 2',
     quoteCredit: 'Nicholas Negroponte, “Toward a Theory of Architecture Machines”',
-    quoteLocator: 'Supplied PDF, p. 2; verify against the published edition.',
-    summary: 'The cybernetics module lists Negroponte’s early work on architecture machines, a primary text for tracing how computation and interaction entered architectural thinking.',
-    why: 'It can anchor the historical part of the project. Compare the machine’s imagined user and agency with the group’s question about non-human needs; do not assume the text already makes that post-humanist argument.',
+    quoteLocator: 'Supplied PDF, p. 2 (printed p. 9).',
+    summary: 'Negroponte contrasts step-by-step instructions, which leave solutions attributable to the designer, with a proposed machine that learns about architecture. He imagines a dialogue between architect and machine.',
+    why: 'This contrast shifts the machine from a tool executing instructions toward a design participant. His partnership is human–machine, not a model of ecological inhabitants; this project asks what participation might mean for other living beings.',
     tags: ['Nicholas Negroponte', 'Architecture machines', 'Computation', 'Primary source'],
-    sources: [],
-    citation: 'Negroponte, Nicholas. “Toward a Theory of Architecture Machines” (1969). The course packet lists this reading; verify the publication and page details in the supplied text.'
+    sources: [
+      { label: 'JSTOR article record', url: 'https://www.jstor.org/stable/1423828', note: 'Journal record for the 1969 article.' }
+    ],
+    citation: 'Negroponte, Nicholas. “Toward a Theory of Architecture Machines.” Journal of Architectural Education 23, no. 2 (March 1969): 9–12.'
   },
   {
     id: 'alexander-city-tree',
@@ -103,16 +103,15 @@ window.readings = [
     year: '1965',
     color: 'moss',
     symbol: '⌘',
-    quote: 'its very life stems from the fact that it is not a tree.',
-    fullQuote: 'The living city cannot properly be contained in a receptacle which is a tree—that indeed, its very life …',
+    quote: 'the living city cannot be properly contained in a receptacle which is a tree',
     quoteType: 'Text excerpt · supplied PDF p. 5',
     quoteCredit: 'Christopher Alexander, “A City Is Not a Tree”',
-    quoteLocator: 'Supplied PDF, p. 5; verify against the published edition.',
+    quoteLocator: 'Course PDF, p. 5.',
     summary: 'Alexander contrasts different ways of organizing urban relationships. The course assigns the essay alongside cybernetics and adaptive systems.',
-    why: 'Its critique of overly simple structures can help the group ask whether a building’s feedback model represents the many overlapping relationships among occupants, species, and environment.',
+    why: 'Its critique of overly simple structures invites a question: can a building’s feedback model represent overlapping relationships among occupants, species, and environment?',
     tags: ['Christopher Alexander', 'Urbanism', 'Networks', 'Primary source'],
     sources: [],
-    citation: 'Alexander, Christopher. “A City Is Not a Tree.” Architectural Forum 122, nos. 1–2 (1965). Verify issue and page details in the course PDF.'
+    citation: 'Alexander, Christopher. “A City Is Not a Tree.” Architectural Forum 122, nos. 1–2 (1965).'
   },
   {
     id: 'banham-un-house',
@@ -126,11 +125,10 @@ window.readings = [
     quote: 'If comfort depends on environmental systems, what counts as the architecture?',
     quoteType: 'Reading prompt',
     summary: 'The course cybernetics module includes Banham’s essay, which challenges conventional ideas of the house by foregrounding environmental services and technological support.',
-    why: 'It offers a historical bridge from the building as enclosure to architecture as an environmental system. The group can test whose comfort the system assumes and whose conditions are ignored.',
-    excerptNote: 'The supplied file did not yield selectable text, so no passage has been transcribed. Use the citation to locate the reading and verify any quotation in the original.',
+    why: 'The essay offers a bridge from the building as enclosure to architecture as an environmental system, raising questions about whose comfort such systems serve.',
     tags: ['Reyner Banham', 'Environment', 'Technology', 'Primary source'],
     sources: [],
-    citation: 'Banham, Reyner. “A Home Is Not a House.” Art in America 53, no. 2 (1965). Verify page range and publication details in the assigned text.'
+    citation: 'Banham, Reyner. “A Home Is Not a House.” Art in America 53, no. 2 (1965).'
   },
   {
     id: 'friedman-flatwriter',
@@ -144,10 +142,10 @@ window.readings = [
     quote: 'Who gets to enter preferences into a system—and who is unable to speak its language?',
     quoteType: 'Reading prompt',
     summary: 'The course handout describes Friedman’s Flatwriter as a proposal for empowering users to shape spatial configurations.',
-    why: 'The project is a useful precedent for participation, but it prompts a critical question for this group: can user choice include beings that cannot operate the interface or express needs in human terms?',
+    why: 'The project raises a question about participation: can user choice include beings that cannot operate an interface or express needs in human terms?',
     tags: ['Yona Friedman', 'Flatwriter', 'Participation', 'User agency'],
     sources: [],
-    citation: 'Friedman, Yona. Toward a Scientific Architecture. Cambridge, MA: MIT Press, 1975. The Flatwriter is discussed in the ARCH 602 Session 04 handout; verify the project’s original documentation.'
+    citation: 'Friedman, Yona. Toward a Scientific Architecture. Cambridge, MA: MIT Press, 1975. The Flatwriter is discussed in the ARCH 602 Session 04 handout.'
   },
   {
     id: 'metabolism',
@@ -158,16 +156,15 @@ window.readings = [
     year: '1960s–1970s',
     color: 'moss',
     symbol: '↻',
-    quote: 'Metabolism became an extended biological analogy meant to replace the mechanical analogy',
-    fullQuote: 'Metabolism became an extended biological analogy meant to replace the mechanical analogy of orthodox modern architecture.',
+    quote: 'Metabolism became an extended biological analogy',
     quoteType: 'Text excerpt · supplied PDF p. 3',
     quoteCredit: 'Charles Jencks, introduction to Kisho Kurokawa, Metabolism in Architecture',
     quoteLocator: 'Supplied PDF, p. 3. This is Jencks’s characterization of Metabolism, not a quotation from Kurokawa.',
     summary: 'The ARCH 602 cybernetics module pairs cybernetic thought with Japanese Metabolist proposals and Kisho Kurokawa’s writing on Metabolism.',
-    why: 'Metabolist ideas make change and replacement architectural questions. Compare their growth models with ecological timescales and the consequences of treating a city as a machine.',
+    why: 'Metabolist ideas make change and replacement architectural questions, inviting comparison between urban growth and ecological timescales.',
     tags: ['Kisho Kurokawa', 'Metabolism', 'Urban change', 'Adaptation'],
     sources: [],
-    citation: 'Kurokawa, Kisho. Metabolism in Architecture. Boulder, CO: Westview Press, 1977. Confirm edition details against the course reading.'
+    citation: 'Jencks, Charles. Introduction to Metabolism in Architecture, by Kisho Kurokawa. Boulder, CO: Westview Press, 1977.'
   },
   {
     id: 'ant-farm-inflatocookbook',
@@ -180,11 +177,11 @@ window.readings = [
     symbol: '◌',
     quote: 'What changes when a building is treated as a process people can assemble?',
     quoteType: 'Reading prompt',
-    summary: 'The assignment names Ant Farm’s Inflatocookbook as the class example: choose components, inflate a form, and generate a material list.',
-    why: 'It demonstrates how an architectural argument can become a manipulable model. The assignment presents it as a class example and asks groups to develop a new, source-grounded question rather than copy it.',
+    summary: 'Ant Farm’s Inflatocookbook treats inflatable structures as forms that people can make and assemble.',
+    why: 'It suggests how an architectural argument can become an open, participatory process.',
     tags: ['Ant Farm', 'Inflatables', 'Open systems', 'Assignment precedent'],
     sources: [],
-    citation: 'Ant Farm. Inflatocookbook. 1971. Verify the copy, authorship, and archival details of the version consulted.'
+    citation: 'Ant Farm. Inflatocookbook. 1971.'
   },
   {
     id: 'keller-fenland-tech',
@@ -199,12 +196,12 @@ window.readings = [
     fullQuote: 'The form of approach in all cases was to be mathematical, and its common tool would be the computer.',
     quoteType: 'Text excerpt · supplied PDF p. 9',
     quoteCredit: 'Sean Keller, “Fenland Tech”',
-    quoteLocator: 'Supplied PDF, p. 9; published pagination should be checked in the journal copy.',
-    summary: 'The supplied PDF is Sean Keller’s account of architectural science in postwar Cambridge, despite a filename that attributes it to Schnapp and dates it 2004.',
-    why: 'Keller’s historical account helps situate computational methods and mathematical models in architectural discourse. It supports the research question by prompting the group to ask what a computational tool can represent—and which users or forms of life remain outside its model.',
+    quoteLocator: 'Course PDF, p. 9.',
+    summary: 'Sean Keller examines architectural science in postwar Cambridge and the role of mathematical and computational methods.',
+    why: 'Keller’s historical account situates computational models in architectural discourse and raises questions about what such tools can represent—and which forms of life remain outside them.',
     tags: ['Sean Keller', 'Architectural science', 'Computation', 'Models'],
     sources: [],
-    citation: 'Keller, Sean. “Fenland Tech: Architectural Science in Postwar Cambridge.” Grey Room 23 (Spring 2006): 40–65. The supplied PDF filename gives incorrect authorship and date; verify publication details against the journal.'
+    citation: 'Keller, Sean. “Fenland Tech: Architectural Science in Postwar Cambridge.” Grey Room 23 (Spring 2006): 40–65.'
   },
   {
     id: 'steiner-bubbles',
@@ -215,16 +212,15 @@ window.readings = [
     year: '2009',
     color: 'moss',
     symbol: '◌',
-    quote: 'actively enclosing—the fans continuously churned to maintain the pressure',
-    fullQuote: 'The air-supported structure was in a constant process of actively enclosing—the fans continuously churned to maintain the pressure …',
+    quote: 'The air-supported structure was in a constant process of actively enclosing',
     quoteType: 'Text excerpt · supplied PDF p. 5',
     quoteCredit: 'Hadas A. Steiner',
-    quoteLocator: 'Supplied PDF, p. 5; verify against the published edition.',
+    quoteLocator: 'Supplied PDF, p. 5 (printed p. 57).',
     summary: 'Steiner examines pneumatic architecture, where enclosure depends on active systems rather than a static wall.',
-    why: 'The passage makes architectural boundaries contingent on ongoing energy and environmental conditions. It gives the group a concrete historical case for asking how a building’s operation affects both human and non-human occupants.',
+    why: 'The passage makes architectural boundaries contingent on ongoing energy and environmental conditions, opening questions about how a building’s operation affects human and non-human occupants.',
     tags: ['Hadas A. Steiner', 'Pneumatic architecture', 'Environment', 'Enclosure'],
     sources: [],
-    citation: 'Steiner, Hadas A. Beyond Archigram: The Structure of Circulation. New York: Routledge, 2009. Supplied course PDF excerpt; verify chapter and page details in the published edition.'
+    citation: 'Steiner, Hadas A. Beyond Archigram: The Structure of Circulation. New York: Routledge, 2009. Course PDF excerpt.'
   },
   {
     id: 'wiscombe-inner-life-models',
@@ -236,15 +232,16 @@ window.readings = [
     color: 'violet',
     symbol: '◌',
     quote: 'A model is never an exact replica.',
-    fullQuote: 'A model is never an exact replica. It is always driven by deliberate choices about its materiality, tectonics, scale, and level of detail.',
     quoteType: 'Text excerpt · supplied PDF p. 5',
     quoteCredit: 'Tom Wiscombe and Marrikka Trotter, “The Inner Life of Models”',
-    quoteLocator: 'Supplied PDF, p. 5; verify against the published edition.',
+    quoteLocator: 'Supplied PDF, p. 5 (printed p. 94).',
     summary: 'Wiscombe and Trotter describe models as selective, made through choices about material, scale, and detail rather than as neutral copies.',
-    why: 'This is directly useful to the project’s question: any model of future users or environmental needs selects what counts. The group can identify whose signals, timescales, and relationships its own representations make visible or omit.',
+    why: 'Any model of future users or environmental needs selects what counts, making some signals, timescales, and relationships visible while omitting others.',
     tags: ['Tom Wiscombe', 'Marrikka Trotter', 'Models', 'Representation', 'Scale'],
-    sources: [],
-    citation: 'Wiscombe, Tom, and Marrikka Trotter. “The Inner Life of Models.” 2020. Supplied course PDF; verify publication venue and pagination against the published text.'
+    sources: [
+      { label: 'JSTOR article record', url: 'https://www.jstor.org/stable/10.2307/27092867', note: 'Journal record for Log 50, pp. 91–102.' }
+    ],
+    citation: 'Wiscombe, Tom, and Marrikka Trotter. “The Inner Life of Models.” Log 50 (Fall 2020): 91–102.'
   },
   {
     id: 'gannon-object-turn',
@@ -256,14 +253,15 @@ window.readings = [
     color: 'violet',
     symbol: '↔',
     quote: 'flat ontology privileges part-to-part relationships',
-    fullQuote: 'Rather than part-to-whole hierarchies, flat ontology privileges part-to-part relationships. There is still coherence …',
-    quoteType: 'Text excerpt · supplied PDF p. 5',
-    quoteCredit: 'Todd Gannon, Graham Harman, David Ruy, and Tom Wiscombe',
-    quoteLocator: 'Supplied PDF, p. 5; verify against the journal edition.',
+    quoteType: 'Text excerpt · supplied PDF p. 4',
+    quoteCredit: 'Todd Gannon, “The Object Turn: A Conversation”',
+    quoteLocator: 'Supplied PDF, p. 4 (printed p. 75). Gannon is speaking.',
     summary: 'This conversation considers object-oriented thought and the difficulty of translating a flat ontology into architectural discourse.',
-    why: 'It offers a theoretical route beyond treating human users as the only agents that matter. Use it as a contested lens, then test what the idea changes in concrete architectural decisions and relations.',
+    why: 'It offers a contested theoretical lens for considering architectural relationships beyond human users alone.',
     tags: ['Flat ontology', 'Objects', 'Agency', 'Architecture theory'],
-    sources: [],
+    sources: [
+      { label: 'JSTOR article record', url: 'https://www.jstor.org/stable/43630852', note: 'Journal record for Log 33, pp. 73–94.' }
+    ],
     citation: 'Gannon, Todd, Graham Harman, David Ruy, and Tom Wiscombe. “The Object Turn: A Conversation.” Log 33 (Winter 2015): 73–94.'
   },
   {
@@ -276,13 +274,12 @@ window.readings = [
     color: 'violet',
     symbol: '▦',
     quote: 'How might thinking through discrete objects change what architecture treats as a relationship?',
-    quoteType: 'Reading prompt · supplied scan',
-    summary: 'The group supplied Tom Wiscombe’s “Discreteness” as a course reading; the PDF appears to be image-only in text extraction.',
-    why: 'The title and course context make this a possible lens on how architectural objects relate without collapsing into one system. Read the text itself before making a stronger claim or using a direct quotation.',
-    excerptNote: 'The supplied file did not yield selectable text, so no passage has been transcribed. Verify the publication details and any quotation in the original.',
+    quoteType: 'Reading prompt',
+    summary: 'Tom Wiscombe’s “Discreteness” is included in the architecture theory course readings.',
+    why: 'It offers a starting point for considering how architectural objects relate without collapsing into one system.',
     tags: ['Tom Wiscombe', 'Objects', 'Relations', 'Architecture theory'],
     sources: [],
-    citation: 'Wiscombe, Tom. “Discreteness.” Supplied ARCH 602 course PDF; verify publication venue, date, and pagination in the original.'
+    citation: 'Wiscombe, Tom. “Discreteness.” ARCH 602 course PDF.'
   },
   {
     id: 'woods-archetype',
@@ -294,13 +291,12 @@ window.readings = [
     color: 'acid',
     symbol: '⌂',
     quote: 'What can an architectural imaginary make thinkable beyond familiar building types?',
-    quoteType: 'Reading prompt · supplied scan',
-    summary: 'The group supplied a Lebbeus Woods biography and interview as part of the course readings; the PDF appears to be image-only in text extraction.',
-    why: 'Woods’s speculative work can be read as a challenge to fixed architectural conventions. Connect that imaginative practice to the research question through specific passages and images, rather than assuming it speaks for non-human users.',
-    excerptNote: 'The supplied file did not yield selectable text, so no passage has been transcribed. Confirm the interview title, publication, and page details from the original.',
+    quoteType: 'Reading prompt',
+    summary: 'This course reading brings together a Lebbeus Woods biography and interview.',
+    why: 'Woods’s speculative work challenges fixed architectural conventions and broadens the possibilities of architectural imagination.',
     tags: ['Lebbeus Woods', 'Speculation', 'Architectural imagination', 'Interview'],
     sources: [],
-    citation: 'Woods, Lebbeus. “Is an Archetype?” Biography and interview, supplied ARCH 602 course PDF. Verify full publication details in the original.'
+    citation: 'Woods, Lebbeus. “Is an Archetype?” Biography and interview, ARCH 602 course PDF.'
   },
   {
     id: 'amsterdam-declaration',
@@ -312,12 +308,12 @@ window.readings = [
     color: 'acid',
     symbol: '↔',
     quote: 'How do coordinated artistic and scientific practices shape the environments people inhabit—and who is included?',
-    quoteType: 'Reading prompt · group-provided source image',
-    summary: 'The group supplied an image of selected passages from the Amsterdam Declaration, which proposes coordinated approaches to transforming environments and constructing situations.',
-    why: 'It is a historically specific precedent for treating environment as something actively made, not a neutral container. Its human-centered framing is also a limitation to examine against the group’s question about non-human users.',
+    quoteType: 'Reading prompt',
+    summary: 'The Amsterdam Declaration proposes coordinated approaches to transforming environments and constructing situations.',
+    why: 'The declaration treats environment as something actively made, not a neutral container. Its human-centered framing contrasts with this project’s question about non-human users.',
     tags: ['Situationist International', 'Environment', 'Manifesto', 'Human-centered design'],
     sources: [],
-    citation: 'Constant and Guy Debord. “Amsterdam Declaration.” Amsterdam, 10 November 1958. Reprinted in Internationale Situationniste 2 (December 1958), translated by Paul Hammond. Image of selected passages supplied by the group.'
+    citation: 'Constant and Guy Debord. “Amsterdam Declaration.” Amsterdam, 10 November 1958. Reprinted in Internationale Situationniste 2 (December 1958), translated by Paul Hammond.'
   },
   {
     id: 'kimmerer-gathering-moss',
@@ -331,10 +327,10 @@ window.readings = [
     quote: 'What forms of attention would let architecture notice the lives unfolding at a smaller scale?',
     quoteType: 'Reading prompt',
     summary: 'Kimmerer brings botanical science and Indigenous knowledge to the study of mosses, inviting close attention to organisms and ecological relations often overlooked.',
-    why: 'Mosses offer a way to challenge architecture’s usual scale of attention. Ask how surfaces, moisture, shade, and maintenance might be designed with small organisms in mind, while respecting the specificity of Kimmerer’s knowledge and methods.',
+    why: 'Mosses challenge architecture’s usual scale of attention, suggesting how surfaces, moisture, shade, and maintenance might be considered alongside small organisms.',
     tags: ['Robin Wall Kimmerer', 'Mosses', 'Scale', 'Indigenous knowledge', 'Ecology'],
     sources: [
-      { label: 'Oregon State University Press book page', url: 'https://osupress.oregonstate.edu/book/gathering-moss', note: 'Publisher page consulted for the book record and description. No direct quotation is included because the supplied book text was not available.' }
+      { label: 'Oregon State University Press book page', url: 'https://osupress.oregonstate.edu/book/gathering-moss', note: 'Publisher information and description.' }
     ],
     citation: 'Kimmerer, Robin Wall. Gathering Moss: A Natural and Cultural History of Mosses. Corvallis: Oregon State University Press, 2003.'
   },
@@ -350,10 +346,10 @@ window.readings = [
     quote: 'What would it mean for a building to participate in reciprocal relations rather than simply consume?',
     quoteType: 'Reading prompt',
     summary: 'Kimmerer uses the serviceberry and gift economies to consider reciprocity, abundance, and relationships among human and more-than-human communities.',
-    why: 'This can prompt the group to question extractive assumptions in architectural resource use and to consider what reciprocity could mean in material, ecological, and maintenance relationships. Treat this as a design question inspired by the book, not a claim that it is an architecture text.',
+    why: 'The book’s exploration of reciprocity offers a lens for questioning extractive resource use and imagining different material, ecological, and maintenance relationships in architecture.',
     tags: ['Robin Wall Kimmerer', 'Reciprocity', 'Gift economies', 'Ecology'],
     sources: [
-      { label: 'Scribner / Simon & Schuster book page', url: 'https://www.simonandschuster.com/books/The-Serviceberry/Robin-Wall-Kimmerer/9781668015441', note: 'Publisher record for the book. No direct quotation is included because the supplied book text was not available.' }
+      { label: 'Scribner / Simon & Schuster book page', url: 'https://www.simonandschuster.com/books/The-Serviceberry/Robin-Wall-Kimmerer/9781668015441', note: 'Publisher information and description.' }
     ],
     citation: 'Kimmerer, Robin Wall. The Serviceberry: Abundance and Reciprocity in the Natural World. New York: Scribner, 2024.'
   },
@@ -369,10 +365,10 @@ window.readings = [
     quote: 'What responsibilities follow when trees are understood as active participants in shared environments?',
     quoteType: 'Reading prompt',
     summary: 'Beresford-Kroeger’s book brings together botanical science, cultural knowledge, and advocacy for trees and ecological systems.',
-    why: 'The group supplied this resource as a way to deepen its interest in trees and living architecture. Use it to ask how architectural decisions affect tree life and ecological continuity; connect the book’s claims to specific sites and verified passages.',
+    why: 'Its attention to trees and ecological continuity opens questions about how architectural decisions affect living environments.',
     tags: ['Diana Beresford-Kroeger', 'Trees', 'Ecology', 'Interdependence'],
     sources: [
-      { label: 'Penguin Random House Canada book page', url: 'https://www.penguinrandomhouse.ca/books/575305/to-speak-for-the-trees-by-diana-beresford-kroeger/9780735275072', note: 'Publisher record supplied by the group. No direct quotation is included because the full text was not provided.' }
+      { label: 'Penguin Random House Canada book page', url: 'https://www.penguinrandomhouse.ca/books/575305/to-speak-for-the-trees-by-diana-beresford-kroeger/9780735275072', note: 'Publisher information and description.' }
     ],
     citation: 'Beresford-Kroeger, Diana. To Speak for the Trees: My Life’s Journey from Ancient Celtic Wisdom to a Healing Vision of the Forest. Toronto: Penguin Canada, 2019.'
   },
@@ -389,14 +385,14 @@ window.readings = [
     fullQuote: 'If we use a plant respectfully, it will flourish.',
     quoteType: 'Text excerpt',
     quoteCredit: 'Robin Wall Kimmerer, Braiding Sweetgrass',
-    quoteLocator: 'Publisher page excerpt; page number to be verified in the group’s edition.',
+    quoteLocator: 'Publisher page excerpt.',
     summary: 'Kimmerer brings botanical science and Indigenous knowledge into conversation, attending to plants and other living beings as teachers and relations rather than passive background.',
-    why: 'This can deepen the project’s vocabulary of reciprocity and attention. Engage the author’s specific Potawatomi context with care; do not flatten Indigenous knowledge into a generic design method.',
+    why: 'Kimmerer’s Potawatomi perspective deepens the project’s vocabulary of reciprocity and attention to plants as living relations.',
     tags: ['Robin Wall Kimmerer', 'Plants', 'Reciprocity', 'Indigenous knowledge'],
     sources: [
-      { label: 'Milkweed Editions book page', url: 'https://milkweed.org/book/braiding-sweetgrass', note: 'Publisher page consulted for publication details and the short excerpt. Verify the quotation and page number in the group’s chosen edition.' }
+      { label: 'Milkweed Editions book page', url: 'https://milkweed.org/book/braiding-sweetgrass', note: 'Publisher information and excerpt.' }
     ],
-    citation: 'Kimmerer, Robin Wall. Braiding Sweetgrass: Indigenous Wisdom, Scientific Knowledge, and the Teachings of Plants. Minneapolis: Milkweed Editions, 2013. Page for excerpt to be verified in the edition consulted.'
+    citation: 'Kimmerer, Robin Wall. Braiding Sweetgrass: Indigenous Wisdom, Scientific Knowledge, and the Teachings of Plants. Minneapolis: Milkweed Editions, 2013.'
   },
   {
     id: 'macfarlane-river',
@@ -410,10 +406,10 @@ window.readings = [
     quote: 'What changes in design if a river is treated as a living presence rather than a resource?',
     quoteType: 'Reading prompt',
     summary: 'Macfarlane’s book investigates the idea of rivers as living beings and the cultural, political, and legal consequences of that proposition.',
-    why: 'It directly resonates with the group’s question about non-human users and can help open a discussion of agency and rights. Pair it with architectural case studies and verify the edition and claims directly.',
+    why: 'The book’s questions about rivers, agency, and rights resonate with architecture’s treatment of non-human life and landscapes.',
     tags: ['Robert Macfarlane', 'Rivers', 'Personhood', 'More-than-human'],
     sources: [],
-    citation: 'Macfarlane, Robert. Is a River Alive? New York: W. W. Norton, 2025. Verify publisher and edition details in the copy consulted.'
+    citation: 'Macfarlane, Robert. Is a River Alive? New York: W. W. Norton, 2025.'
   },
   {
     id: 'haraway-staying-trouble',
@@ -427,7 +423,7 @@ window.readings = [
     quote: 'How might architecture help people think with other planetary organisms?',
     quoteType: 'Reading prompt',
     summary: 'Haraway develops ways of thinking and living in relation with other beings amid ecological trouble, resisting simple solutions and human exceptionalism.',
-    why: 'Her work offers a rich theoretical lens for the group’s post-humanist question. Use specific concepts carefully, and connect them to architectural sources rather than claiming she is writing an architectural history.',
+    why: 'Her work offers a theoretical lens for considering architecture as part of multispecies relationships rather than an exclusively human project.',
     tags: ['Donna Haraway', 'Multispecies', 'Kinship', 'Situated knowledge'],
     sources: [
       { label: 'Duke University Press book page', url: 'https://www.dukeupress.edu/staying-with-the-trouble', note: 'Publisher page for the book record and description.' }
@@ -446,7 +442,7 @@ window.readings = [
     quote: 'What forms of care are built into a space, and what maintenance is made invisible?',
     quoteType: 'Reading prompt',
     summary: 'Puig de la Bellacasa develops a speculative ethics of care attentive to more-than-human relations, material practices, and maintenance.',
-    why: 'Care helps connect abstract systems to daily work and unequal responsibilities. It can help the group ask who maintains a building and how the needs of other lives enter that work.',
+    why: 'Care connects abstract systems to daily work and unequal responsibilities, raising questions about who maintains a building and how other lives enter that work.',
     tags: ['María Puig de la Bellacasa', 'Care', 'Maintenance', 'Ethics'],
     sources: [],
     citation: 'Puig de la Bellacasa, María. Matters of Care: Speculative Ethics in More than Human Worlds. Minneapolis: University of Minnesota Press, 2017.'
@@ -480,7 +476,7 @@ window.readings = [
     quote: 'How does the question we ask shape what we are able to notice?',
     quoteType: 'Reading prompt',
     summary: 'Despret asks how scientific questions and practices shape what people learn about animals, and invites a more attentive approach to animal agency.',
-    why: 'This is a useful lens for the project’s cybernetics reading: sensors, categories, and questions shape what a system can register. Extend the analogy carefully and keep the text’s animal studies context visible.',
+    why: 'Despret’s work offers a lens on how sensors, categories, and questions shape what a system can register.',
     tags: ['Vinciane Despret', 'Animal studies', 'Observation', 'Agency'],
     sources: [],
     citation: 'Despret, Vinciane. What Would Animals Say If We Asked the Right Questions? Translated by Brett Buchanan. Minneapolis: University of Minnesota Press, 2016.'
@@ -497,10 +493,10 @@ window.readings = [
     quote: 'What kinds of built environments support survival when social and ecological conditions change?',
     quoteType: 'Reading prompt',
     summary: 'Butler’s speculative novel follows a community facing social collapse, environmental stress, and the difficult work of forming new relations.',
-    why: 'The novel can help the group imagine futures and vulnerabilities, but should be paired with architectural and historical evidence. Butler’s fiction is not a technical forecast.',
+    why: 'The novel’s speculative future offers a way to think about vulnerability, collective adaptation, and the environments needed for survival.',
     tags: ['Octavia E. Butler', 'Climate fiction', 'Community', 'Adaptation'],
     sources: [],
-    citation: 'Butler, Octavia E. Parable of the Sower. New York: Four Walls Eight Windows, 1993. Verify publication details against the edition used.'
+    citation: 'Butler, Octavia E. Parable of the Sower. New York: Four Walls Eight Windows, 1993.'
   },
   {
     id: 'lorde-sister-outsider',
@@ -514,7 +510,7 @@ window.readings = [
     quote: 'Whose experience is treated as the norm when architectural systems define a “user”?',
     quoteType: 'Reading prompt',
     summary: 'Lorde’s essays and speeches offer a critical vocabulary for examining power, difference, and the limits of supposedly universal approaches.',
-    why: 'Lorde is not a direct cybernetics or architecture source. Read her as a critical lens that can help the group question whose needs and knowledge its models center.',
+    why: 'Lorde’s work offers a critical lens for questioning whose needs and knowledge design models center.',
     tags: ['Audre Lorde', 'Power', 'Difference', 'Critical lens'],
     sources: [],
     citation: 'Lorde, Audre. Sister Outsider: Essays and Speeches. Trumansburg, NY: Crossing Press, 1984.'
@@ -530,11 +526,11 @@ window.readings = [
     symbol: '✳',
     quote: 'How does satire expose spaces and systems that treat inhabitants as an afterthought?',
     quoteType: 'Reading prompt',
-    summary: 'The group identified Adams’s comic criticism of impersonal, inhuman architecture as a possible cultural lens on how built environments can disregard their inhabitants.',
-    why: 'Use the group’s interpretive connection to ask how satire makes architectural indifference visible. This remains a literary reading prompt, not a quotation or scholarly evidence for architectural history; identify and cite specific passages from the edition consulted.',
+    summary: 'Adams’s comic speculation provides a cultural lens on impersonal systems and environments that disregard their inhabitants.',
+    why: 'Satire makes the consequences of architectural and institutional indifference visible through absurdity.',
     tags: ['Douglas Adams', 'Satire', 'Technology', 'Speculative fiction'],
     sources: [],
-    citation: 'Adams, Douglas. The Hitchhiker’s Guide to the Galaxy. London: Pan Books, 1979. Verify the edition used.'
+    citation: 'Adams, Douglas. The Hitchhiker’s Guide to the Galaxy. London: Pan Books, 1979.'
   },
   {
     id: 'pratchett-wee-free-men',
@@ -547,11 +543,11 @@ window.readings = [
     symbol: '✳',
     quote: 'How can comic fantasy make an impersonal built world feel strange, hostile, or absurd?',
     quoteType: 'Reading prompt',
-    summary: 'The group identified Pratchett’s critical comments on architecture as a possible cultural lens on buildings and systems that feel impersonal or inhuman.',
-    why: 'Use the group’s interpretive connection to ask how comic fantasy criticizes built environments. This is a reading prompt, not a direct quotation or architectural-historical claim; verify specific passages and edition details before citing them.',
+    summary: 'Pratchett’s comic fantasy offers a cultural lens on how unfamiliar worlds and systems are experienced.',
+    why: 'Comic fantasy can make the strangeness of impersonal environments visible.',
     tags: ['Terry Pratchett', 'Fantasy', 'World-building', 'Cultural reference'],
     sources: [],
-    citation: 'Pratchett, Terry. The Wee Free Men. London: Doubleday, 2003. Verify the edition used.'
+    citation: 'Pratchett, Terry. The Wee Free Men. London: Doubleday, 2003.'
   },
   {
     id: 'ball-pattern-formation',
@@ -565,10 +561,10 @@ window.readings = [
     quote: 'Which patterns emerge from a rule, and which depend on conditions around it?',
     quoteType: 'Reading prompt',
     summary: 'The mathematics and plasticity module lists Ball’s writing on natural pattern formation and self-organizing characteristics.',
-    why: 'It may inform how the group explains rules and visible outcomes in an interactive model. Check the original article and avoid treating biological pattern as a simple design recipe.',
+    why: 'Natural pattern formation offers a way to consider how visible forms emerge from interactions between rules and physical conditions.',
     tags: ['Philip Ball', 'Self-organization', 'Patterns', 'Emergence'],
     sources: [],
-    citation: 'Ball, Philip. “Pattern Formation in Nature: Physical Constraints and Self-Organising Characteristics.” Architectural Design 82, no. 2 (2012). Verify page range from the supplied reading.'
+    citation: 'Ball, Philip. “Pattern Formation in Nature: Physical Constraints and Self-Organising Characteristics.” Architectural Design 82, no. 2 (2012).'
   },
   {
     id: 'kwinter-african-genesis',
@@ -582,10 +578,10 @@ window.readings = [
     quote: 'Can form be understood as an unfolding process rather than a finished object?',
     quoteType: 'Reading prompt',
     summary: 'The course reading list includes Kwinter’s “African Genesis” in its unit on calculus, plasticity, and generative systems.',
-    why: 'This reading may help place emergence and change within architectural discourse. Consult the supplied text for its specific argument and full publication details.',
+    why: 'This course reading places questions of emergence and change within architectural discourse.',
     tags: ['Sanford Kwinter', 'Emergence', 'Generative systems', 'Process'],
     sources: [],
-    citation: 'Kwinter, Sanford. “African Genesis.” Course reading listed in ARCH 602 Session 02. Verify the source volume, date, and page range in the supplied text.'
+    citation: 'Kwinter, Sanford. “African Genesis.” Course reading listed in ARCH 602 Session 02.'
   },
   {
     id: 'thompson-growth-form',
@@ -599,10 +595,10 @@ window.readings = [
     quote: 'How do scale, forces, and growth shape the forms we observe?',
     quoteType: 'Reading prompt',
     summary: 'The course packet assigns an excerpt from Thompson’s influential study of biological form, magnitude, and growth.',
-    why: 'It can support a rigorous discussion of how natural forms arise. Connect it to architecture through a specific argument, rather than assuming nature provides a model to copy.',
+    why: 'Thompson’s study offers a way to think about the forces and scales that shape natural forms, beyond treating nature as a visual model to copy.',
     tags: ['D’Arcy Wentworth Thompson', 'Growth', 'Form', 'Biology'],
     sources: [],
-    citation: 'Thompson, D’Arcy Wentworth. On Growth and Form. Complete revised edition. Cambridge: Cambridge University Press, 1992. Course packet excerpt, “On Magnitude,” pp. 22–77; confirm edition pagination.'
+    citation: 'Thompson, D’Arcy Wentworth. On Growth and Form. Complete revised edition. Cambridge: Cambridge University Press, 1992. Course packet excerpt, “On Magnitude,” pp. 22–77.'
   },
   {
     id: 'tafuri-architectural-ideology',
@@ -614,13 +610,12 @@ window.readings = [
     color: 'violet',
     symbol: '≠',
     quote: 'Whose interests and assumptions become built into architecture’s claims to solve social problems?',
-    quoteType: 'Reading prompt · supplied scan',
+    quoteType: 'Reading prompt',
     summary: 'Tafuri’s critique situates architectural ideas within broader political and economic conditions.',
-    why: 'This reading can help the group ask whose interests a design system serves and how claims about universal improvement can obscure other lives. Apply that lens to non-human users as the group’s question, not as Tafuri’s stated subject.',
-    excerptNote: 'The supplied file did not yield selectable text, so no passage has been transcribed. Verify the wording and pagination in the assigned edition.',
+    why: 'Tafuri’s critique offers a lens on whose interests a design system serves and how claims of universal improvement can obscure other lives.',
     tags: ['Manfredo Tafuri', 'Ideology', 'Political economy', 'Architecture'],
     sources: [],
-    citation: 'Tafuri, Manfredo. “Toward a Critique of Architectural Ideology.” Supplied ARCH 602 course PDF; verify translation, publication details, and pagination in the assigned edition.'
+    citation: 'Tafuri, Manfredo. “Toward a Critique of Architectural Ideology.” ARCH 602 course PDF.'
   },
   {
     id: 'venturi-complexity',
@@ -632,13 +627,12 @@ window.readings = [
     color: 'acid',
     symbol: '≠',
     quote: 'What gets lost when architecture simplifies the many conditions and lives that shape a place?',
-    quoteType: 'Reading prompt · supplied scan',
+    quoteType: 'Reading prompt',
     summary: 'Venturi’s book challenges reductive approaches to architectural form and argues for attention to complexity and contradiction.',
-    why: 'This offers a way to question one-size-fits-all design and to ask whether a building can accommodate competing needs. Extend the argument to multispecies conditions carefully; this is the group’s application, not a claim that Venturi writes about non-human users.',
-    excerptNote: 'The supplied file did not yield selectable text, so no passage has been transcribed. Verify any quotation and page reference in the assigned edition.',
+    why: 'Its attention to complexity offers a way to question one-size-fits-all design and ask whether a building can accommodate competing needs.',
     tags: ['Robert Venturi', 'Complexity', 'Contradiction', 'Architectural form'],
     sources: [],
-    citation: 'Venturi, Robert. Complexity and Contradiction in Architecture. New York: Museum of Modern Art, 1966. Supplied course PDF; verify edition and pagination.'
+    citation: 'Venturi, Robert. Complexity and Contradiction in Architecture. New York: Museum of Modern Art, 1966.'
   },
   {
     id: 'derrida-point-folie',
@@ -650,12 +644,11 @@ window.readings = [
     color: 'violet',
     symbol: '⌁',
     quote: 'architecture must have a meaning, it must present it and, through it, signify.',
-    fullQuote: 'Architecture must have a meaning, it must present it and, through it, signify.',
     quoteType: 'Text excerpt · supplied PDF p. 1',
     quoteCredit: 'Jacques Derrida, quoted in the supplied course excerpt',
-    quoteLocator: 'Supplied PDF, p. 1; verify the passage and pagination in the published essay.',
+    quoteLocator: 'Course PDF, p. 1.',
     summary: 'Derrida’s essay accompanies Bernard Tschumi’s La Villette portfolio and questions how architecture is assigned meaning and framed by principles from outside itself.',
-    why: 'The text can help the group question who or what supplies a building’s purpose and how that purpose frames its form and use. Connect it to non-human needs as a careful extension of the group’s research question, not as Derrida’s stated topic.',
+    why: 'Derrida describes this requirement as a postulate to be questioned, not as his own prescription. It invites this project to ask who or what supplies a building’s purpose.',
     tags: ['Jacques Derrida', 'Deconstruction', 'Meaning', 'Architectural frames'],
     sources: [],
     citation: 'Derrida, Jacques. “Point de folie—Maintenant l’architecture.” Essay accompanying Bernard Tschumi’s La Case Vide: La Villette 1985. Translated by Kate Linker. London: Architectural Association, 1986. Supplied course PDF excerpt.'
@@ -670,13 +663,12 @@ window.readings = [
     color: 'acid',
     symbol: '⌘',
     quote: 'When architecture becomes a system of signs, how are lived needs represented—or left out?',
-    quoteType: 'Reading prompt · supplied scan',
-    summary: 'The group supplied Eisenman’s “Aspects of Modernism” as a course reading on architecture, modernism, and signs.',
-    why: 'This can prompt a comparison between architecture as an autonomous representational system and architecture as a habitat used by diverse lives. Verify the essay’s specific argument before applying that comparison.',
-    excerptNote: 'The supplied file did not yield selectable text, so no passage has been transcribed. Verify the essay title, publication details, and pagination in the assigned edition.',
+    quoteType: 'Reading prompt',
+    summary: 'Eisenman’s “Aspects of Modernism” is included in the course readings on architecture, modernism, and signs.',
+    why: 'The reading prompts a comparison between architecture as a system of representation and architecture as a habitat used by diverse lives.',
     tags: ['Peter Eisenman', 'Modernism', 'Signs', 'Representation'],
     sources: [],
-    citation: 'Eisenman, Peter. “Aspects of Modernism.” Supplied ARCH 602 course PDF; verify full title, publication details, and pagination in the assigned edition.'
+    citation: 'Eisenman, Peter. “Aspects of Modernism.” ARCH 602 course PDF.'
   },
   {
     id: 'tschumi-architectural-paradox',
@@ -688,15 +680,14 @@ window.readings = [
     color: 'acid',
     symbol: '↔',
     quote: 'the impossibility of questioning the nature of space and at the same time experiencing a spatial praxis.',
-    fullQuote: 'The impossibility of questioning the nature of space and at the same time experiencing a spatial praxis.',
-    quoteType: 'Text excerpt · supplied PDF p. 1',
+    quoteType: 'Text excerpt · supplied PDF p. 3',
     quoteCredit: 'Bernard Tschumi, “The Architectural Paradox”',
-    quoteLocator: 'Supplied PDF, p. 1 (printed p. 28 in the excerpt); verify the assigned edition.',
+    quoteLocator: 'Supplied PDF, p. 3 (printed p. 28).',
     summary: 'Tschumi describes a tension between thinking about space and experiencing spatial practice.',
-    why: 'The distinction helps the group ask whether abstract models of architecture account for the actual lives and activities that occupy a place. The extension to non-human users is the group’s question.',
+    why: 'The distinction raises a question for this project: do abstract models of architecture account for the lives and activities that occupy a place?',
     tags: ['Bernard Tschumi', 'Space', 'Spatial practice', 'Experience'],
     sources: [],
-    citation: 'Tschumi, Bernard. “The Architectural Paradox.” Supplied ARCH 602 course PDF excerpt, printed pp. 28–29; verify original publication details and date.'
+    citation: 'Tschumi, Bernard. “The Architectural Paradox.” ARCH 602 course PDF excerpt, printed pp. 28–29.'
   },
   {
     id: 'foucault-panopticism',
@@ -708,13 +699,12 @@ window.readings = [
     color: 'violet',
     symbol: '◉',
     quote: 'Who is made visible, monitored, and manageable by the way a space is organized?',
-    quoteType: 'Reading prompt · supplied scan',
+    quoteType: 'Reading prompt',
     summary: 'Foucault’s analysis of panopticism links spatial arrangement, visibility, and disciplinary power.',
-    why: 'This lens can help the group examine how built environments observe, sort, or regulate occupants. Ask how non-human life is measured or controlled by human systems, while distinguishing that application from Foucault’s historical analysis.',
-    excerptNote: 'The supplied file did not yield selectable text, so no passage has been transcribed. Verify the excerpt, translation, and pagination in the assigned edition.',
+    why: 'Foucault’s historical analysis offers a lens on how built environments observe, sort, or regulate occupants, including questions about how human systems measure non-human life.',
     tags: ['Michel Foucault', 'Visibility', 'Discipline', 'Spatial control'],
     sources: [],
-    citation: 'Foucault, Michel. “Panopticism.” In Discipline and Punish: The Birth of the Prison, translated by Alan Sheridan. Supplied ARCH 602 course PDF; verify edition and pagination.'
+    citation: 'Foucault, Michel. “Panopticism.” In Discipline and Punish: The Birth of the Prison, translated by Alan Sheridan. ARCH 602 course PDF.'
   },
   {
     id: 'deleuze-plato-simulacrum',
@@ -725,16 +715,15 @@ window.readings = [
     year: '1983',
     color: 'violet',
     symbol: '≠',
-    quote: 'selection from among lines of succession, distinguishing between the claimants...',
-    fullQuote: 'Division is not at all concerned, then, to divide a genus into species, but more fundamentally with selection from among lines of succession...',
+    quote: 'distinguishing between the claimants, distinguishing the pure from the impure',
     quoteType: 'Text excerpt · supplied PDF p. 3',
     quoteCredit: 'Gilles Deleuze, translated by Rosalind Krauss',
     quoteLocator: 'Supplied PDF, p. 3 (printed p. 46).',
     summary: 'Deleuze examines how philosophical systems select among competing claims and distinguish models from copies and simulacra.',
-    why: 'This is a philosophical lens, not an architecture reading. It can help the group question how design categories decide which users or needs count as legitimate; keep that application explicit and limited.',
+    why: 'This philosophical lens raises questions about how design categories determine which users or needs count as legitimate.',
     tags: ['Gilles Deleuze', 'Classification', 'Models', 'Simulacra'],
     sources: [
-      { label: 'JSTOR article record', url: 'https://www.jstor.org/stable/778495', note: 'Journal record for the supplied article; the group’s PDF lists October 27 (Winter 1983), pp. 45–56.' }
+      { label: 'JSTOR article record', url: 'https://www.jstor.org/stable/778495', note: 'Journal record for October 27 (Winter 1983), pp. 45–56.' }
     ],
     citation: 'Deleuze, Gilles. “Plato and the Simulacrum.” Translated by Rosalind Krauss. October 27 (Winter 1983): 45–56. Supplied course PDF excerpt, printed p. 46.'
   }
