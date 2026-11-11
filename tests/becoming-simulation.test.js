@@ -13,7 +13,7 @@ function simulation(regionLimit = 36, initialSeed = 43129) {
   assert.ok(anchor.test(source));
   const code = source.replace(anchor, `globalThis.engine={
     step, frame, read:stateCopy, view:()=>viewState, reset:init, updateUI, averageAvatar, steerAtWall, steerTowardInterior, eraseRegionsFromBuilderEffects, growRegionsFromGrowerEffects, healEnclosedCuts, imprintPosition, imprintIndex, imprintPath, addEvent, renderEvents, columns:IX,
-    placementStage:()=>placementStep, isPlaying:()=>playing, preview:()=>placementPreview?{x:placementPreview.x,y:placementPreview.y,kind:placementPreview.kind,valid:placementPreviewValid}:null,
+    placementStage:()=>placementStep, isPlaying:()=>playing, preview:()=>placementPreview?{x:placementPreview.x,y:placementPreview.y,kind:placementPreview.kind,valid:placementPreviewValid}:null, historyTicks:()=>snapshots.map(snapshot=>snapshot.tick),
     setTick:value=>{tick=value},
     drawCalls:()=>globalThis.drawCalls,
     setAllWallShifts:value=>{for(const wall of walls)wall.shift=value},
@@ -228,6 +228,25 @@ test('historical snapshots preserve all imprint values independently', () => {
   model.fire('timeline', 'input');
   assert.equal(model.view().tick, 8);
   assert.equal(JSON.stringify(model.view().interior), expected);
+});
+
+test('long runs keep the full timeline while thinning retained snapshots', () => {
+  const model = simulation();
+  placeInitialRooms(model);
+  model.setAgents([]);
+  for (let i = 0; i < 6400; i++) model.step();
+
+  const history = model.historyTicks();
+  assert.ok(history.length <= 400);
+  assert.ok(history.length > 1);
+  assert.equal(history[0], 0);
+  assert.equal(history[history.length - 1], 6400);
+  assert.ok(history.every((tick, index) => index === 0 || tick > history[index - 1]));
+
+  model.element('timeline').value = '0';
+  model.fire('timeline', 'input');
+  assert.equal(model.view().tick, 0);
+  assert.equal(model.element('timeLabel').textContent, 'Tick 0');
 });
 
 test('the smaller initial wall can expand beyond the former shift limit', () => {
