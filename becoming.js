@@ -2,6 +2,7 @@
 // all use the same boundary function, so the visible region matches its effects.
 const regionGeometry=window.BecomingRegions;
 const MAX_REGIONS=36;
+const MAX_HISTORY_SNAPSHOTS=400;
 const ROOM_PLACEMENT_ORDER=['exchange','social','rest'];
 let placementStep=0,placementPreview=null,placementPointer=null,placementPreviewValid=false,placementSpotInvalid=false;
 const BUILDER_EROSION_RADIUS=12*Math.sqrt(3);
@@ -750,7 +751,14 @@ function step(){
  if(tick%50===0&&pendingEvent){
   events.unshift(pendingEvent);events=events.slice(0,5);pendingEvent=null;
  }
- if(tick%8===0){snapshots.push(stateCopy(true));if(snapshots.length>400)snapshots.shift()}
+ if(tick%8===0){
+  snapshots.push(stateCopy(true));
+  if(snapshots.length>MAX_HISTORY_SNAPSHOTS){
+   const latest=snapshots[snapshots.length-1];
+   snapshots=snapshots.filter((_,index)=>index===0||index%2===0);
+   if(snapshots[snapshots.length-1]!==latest)snapshots.push(latest);
+  }
+ }
 }
 function drawAvatar(a,context=ctx,time=tick){
  const ctx=context;
@@ -1065,7 +1073,7 @@ function updateUI(){
   :playing?'All three rooms are placed. The simulation is running.':'All three rooms are placed. Press Play to resume.';
  $('placementStatus').dataset.invalid=placementSpotInvalid?'true':'false';
  canvas.style.cursor=placing?'crosshair':'default';
- $('historyHint').textContent=placing?'The simulation is paused until all three rooms are placed.':viewState?'Viewing tick '+state.tick+'. Press Play to return to the live simulation.':'Drag the timeline to view recent history; playback pauses.';
+ $('historyHint').textContent=placing?'The simulation is paused until all three rooms are placed.':viewState?'Viewing tick '+state.tick+'. Press Play to return to the live simulation.':'Drag the timeline to review the full run. Older moments are sampled more sparsely in long runs.';
  renderEvents(state);
  if(state.tick!==lastGuideTick&&(lastGuideTick<0||viewState||!playing||Math.abs(state.tick-lastGuideTick)>=8)){
    renderSpeciesGuide(state);
