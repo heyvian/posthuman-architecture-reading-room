@@ -10,12 +10,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css?v=featured-sources-07195f3" />
-    <link rel="stylesheet" href="assignment.css?v=featured-sources-07195f3" />
+    <link rel="stylesheet" href="assignment.css?v=becoming-v27" />
   </head>
   <body>
     <header class="topbar">
       <a class="wordmark" href="#" aria-label="Reading room home"><span class="mark">M—H</span><span>CYBERNETICS<br />& ARCHITECTURE</span></a>
-      <nav aria-label="Main navigation"><a class="active" href="#library">Reading room</a><a href="#research">Research</a><a href="#process-log">Process log</a></nav>
+      <nav aria-label="Main navigation"><a class="active" href="#library">Reading room</a><a href="#becoming">Becoming</a><a href="#research">Research</a><a href="#process-log">Process log</a></nav>
       <span class="edition">ARCH 602&nbsp; / &nbsp;2026</span>
     </header>
 
@@ -41,6 +41,150 @@
           </section>
         </div>
         <p class="empty-state" id="empty" hidden>No readings found. Try another term or theme.</p>
+      </section>
+
+      <section class="becoming-section" id="becoming" aria-labelledby="becoming-heading">
+        <div class="becoming-heading library-heading">
+          <div><p class="eyebrow">Interactive model · spatial adaptation</p><h2 id="becoming-heading">Becoming</h2></div>
+          <span class="becoming-tick" id="timeLabel" aria-live="polite">Tick 0</span>
+        </div>
+        <p class="becoming-intro">An environment shaped by its inhabitants—and shaping their bodies, movement, and possibilities for cohabitation. Adjust the conditions, explore the evolving ecology, and inspect its history and traces.</p>
+        <div class="becoming-layout" id="becoming-app">
+          <section class="becoming-main" aria-label="Ecology simulation">
+            <div class="becoming-panel">
+              <div class="becoming-canvas-wrap">
+                <canvas id="view" width="1120" height="760" aria-label="Interactive ecology. Select an inhabitant or boundary to inspect it." tabindex="0"></canvas>
+              </div>
+              <div class="becoming-controls" aria-label="Simulation controls">
+                <button class="becoming-button becoming-button-primary" id="play" type="button">Pause</button>
+                <button class="becoming-button" id="step" type="button">Step</button>
+                <button class="becoming-button" id="reset" type="button">Reset</button>
+                <button class="becoming-button" id="restart" type="button">New seed</button>
+              </div>
+              <div class="becoming-history">
+                <span>Past</span>
+                <input id="timeline" type="range" min="0" max="0" value="0" aria-label="Simulation history" />
+                <span>Now</span>
+              </div>
+              <p class="becoming-hint" id="historyHint">Click an inhabitant or wall to inspect its feedback. Drag the timeline to examine past states; the simulation pauses while viewing history.</p>
+              <div class="becoming-legend" aria-label="Inhabitant types">
+                <span><i class="becoming-dot grower"></i>Branching growers</span>
+                <span><i class="becoming-dot builder"></i>Spiral builders</span>
+                <span><i class="becoming-dot mover"></i>Wave movers</span>
+              </div>
+              <section class="becoming-guide" aria-labelledby="becoming-guide-heading">
+                <div class="becoming-guide-heading">
+                  <p class="eyebrow">Spatial adaptation</p>
+                  <h3 id="becoming-guide-heading">How places change inhabitants</h3>
+                  <p>Each species keeps its own anatomy. Time spent in a region changes its form <strong>and</strong> behaviour; these changes persist after leaving, then slowly fade.</p>
+                </div>
+                <div class="becoming-species-grid">
+                  <article class="becoming-species">
+                    <div class="becoming-species-top">
+                      <svg viewBox="0 0 70 65" aria-hidden="true"><g stroke="#36825b" stroke-width="2" fill="none" stroke-linecap="round"><path d="M35 58V30 M35 43L18 26 M35 37L51 21 M18 26L10 12 M18 26L6 30 M51 21L57 8 M51 21L64 19 M35 30L29 14"/></g></svg>
+                      <div><h4>Growers</h4><span>Branching bodies</span></div>
+                    </div>
+                    <div class="becoming-effect gather"><b>Gather</b><span>More branches and subdivisions</span></div>
+                    <div class="becoming-effect rest"><b>Rest</b><span>Shorter, denser branches</span></div>
+                    <div class="becoming-effect exchange"><b>Exchange</b><span>Fine dotted branch tips</span></div>
+                  </article>
+                  <article class="becoming-species">
+                    <div class="becoming-species-top">
+                      <svg viewBox="0 0 70 65" aria-hidden="true"><path d="M36 33C36 28 29 28 28 34C27 43 40 46 46 37C54 24 40 13 27 19C10 27 15 51 34 54C58 57 65 27 48 13" fill="none" stroke="#c17859" stroke-width="2" stroke-linecap="round"/></svg>
+                      <div><h4>Builders</h4><span>Coiled bodies</span></div>
+                    </div>
+                    <div class="becoming-effect gather"><b>Gather</b><span>More satellite coils</span></div>
+                    <div class="becoming-effect rest"><b>Rest</b><span>More spiral turns</span></div>
+                    <div class="becoming-effect exchange"><b>Exchange</b><span>Wider, more open coils</span></div>
+                  </article>
+                  <article class="becoming-species">
+                    <div class="becoming-species-top">
+                      <svg viewBox="0 0 70 65" aria-hidden="true"><g stroke="#4b86af" stroke-width="2" fill="none"><path d="M5 18Q13 7 21 18T37 18T53 18T69 18 M5 32Q13 21 21 32T37 32T53 32T69 32 M5 46Q13 35 21 46T37 46T53 46T69 46"/></g></svg>
+                      <div><h4>Movers</h4><span>Waveform bodies</span></div>
+                    </div>
+                    <div class="becoming-effect gather"><b>Gather</b><span>More parallel strands</span></div>
+                    <div class="becoming-effect rest"><b>Rest</b><span>Gentler, slower waves</span></div>
+                    <div class="becoming-effect exchange"><b>Exchange</b><span>Finer, faster waves and dots</span></div>
+                  </article>
+                </div>
+                <div class="becoming-abilities">
+                  <p><strong>Gather memory</strong><span>Stay closer to others of the same species.</span></p>
+                  <p><strong>Rest memory</strong><span>Travel faster after leaving a rest region.</span></p>
+                  <p><strong>Exchange memory</strong><span>Leave more species-shaped traces and reshape walls more forcefully.</span></p>
+                </div>
+              </section>
+              <div class="becoming-stats" aria-label="Inhabitant population">
+                <div><strong id="nGrow">8</strong><span>Growers</span></div>
+                <div><strong id="nSpiral">8</strong><span>Builders</span></div>
+                <div><strong id="nWave">8</strong><span>Movers</span></div>
+              </div>
+            </div>
+          </section>
+          <aside class="becoming-sidebar">
+            <section class="becoming-panel becoming-conditions" aria-labelledby="conditions-heading">
+              <h3 id="conditions-heading">Conditions</h3>
+              <div class="becoming-slider">
+                <div><label for="bureaucracy">Bureaucracy</label><output id="bureaucracyValue" for="bureaucracy">35%</output></div>
+                <input id="bureaucracy" type="range" min="0" max="100" value="35" />
+                <p>Higher values require more time and collective activity to establish regions; established regions gain resistance.</p>
+              </div>
+              <div class="becoming-slider">
+                <div><label for="innovation">Innovation</label><output id="innovationValue" for="innovation">65%</output></div>
+                <input id="innovation" type="range" min="0" max="100" value="65" />
+                <p>At 55%, wall responsiveness matches the previous 100%; higher settings allow more dramatic change.</p>
+              </div>
+              <div class="becoming-slider">
+                <div><label for="abundance">Abundance</label><output id="abundanceValue" for="abundance">55%</output></div>
+                <input id="abundance" type="range" min="0" max="100" value="55" />
+                <p>Controls how quickly shared resources regenerate.</p>
+              </div>
+              <div class="becoming-slider">
+                <div><label for="solidarity">Solidarity</label><output id="solidarityValue" for="solidarity">50%</output></div>
+                <input id="solidarity" type="range" min="0" max="100" value="50" />
+                <p>Increases neighbour attraction and helps occupied spaces become established.</p>
+              </div>
+              <div class="becoming-slider">
+                <div><label for="adaptability">Adaptability</label><output id="adaptabilityValue" for="adaptability">65%</output></div>
+                <input id="adaptability" type="range" min="0" max="100" value="65" />
+                <p>Controls how quickly bodily traits develop and fade through experience; memories persist much longer after leaving.</p>
+              </div>
+              <div class="becoming-slider">
+                <div><label for="impermanence">Impermanence</label><output id="impermanenceValue" for="impermanence">45%</output></div>
+                <input id="impermanence" type="range" min="0" max="100" value="45" />
+                <p>Controls how readily established regions change their use, without removing them.</p>
+              </div>
+              <div class="becoming-slider">
+                <div><label for="rate">Simulation speed</label><output id="rateValue" for="rate">2×</output></div>
+                <input id="rate" type="range" min="1" max="50" value="2" />
+                <p>Changes playback speed up to 50×, not ecological rules. Higher speeds may use more processing power.</p>
+              </div>
+            </section>
+            <section class="becoming-panel becoming-information" aria-labelledby="regions-heading">
+              <h3 id="regions-heading">Living regions</h3>
+              <p><span class="region-color rest-color">●</span> Rest slows movement and creates a glow, but changes each species differently. <span class="region-color gather-color">●</span> Gather attracts neighbours and changes each species differently. <span class="region-color exchange-color">●</span> Exchange causes vibration and regenerates shared resources; its bodily effects differ by species.</p>
+              <p>Time spent in each region changes bodies and creates lasting behavioural abilities. Territories emerge near actual groups of inhabitants. Rest, Gather, and Exchange are equally likely; sustained inhabitation establishes regions. Bureaucracy and Solidarity influence region emergence and establishment without adding inhabitants. Established places protect against outer-wall encroachment without restricting passage. The enclosure starts at roughly 85% of the canvas and gently contracts unless inhabitants push back.</p>
+              <div class="becoming-metric"><span>Active territories</span><strong id="zoneCount">0</strong></div>
+              <div class="becoming-metric"><span>Established places</span><strong id="permanentCount">0</strong></div>
+            </section>
+            <section class="becoming-panel becoming-information" aria-labelledby="inspect-heading">
+              <h3 id="inspect-heading">Selected / What changed?</h3>
+              <div id="inspect" aria-live="polite">Select an inhabitant or boundary segment. Watch inhabitants create shelters, corners, and passages. Their bodies adapt to local conditions, and the resulting architecture changes where they gather and adapt.</div>
+            </section>
+            <section class="becoming-panel becoming-information" aria-labelledby="events-heading">
+              <h3 id="events-heading">Recent events</h3>
+              <div id="events" aria-live="polite"></div>
+            </section>
+            <section class="becoming-panel becoming-information" aria-labelledby="how-heading">
+              <h3 id="how-heading">How it works</h3>
+              <p>Interior imprints mirror the inhabitant that made them: Growers leave branching forms, Builders leave coils, and Movers leave waves. Exchange experience makes imprints more likely and substantially amplifies each species’ wall-making action. Imprints fade unless renewed.</p>
+              <p><strong>Growers</strong> extend branching shelters at the boundary, making more room for other inhabitants.</p>
+              <p><strong>Builders</strong> create layered recesses and sharp corners, creating new niches and encouraging more elaborate coils.</p>
+              <p><strong>Movers</strong> wear passages and generate rippled edges. Their waveforms respond to wall complexity and nearby movement.</p>
+              <p>No inhabitants die or harm one another. When a place becomes crowded, inhabitants adapt, seek different spaces, and collectively encourage the region to expand. Reproduction pauses at the population limit; existing inhabitants remain. Offspring inherit modified traits.</p>
+            </section>
+          </aside>
+        </div>
+        <p class="becoming-foot"><strong>Research connections:</strong> Gordon Pask / Usman Haque: reciprocal feedback and conversation; Nicholas Negroponte: responsive environments; Kisho Kurokawa: metabolism and ongoing renewal. The model’s regions, spatial memory, establishment thresholds, and numerical rules are original speculative interpretations, not rules extracted from those texts. It models noncompetitive cohabitation and mutual adaptation, not a validated ecological or physical prediction.</p>
       </section>
 
       <section class="research" id="research" aria-labelledby="research-heading">
@@ -83,7 +227,11 @@
         </div>
         <div class="log-entry">
           <span class="log-date">DESIGN & EDITORIAL DECISIONS</span>
-          <div><h3>Human direction</h3><p>The group described a visual card pile, search and taxonomy filters, slide-out reading details, citations, and a public-facing learning goal. It then specified the interaction: selecting one card should lift it from a slightly blurred pile, show three related readings from different categories for cross-pollination, and keep the detail drawer on the right. The group later asked for the pile to shuffle on each page load so the same cards would not always sit on top. It explicitly chose not to host PDFs, asking instead for information, quotations, and citations. The group rejected the speculative “Working position” copy and later asked to remove the entire cybernetics configurator panel as confusing.</p><h3>AI response</h3><p>The app keeps cards, search, filters, the selected-card view, cross-category recommendations, and the detail drawer; the pile order is randomized once per page load and remains stable while visitors search or filter. The rejected argument and configurator panel are removed. No PDF upload or storage feature is included. This records the group’s design choices rather than attributing them to AI.</p></div>
+          <div><h3>Human direction</h3><p>The group described a visual card pile, search and taxonomy filters, slide-out reading details, citations, and a public-facing learning goal. It then specified the interaction: selecting one card should lift it from a slightly blurred pile, show three related readings from different categories for cross-pollination, and keep the detail drawer on the right. The group later asked for the pile to shuffle on each page load so the same cards would not always sit on top. It explicitly chose not to host PDFs, asking instead for information, quotations, and citations. The group rejected the speculative “Working position” copy and asked to remove the original cybernetics configurator panel as confusing.</p><h3>AI response</h3><p>The app keeps cards, search, filters, the selected-card view, cross-category recommendations, and the detail drawer; the pile order is randomized once per page load and remains stable while visitors search and filter. The original panel was removed at that stage. No PDF upload or storage feature is included. This records the group’s design choices rather than attributing them to AI.</p></div>
+        </div>
+        <div class="log-entry">
+          <span class="log-date">INTERACTIVE ECOLOGY MODEL</span>
+          <div><h3>Human-provided prototype</h3><p>The project owner supplied <em>becoming_ecology_v26.html</em> and requested its functionality as a new area below the reading cards.</p><h3>Integration and scope</h3><p>AI reimplemented the model natively in the reading room, preserving its playback, parameter controls, history timeline, entity and wall inspection, and reciprocal adaptation. The interface was restyled to use the site’s typography and colors. The simulation remains an explicitly speculative model, not a validated ecological or physical prediction; it does not change reading-card search or store PDFs.</p></div>
         </div>
         <div class="log-examples">
           <h3>Three documented decisions and corrections</h3>
@@ -105,5 +253,6 @@
     </aside>
     <script src="data.js?v=featured-sources-07195f3"></script>
     <script src="app.js?v=featured-sources-07195f3"></script>
+    <script src="becoming.js?v=becoming-v27"></script>
   </body>
 </html>

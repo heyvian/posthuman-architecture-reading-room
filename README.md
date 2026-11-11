@@ -17,6 +17,7 @@ Open `index.html` in a browser. This prototype uses plain HTML, CSS, and JavaScr
 - 40 reading cards spanning cybernetics, architecture, more-than-human theory, ecology, and speculative fiction
 - A newly shuffled card order on each page load, held steady while searching and filtering
 - Two featured course readings under “Sources in conversation,” selected for their close fit with the research question and linked directly to their reading cards
+- A native interactive “Becoming” ecology model directly below the card pile, with adjustable conditions, playback controls, a history timeline, and click-to-inspect inhabitants and boundaries
 - A process log distinguishing human-provided ideas and sources from AI contributions
 
 ## Reading entries
@@ -26,6 +27,8 @@ Edit `data.js` to curate reading cards. Keep direct excerpts distinguishable fro
 The MoMA Magazine and ACM Digital Library links came from the group’s pitch and still need bibliographic verification. The initial course PDFs are course outlines and reading-list handouts; the group later supplied eleven reading PDFs and seven additional unique readings, plus four reattached copies of earlier readings. Short excerpts from text-readable files are labeled with PDF-page locators; the Banham, Woods, “Discreteness,” Tafuri, Venturi, Eisenman, and Foucault scans yielded no selectable text and are not quoted. Cards for Kimmerer’s additional books, Beresford-Kroeger, and the literary works use attributed reading prompts because their full texts were not supplied. The direct *Braiding Sweetgrass* excerpt is sourced to the publisher page and needs a page number checked in the group’s edition.
 
 The app is a citation and reading-card catalog. It does not upload, store, or distribute PDFs.
+
+The “Becoming” section reimplements the supplied prototype as native reading-room markup and JavaScript. The simulation remains a speculative model, not a validated ecological or physical prediction.
 
 ## Process log
 
