@@ -2,6 +2,8 @@
 // all use the same boundary function, so the visible region matches its effects.
 const regionGeometry=window.BecomingRegions;
 const MAX_REGIONS=36;
+const ROOM_PLACEMENT_ORDER=['exchange','social','rest'];
+let placementStep=0,placementPreview=null,placementPointer=null,placementPreviewValid=false,placementSpotInvalid=false;
 const BUILDER_EROSION_RADIUS=12*Math.sqrt(3);
 function imprintPosition(gx,gy){
  return [(gx+.5+(gy%2?.25:-.25))*CELLW,IMPRINT_Y+gy*CELLH];
@@ -110,13 +112,14 @@ function init(newSeed=false){
   do{next=window.crypto.getRandomValues(new Uint32Array(1))[0]}while(next===seed);
   seed=next;
  }
- random=rng(seed);tick=0;acc=0;nextId=1;nextRegionId=1;lastRegionTick=-72;agents=[];events=[];pendingEvent=null;candidateEvidence.clear();speciesBaseline=[.10,.10,.10];lastGuideTick=-1;
+ random=rng(seed);tick=0;acc=0;nextId=1;nextRegionId=1;lastRegionTick=-72;agents=[];events=[];pendingEvent=null;candidateEvidence.clear();speciesBaseline=[.10,.10,.10];lastGuideTick=-1;placementStep=0;placementPreview=null;placementPointer=null;placementPreviewValid=false;placementSpotInvalid=false;
  walls=Array.from({length:N},()=>({shift:0,branch:0,layer:0,builderLayer:0,wave:0,wear:0,contacts:0,shelter:0,corner:0}));
  resources=Array.from({length:24},()=>.78);zones=[];
  interior=Array.from({length:IX*IY},()=>({rest:0,social:0,exchange:0,wear:0,imprints:[0,0,0],forms:[0,0,0],lastType:-1}));
  for(let k=0;k<3;k++)for(let i=0;i<8;i++)spawn(k);
  initialSpecies=Array.from({length:3},(_,type)=>averageAvatar(agents,type));
- snapshots=[stateCopy(true)];viewState=null;playing=true;$('play').textContent='Pause';updateUI();
+ placementPreview=createPlacementRoom(ROOM_PLACEMENT_ORDER[placementStep]);
+ snapshots=[stateCopy(true)];viewState=null;playing=false;$('play').textContent='Place rooms first';updateUI();
 }
 let nextId=1;
 let nextRegionId=1;
@@ -130,6 +133,49 @@ function addEvent(message){
 function regionName(kind){return kind==='social'?'Gather':kind==='rest'?'Rest':'Exchange'}
 function regionPhrase(kind){return (kind==='exchange'?'an ':'a ')+regionName(kind)+' region'}
 function regionCount(){return new Set(zones.map(z=>z.groupId)).size}
+function createPlacementRoom(kind){
+ const radius=38+random()*34;
+ return {id:nextRegionId,groupId:nextRegionId,links:[],x:CX,y:CY,kind,strength:.35,radius,baseRadius:radius,phase:random()*TAU,irregularity:.65+random()*.65,biasX:0,biasY:0,age:0,occupantTicks:0,established:false,emptyTicks:0,establishedAt:0,protection:0,stability:0,activity:0};
+}
+function canPlaceRoom(room){
+ if(room.radius<18||zones.length>=MAX_REGIONS||!regionGeometry.canCreate(zones,room.x,room.y))return false;
+ return regionGeometry.polygon(room).every(([x,y])=>distanceToWall({x,y})>=WALL_GAP);
+}
+function movePlacementPreview(x,y){
+ placementPointer={x,y};
+ placementPreview.x=x;placementPreview.y=y;
+ placementPreview.radius=Math.min(placementPreview.baseRadius,regionGeometry.limitRadius(placementPreview,zones),canvasRadiusLimit(placementPreview));
+ placementPreviewValid=canPlaceRoom(placementPreview);
+ placementSpotInvalid=!placementPreviewValid;
+}
+function canvasPoint(event){
+ const rect=canvas.getBoundingClientRect();
+ if(!rect.width||!rect.height)return null;
+ return {x:(event.clientX-rect.left)*W/rect.width,y:(event.clientY-rect.top)*H/rect.height};
+}
+function moveRoomPreview(event){
+ const point=canvasPoint(event);
+ if(!point)return false;
+ movePlacementPreview(point.x,point.y);
+ return true;
+}
+function placeRoom(event){
+ if(placementStep>=ROOM_PLACEMENT_ORDER.length||(event.button!==0&&event.pointerType!=='touch'))return;
+ event.preventDefault();
+ if(!moveRoomPreview(event)||!placementPreviewValid){updateUI();return;}
+ const point={...placementPointer};
+ const {baseRadius,...room}=placementPreview;
+ zones.push(room);nextRegionId++;
+ placementStep++;
+ placementSpotInvalid=false;
+ if(placementStep<ROOM_PLACEMENT_ORDER.length){
+  placementPreview=createPlacementRoom(ROOM_PLACEMENT_ORDER[placementStep]);
+  movePlacementPreview(point.x,point.y);
+ }else{
+  placementPreview=null;placementPointer=null;placementPreviewValid=false;playing=true;
+ }
+ snapshots[0]=stateCopy(true);viewState=null;acc=0;updateUI();
+}
 function steerAtWall(agent,clearance,angle,randomValue){
  if(clearance>=18){agent.wallMode=null;return}
  if(clearance>=14)return;
@@ -960,6 +1006,16 @@ function draw(s){
  }
  for(const a of s.agents)drawAvatar(a,ctx,s.tick);
  ctx.fillStyle='#748779';ctx.font='12px system-ui';ctx.fillText('LIVING ARCHITECTURE  /  COHABITATION  ·  LIVING REGIONS',20,28);
+ if(placementStep<ROOM_PLACEMENT_ORDER.length&&placementPointer&&placementPreview){
+  const kind=placementPreview.kind,color=kind==='rest'?'83,101,142':kind==='social'?'150,86,111':'145,112,37';
+  ctx.save();ctx.beginPath();polygonPath(regionGeometry.polygon(placementPreview));
+  ctx.fillStyle=placementPreviewValid?`rgba(${color},.22)`:'rgba(166,78,67,.18)';
+  ctx.strokeStyle=placementPreviewValid?`rgba(${color},.92)`:'#a64e43';
+  ctx.lineWidth=2;ctx.setLineDash([6,5]);ctx.fill();ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle=placementPreviewValid?`rgb(${color})`:'#8c3c34';ctx.font='600 12px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(placementPreviewValid?'PLACE '+regionName(kind).toUpperCase():'MOVE TO CLEAR SPACE',placementPreview.x,placementPreview.y);
+  ctx.restore();
+ }
 }
 let lastRenderedEvents=null;
 function renderEvents(state){
@@ -1001,7 +1057,15 @@ function updateUI(){
  $('nWave').textContent=String(population[2]);
  $('timeline').max=String(Math.max(0,snapshots.length-1));
  if(!viewState)$('timeline').value=String(snapshots.length-1);
- $('historyHint').textContent=viewState?'Viewing tick '+state.tick+'. Press Play to return to the live simulation.':'Drag the timeline to view recent history; playback pauses.';
+ const placing=placementStep<ROOM_PLACEMENT_ORDER.length;
+ $('play').disabled=placing;$('step').disabled=placing;$('timeline').disabled=placing;
+ $('play').textContent=placing?'Place rooms first':playing?'Pause':'Play';
+ $('placementStatus').textContent=placing
+  ?placementSpotInvalid?'That spot is unavailable. Move the '+regionName(ROOM_PLACEMENT_ORDER[placementStep])+' preview inside the enclosure and away from other rooms.':'Place room '+(placementStep+1)+' of 3: '+regionName(ROOM_PLACEMENT_ORDER[placementStep])+'. Move the preview blob inside the enclosure and click. Then place the remaining rooms; the simulation starts after all three are placed.'
+  :playing?'All three rooms are placed. The simulation is running.':'All three rooms are placed. Press Play to resume.';
+ $('placementStatus').dataset.invalid=placementSpotInvalid?'true':'false';
+ canvas.style.cursor=placing?'crosshair':'default';
+ $('historyHint').textContent=placing?'The simulation is paused until all three rooms are placed.':viewState?'Viewing tick '+state.tick+'. Press Play to return to the live simulation.':'Drag the timeline to view recent history; playback pauses.';
  renderEvents(state);
  if(state.tick!==lastGuideTick&&(lastGuideTick<0||viewState||!playing||Math.abs(state.tick-lastGuideTick)>=8)){
    renderSpeciesGuide(state);
@@ -1023,7 +1087,16 @@ function frame(timestamp){
  }
  requestAnimationFrame(frame);
 }
+canvas.addEventListener('pointermove',event=>{
+ if(placementStep<ROOM_PLACEMENT_ORDER.length&&moveRoomPreview(event))updateUI();
+});
+canvas.addEventListener('pointerleave',()=>{
+ if(placementStep>=ROOM_PLACEMENT_ORDER.length)return;
+ placementPointer=null;placementSpotInvalid=false;updateUI();
+});
+canvas.addEventListener('pointerdown',placeRoom);
 $('play').addEventListener('click',()=>{
+ if(placementStep<ROOM_PLACEMENT_ORDER.length)return;
  if(viewState){viewState=null;$('timeline').value=String(snapshots.length-1);}
  playing=!playing;
  acc=0;
@@ -1031,6 +1104,7 @@ $('play').addEventListener('click',()=>{
  updateUI();
 });
 $('step').addEventListener('click',()=>{
+ if(placementStep<ROOM_PLACEMENT_ORDER.length)return;
  viewState=null;
  playing=false;
  acc=0;
@@ -1041,6 +1115,7 @@ $('step').addEventListener('click',()=>{
 $('reset').addEventListener('click',()=>init());
 $('restart').addEventListener('click',()=>init(true));
 $('timeline').addEventListener('input',event=>{
+ if(placementStep<ROOM_PLACEMENT_ORDER.length)return;
  const index=Number(event.currentTarget.value);
  const snapshot=snapshots[index];
  viewState=index===snapshots.length-1?null:{...snapshot,interior:unpackInterior(snapshot.interior)};

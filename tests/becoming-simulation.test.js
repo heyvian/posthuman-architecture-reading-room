@@ -13,6 +13,7 @@ function simulation(regionLimit = 36, initialSeed = 43129) {
   assert.ok(anchor.test(source));
   const code = source.replace(anchor, `globalThis.engine={
     step, frame, read:stateCopy, view:()=>viewState, reset:init, updateUI, averageAvatar, steerAtWall, steerTowardInterior, eraseRegionsFromBuilderEffects, growRegionsFromGrowerEffects, healEnclosedCuts, imprintPosition, imprintIndex, imprintPath, addEvent, renderEvents, columns:IX,
+    placementStage:()=>placementStep, isPlaying:()=>playing, preview:()=>placementPreview?{x:placementPreview.x,y:placementPreview.y,kind:placementPreview.kind,valid:placementPreviewValid}:null,
     setTick:value=>{tick=value},
     drawCalls:()=>globalThis.drawCalls,
     setAllWallShifts:value=>{for(const wall of walls)wall.shift=value},
@@ -37,9 +38,12 @@ function simulation(regionLimit = 36, initialSeed = 43129) {
       value: values[id] || '0',
       textContent: '',
       innerHTML: '',
+      style: {},
+      dataset: {},
       listeners: {},
       replaceCount: 0,
       getContext: () => context,
+      getBoundingClientRect: () => ({ left: 0, top: 0, width: 1120, height: 760 }),
       addEventListener(type, callback) { this.listeners[type] = callback; },
       replaceChildren() { this.replaceCount++; },
       append() {}
@@ -60,10 +64,22 @@ function simulation(regionLimit = 36, initialSeed = 43129) {
   const crypto = { getRandomValues(array) { array[0] = nextSeed++; return array; } };
   const sandbox = { document, Path2D, performance: { now: () => now() }, window: { BecomingRegions: geometry, crypto }, requestAnimationFrame() {} };
   vm.runInNewContext(code, sandbox);
-  sandbox.engine.fire = (id, type) => element(id).listeners[type]({ currentTarget: element(id) });
+  sandbox.engine.fire = (id, type, event = {}) => element(id).listeners[type]({
+    currentTarget: element(id),
+    button: 0,
+    preventDefault() {},
+    ...event
+  });
   sandbox.engine.element = element;
   sandbox.engine.setClock = clock => { now = clock; };
   return sandbox.engine;
+}
+
+function placeInitialRooms(model) {
+  for (const [x, y] of [[560, 380], [420, 380], [700, 380]]) {
+    model.fire('view', 'pointermove', { clientX: x, clientY: y });
+    model.fire('view', 'pointerdown', { clientX: x, clientY: y });
+  }
 }
 
 function region(id, x, y, kind = 'rest', established = false) {
@@ -96,6 +112,50 @@ test('the starting enclosure spans about 60% of the canvas and contains the init
   for (const agent of state.agents) assert.ok(insideWall(state.walls, agent.x, agent.y));
 });
 
+test('simulation waits for Exchange, Gather, and Rest rooms to be placed', () => {
+  const model = simulation();
+  assert.equal(model.read().zones.length, 0);
+  assert.equal(model.isPlaying(), false);
+  assert.equal(model.element('play').disabled, true);
+  assert.equal(model.element('step').disabled, true);
+
+  model.frame(100);
+  model.frame(185);
+  model.fire('play', 'click');
+  model.fire('step', 'click');
+  assert.equal(model.read().tick, 0);
+
+  model.fire('view', 'pointermove', { clientX: 560, clientY: 100 });
+  assert.equal(model.preview().valid, false);
+  model.fire('view', 'pointerdown', { clientX: 560, clientY: 100 });
+  assert.equal(model.read().zones.length, 0);
+
+  model.fire('view', 'pointermove', { clientX: 560, clientY: 380 });
+  assert.equal(model.preview().valid, true);
+  model.fire('view', 'pointerdown', { clientX: 560, clientY: 380 });
+  assert.deepEqual(Array.from(model.read().zones, zone => zone.kind), ['exchange']);
+  assert.equal(model.isPlaying(), false);
+  assert.equal(model.placementStage(), 1);
+
+  model.fire('view', 'pointerdown', { clientX: 560, clientY: 380 });
+  assert.deepEqual(Array.from(model.read().zones, zone => zone.kind), ['exchange']);
+  assert.equal(model.preview().kind, 'social');
+
+  model.fire('view', 'pointermove', { clientX: 420, clientY: 380 });
+  model.fire('view', 'pointerdown', { clientX: 420, clientY: 380 });
+  assert.deepEqual(Array.from(model.read().zones, zone => zone.kind), ['exchange', 'social']);
+  assert.equal(model.isPlaying(), false);
+
+  model.fire('view', 'pointermove', { clientX: 700, clientY: 380 });
+  model.fire('view', 'pointerdown', { clientX: 700, clientY: 380 });
+  assert.deepEqual(Array.from(model.read().zones, zone => zone.kind), ['exchange', 'social', 'rest']);
+  assert.equal(model.isPlaying(), true);
+  assert.equal(model.element('play').disabled, false);
+
+  model.frame(270);
+  assert.ok(model.read().tick > 0);
+});
+
 test('page loads and New seed choose new worlds while Reset repeats the current seed', () => {
   const first = simulation(36, 123);
   const anotherLoad = simulation(36, 124);
@@ -116,6 +176,7 @@ test('page loads and New seed choose new worlds while Reset repeats the current 
 
 test('multiple simulation ticks render only once per animation frame', () => {
   const model = simulation();
+  placeInitialRooms(model);
   const initialDraws = model.drawCalls();
   model.frame(100);
   assert.equal(model.drawCalls(), initialDraws);
@@ -129,6 +190,7 @@ test('multiple simulation ticks render only once per animation frame', () => {
 
 test('slow simulation ticks yield between frames without skipping ticks', () => {
   const model = simulation();
+  placeInitialRooms(model);
   model.element('rate').value = '50';
   let time = 0;
   model.setClock(() => { time += 9; return time; });
@@ -141,6 +203,7 @@ test('slow simulation ticks yield between frames without skipping ticks', () => 
 
 test('single-step and history controls render the selected state', () => {
   const model = simulation();
+  placeInitialRooms(model);
   for (let i = 0; i < 16; i++) model.step();
   model.element('timeline').value = '1';
   model.fire('timeline', 'input');
@@ -154,6 +217,7 @@ test('single-step and history controls render the selected state', () => {
 
 test('historical snapshots preserve all imprint values independently', () => {
   const model = simulation();
+  placeInitialRooms(model);
   model.setCell(40, .8, .37);
   model.setGrowerCell(41, .7, .52);
   for (let i = 0; i < 8; i++) model.step();
@@ -245,6 +309,7 @@ test('tentative and established counters partition merged region groups', () => 
 
 test('region counters follow the selected historical snapshot', () => {
   const model = simulation();
+  placeInitialRooms(model);
   model.setAgents([]);
   model.setZones([region(1000, 400, 380), region(1001, 750, 380, 'rest', true)]);
   for (let i = 0; i < 8; i++) model.step();
