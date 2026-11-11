@@ -137,7 +137,7 @@ function openReading(id) {
     <section class="detail-section"><h3>In brief</h3><p>${escapeHTML(item.summary)}</p></section>
     <section class="detail-section"><h3>Why it matters</h3><p>${escapeHTML(item.why)}</p></section>
     <section class="detail-section"><h3>Explore through</h3><div class="detail-tags">${item.tags.map((tag) => `<span>${escapeHTML(tag)}</span>`).join('')}</div></section>
-    <section class="detail-section"><h3>References & further reading</h3>${item.sources.length ? `<ul class="source-list">${item.sources.map((source) => `<li><a href="${escapeHTML(source.url)}" target="_blank" rel="noopener noreferrer">${escapeHTML(source.label)} <span aria-hidden="true">↗</span></a><p>${escapeHTML(source.note)}</p></li>`).join('')}</ul>` : '<p>No external link available.</p>'}</section>
+    ${item.sources.length ? `<section class="detail-section"><h3>References & further reading</h3><ul class="source-list">${item.sources.map((source) => `<li><a href="${escapeHTML(source.url)}" target="_blank" rel="noopener noreferrer">${escapeHTML(source.label)} <span aria-hidden="true">↗</span></a><p>${escapeHTML(source.note)}</p></li>`).join('')}</ul></section>` : ''}
     <section class="detail-section citation"><h3>Citation</h3><p>${escapeHTML(item.citation)}</p></section>`;
   drawer.classList.add('open');
   drawer.setAttribute('aria-hidden', 'false');

@@ -48,10 +48,14 @@ window.readings = [
     symbol: '✳',
     quote: 'How do identity, movement, environment, and technology shape a world that is not built for one kind of body?',
     quoteType: 'Reading prompt',
-    summary: 'The project’s interest in Binti includes living ships and bioluminescent buildings as a speculative vision of architecture entangled with living systems. The full text was not supplied for verification.',
-    why: 'The story opens a question for design: what changes when a building or vehicle is alive, luminous, and not simply a human-controlled object?',
-    tags: ['Nnedi Okorafor', 'Speculative fiction', 'Living architecture', 'Bioluminescence', 'Living ships'],
-    sources: [],
+    summary: 'Binti travels from her Himba community to an interstellar university, encountering other species and ways of life. Janet Seow reads the story through Africanfuturism, attending to culture, technology, and the representation of Black girls.',
+    why: 'The project’s interest in living ships and bioluminescent buildings opens a question for design: what changes when an inhabited environment is itself alive and more than a human-controlled object?',
+    tags: ['Nnedi Okorafor', 'Africanfuturism', 'Speculative fiction', 'Living architecture', 'Living ships'],
+    sources: [
+      { label: 'Binti · publisher', url: 'https://us.macmillan.com/books/9780765384461/binti/', note: 'Publisher page for the 2015 novella.' },
+      { label: 'Janet Seow · Binti and Africanfuturism', url: 'https://doi.org/10.18357/jcs202220356', note: 'Seow, Janet. “Nnedi Okorafor’s Binti: African Science Fiction and the Reimagined Black Girl.” Journal of Childhood Studies 47, no. 1 (2022): 56–69.' },
+      { label: 'Binti: Home · Internet Archive', url: 'https://archive.org/details/bintihome0000okor_p0w1', note: 'Catalog record for the 2017 sequel.' }
+    ],
     citation: 'Okorafor, Nnedi. Binti. New York: Tor.com, 2015.'
   },
   {
@@ -518,18 +522,20 @@ window.readings = [
   {
     id: 'adams-hitchhiker',
     title: 'The Hitchhiker’s Guide to the Galaxy',
-    subtitle: 'Douglas Adams · comic speculation about worlds and systems',
+    subtitle: 'Douglas Adams · bypasses, planetary design, and intelligent doors',
     type: 'Fiction / cultural reference',
     theme: 'Speculative worlds',
     year: '1979',
     color: 'acid',
     symbol: '✳',
-    quote: 'How does satire expose spaces and systems that treat inhabitants as an afterthought?',
+    quote: 'What happens when an environment is designed for a system instead of its inhabitants?',
     quoteType: 'Reading prompt',
-    summary: 'Adams’s comic speculation provides a cultural lens on impersonal systems and environments that disregard their inhabitants.',
-    why: 'Satire makes the consequences of architectural and institutional indifference visible through absurdity.',
-    tags: ['Douglas Adams', 'Satire', 'Technology', 'Speculative fiction'],
-    sources: [],
+    summary: 'Arthur Dent’s house and Earth both face demolition for bypasses. The planet-builders of Magrathea turn worlds into luxury commissions, while intelligent doors perform exaggerated satisfaction with their work.',
+    why: 'Adams’s satire connects planning at domestic and planetary scales to bureaucratic indifference. The doors also complicate the idea of a responsive environment: a personality does not necessarily make a system attentive to its users.',
+    tags: ['Douglas Adams', 'Satire', 'Planning', 'Cybernetics', 'Speculative fiction'],
+    sources: [
+      { label: 'Technology in the Hitchhiker’s Guide universe', url: 'https://hitchhikers.fandom.com/wiki/List_of_technology_in_the_Hitchhiker%27s_Guide_to_the_Galaxy', note: 'Fan reference on Sirius Cybernetics Corporation technology across the series.' }
+    ],
     citation: 'Adams, Douglas. The Hitchhiker’s Guide to the Galaxy. London: Pan Books, 1979.'
   },
   {
