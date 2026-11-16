@@ -18,6 +18,10 @@ function shuffle(items) {
 }
 
 const pileReadings = shuffle(window.readings);
+const searchableText = new Map(pileReadings.map((item) => {
+  const sourceText = item.sources.map((source) => `${source.label} ${source.note}`).join(' ');
+  return [item, [item.title, item.subtitle, item.type, item.theme, item.summary, item.why, item.quote, item.fullQuote || '', item.quoteType, item.quoteCredit || '', item.quoteLocator || '', item.citation, sourceText, item.tags.join(' ')].join(' ').toLowerCase()];
+}));
 const allThemes = [...new Set(window.readings.map((item) => item.theme))];
 let activeTheme = 'All ideas';
 let returnFocusId = null;
@@ -51,9 +55,7 @@ function visibleReadings() {
   const query = search.value.trim().toLowerCase();
   return pileReadings.filter((item) => {
     const matchesTheme = activeTheme === 'All ideas' || item.theme === activeTheme;
-    const sourceText = item.sources.map((source) => `${source.label} ${source.note}`).join(' ');
-    const haystack = [item.title, item.subtitle, item.type, item.theme, item.summary, item.why, item.quote, item.fullQuote || '', item.quoteType, item.quoteCredit || '', item.quoteLocator || '', item.citation, sourceText, item.tags.join(' ')].join(' ').toLowerCase();
-    return matchesTheme && (!query || haystack.includes(query));
+    return matchesTheme && (!query || searchableText.get(item).includes(query));
   });
 }
 

@@ -5,7 +5,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 const geometry = require('../becoming-regions.js');
 
-function simulation(regionLimit = 36, initialSeed = 43129) {
+function simulation(regionLimit = 36, initialSeed = 43129, options = {}) {
   const source = fs.readFileSync(path.join(__dirname, '..', 'becoming.js'), 'utf8')
     .replace('const MAX_REGIONS=36;', `const MAX_REGIONS=${regionLimit};`)
     .replace('function draw(s){', 'function draw(s){globalThis.drawCalls=(globalThis.drawCalls||0)+1;');
@@ -15,6 +15,7 @@ function simulation(regionLimit = 36, initialSeed = 43129) {
     step, frame, read:stateCopy, view:()=>viewState, reset:init, updateUI, averageAvatar, steerAtWall, steerTowardInterior, eraseRegionsFromBuilderEffects, growRegionsFromGrowerEffects, healEnclosedCuts, imprintPosition, imprintIndex, imprintPath, addEvent, renderEvents, columns:IX,
     placementStage:()=>placementStep, isPlaying:()=>playing, preview:()=>placementPreview?{x:placementPreview.x,y:placementPreview.y,kind:placementPreview.kind,valid:placementPreviewValid}:null, historyTicks:()=>snapshots.map(snapshot=>snapshot.tick),
     setTick:value=>{tick=value},
+    setCreated:value=>{regionsCreated=value},
     drawCalls:()=>globalThis.drawCalls,
     setAllWallShifts:value=>{for(const wall of walls)wall.shift=value},
     setZones:value=>{zones=value}, setAgents:value=>{agents=value},
@@ -60,9 +61,15 @@ function simulation(regionLimit = 36, initialSeed = 43129) {
     lineTo() {}
   }
   let now = () => 0;
+  let visibilityCallback;
   let nextSeed = initialSeed;
   const crypto = { getRandomValues(array) { array[0] = nextSeed++; return array; } };
-  const sandbox = { document, Path2D, performance: { now: () => now() }, window: { BecomingRegions: geometry, crypto }, requestAnimationFrame() {} };
+  const window = { BecomingRegions: geometry, crypto };
+  if (options.observer) window.IntersectionObserver = class {
+    constructor(callback) { visibilityCallback = callback; }
+    observe() {}
+  };
+  const sandbox = { document, Path2D, performance: { now: () => now() }, window, requestAnimationFrame() {} };
   vm.runInNewContext(code, sandbox);
   sandbox.engine.fire = (id, type, event = {}) => element(id).listeners[type]({
     currentTarget: element(id),
@@ -72,6 +79,7 @@ function simulation(regionLimit = 36, initialSeed = 43129) {
   });
   sandbox.engine.element = element;
   sandbox.engine.setClock = clock => { now = clock; };
+  if (options.observer) sandbox.engine.setVisible = visible => visibilityCallback([{ target: element('view'), isIntersecting: visible }]);
   return sandbox.engine;
 }
 
@@ -188,6 +196,24 @@ test('multiple simulation ticks render only once per animation frame', () => {
   assert.equal(model.drawCalls(), initialDraws + 1);
 });
 
+test('off-screen simulation continues and redraws its latest selected state when visible', () => {
+  const model = simulation(36, 43129, { observer: true });
+  placeInitialRooms(model);
+  const initialDraws = model.drawCalls();
+  model.setVisible(false);
+  for (let i = 0; i < 16; i++) model.step();
+  model.updateUI();
+  assert.equal(model.read().tick, 16);
+  assert.equal(model.drawCalls(), initialDraws);
+  model.element('timeline').value = '1';
+  model.fire('timeline', 'input');
+  assert.equal(model.view().tick, 8);
+  assert.equal(model.drawCalls(), initialDraws);
+  model.setVisible(true);
+  assert.equal(model.drawCalls(), initialDraws + 1);
+  assert.equal(model.element('timeLabel').textContent, 'Tick 8');
+});
+
 test('slow simulation ticks yield between frames without skipping ticks', () => {
   const model = simulation();
   placeInitialRooms(model);
@@ -215,27 +241,78 @@ test('single-step and history controls render the selected state', () => {
   assert.equal(model.drawCalls(), draws + 1);
 });
 
-test('outcome reflection follows room placement, current settings, and selected history', () => {
+test('outcome reflection interprets current settings and distinguishes historical conditions', () => {
   const model = simulation();
-  assert.match(model.element('outcome-state').textContent, /0 of 3 initial rooms placed/);
+  assert.equal(model.element('outcome-history').hidden, true);
+  assert.match(model.element('outcome-new').textContent, /0 of the initial 3 rooms/);
   placeInitialRooms(model);
-  assert.match(model.element('outcome-state').textContent, /Current state, tick 0: 24 inhabitants and 3 regions, 0 established/);
+  assert.equal(model.read().regionsCreated, 0);
+  const initial = model.element('outcome-new').textContent;
+  assert.match(model.element('outcome-community').textContent, /moderate bureaucracy/i);
+  for (let i = 0; i < 8; i++) model.step();
+  model.setCreated(2);
+  for (let i = 0; i < 8; i++) model.step();
+  model.updateUI();
+  assert.equal(model.element('outcome-new').textContent, initial);
 
-  model.element('bureaucracy').value = '80';
-  model.fire('bureaucracy', 'input');
-  assert.match(model.element('outcome-conditions').textContent, /high bureaucracy \(80%\) sets a more demanding threshold/);
-  for (let i = 0; i < 16; i++) model.step();
+  const cases = [
+    ['bureaucracy', 'outcome-community', /low bureaucracy/i, /high bureaucracy/i],
+    ['solidarity', 'outcome-community', /low solidarity/i, /high solidarity/i],
+    ['innovation', 'outcome-change', /low innovation/i, /high innovation/i],
+    ['adaptability', 'outcome-change', /bodies and memories change slowly/i, /bodies and memories change quickly/i],
+    ['abundance', 'outcome-resources', /slower renewal/i, /faster renewal/i],
+    ['impermanence', 'outcome-resources', /uses more resistant to change/i, /uses more open to repurposing/i]
+  ];
+  for (const [slider, output, low, high] of cases) {
+    model.element(slider).value = '0';
+    model.fire(slider, 'input');
+    assert.match(model.element(output).textContent, low);
+    model.element(slider).value = '100';
+    model.fire(slider, 'input');
+    assert.match(model.element(output).textContent, high);
+  }
+
+  assert.match(model.element('outcome-new').textContent, /2 new regions over the last 16 ticks/);
   model.element('timeline').value = '1';
   model.fire('timeline', 'input');
-  assert.match(model.element('outcome-state').textContent, /Selected history, tick 8/);
-  assert.match(model.element('outcome-conditions').textContent, /not necessarily those used at this historical moment/);
-
+  assert.equal(model.element('outcome-history').hidden, false);
+  assert.match(model.element('outcome-new').textContent, /0 new regions over the last 8 ticks/);
   model.element('abundance').value = '10';
   model.fire('abundance', 'input');
-  assert.match(model.element('outcome-conditions').textContent, /Abundance \(10%\)/);
-  assert.match(model.element('outcome-state').textContent, /Selected history, tick 8/);
+  assert.match(model.element('outcome-resources').textContent, /slower renewal/i);
+  assert.equal(model.element('outcome-history').hidden, false);
+  model.element('timeline').value = '2';
+  model.fire('timeline', 'input');
+  assert.equal(model.element('outcome-history').hidden, true);
+  assert.match(model.element('outcome-new').textContent, /2 new regions over the last 16 ticks/);
   model.fire('reset', 'click');
-  assert.match(model.element('outcome-state').textContent, /0 of 3 initial rooms placed/);
+  assert.equal(model.element('outcome-history').hidden, true);
+  assert.equal(model.read().regionsCreated, 0);
+  const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+  assert.doesNotMatch(html, /id="outcome-state"/);
+  assert.match(html, /<strong>Effect and affect\.<\/strong>/);
+  assert.match(model.element('outcome-affect').textContent, /interpretation, not a claim/);
+});
+
+test('outcome observations refresh at most every three seconds during playback and immediately when paused', () => {
+  const model = simulation();
+  let now = 0;
+  model.setClock(() => now);
+  placeInitialRooms(model);
+  const initial = model.element('outcome-new').textContent;
+  model.setCreated(1);
+  for (let i = 0; i < 49; i++) model.step();
+  now = 2999;
+  model.updateUI();
+  assert.equal(model.element('outcome-new').textContent, initial);
+  model.step();
+  now = 3000;
+  model.updateUI();
+  assert.match(model.element('outcome-new').textContent, /1 new region over the last 50 ticks/);
+  model.fire('play', 'click');
+  model.setCreated(2);
+  model.fire('step', 'click');
+  assert.match(model.element('outcome-new').textContent, /2 new regions over the last 51 ticks/);
 });
 
 test('historical snapshots preserve all imprint values independently', () => {
@@ -497,6 +574,7 @@ test('regions can exceed five, persist when unused, and adapt their shape', () =
   }
   const initial = model.read().zones;
   assert.ok(initial.length > 5, `Expected more than five regions, got ${initial.length}`);
+  assert.ok(model.read().regionsCreated > 0);
   for (let i = 0; i < 200; i++) model.step();
   const later = model.read().zones;
   assert.ok(initial.some(place => {

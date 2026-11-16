@@ -95,6 +95,7 @@ function unpackInterior(packed){
 function stateCopy(compact=false){
  return {
   tick,
+  regionsCreated,
   agents:agents.map(a=>({...a})),
   walls:walls.map(w=>({...w})),
   resources:resources.slice(),
@@ -105,7 +106,7 @@ function stateCopy(compact=false){
  };
 }
 function liveState(){
- return {tick,agents,walls,resources,speciesBaseline,interior,zones,events};
+ return {tick,regionsCreated,agents,walls,resources,speciesBaseline,interior,zones,events};
 }
 function init(newSeed=false){
  if(newSeed){
@@ -113,7 +114,7 @@ function init(newSeed=false){
   do{next=window.crypto.getRandomValues(new Uint32Array(1))[0]}while(next===seed);
   seed=next;
  }
- random=rng(seed);tick=0;acc=0;nextId=1;nextRegionId=1;lastRegionTick=-72;agents=[];events=[];pendingEvent=null;candidateEvidence.clear();speciesBaseline=[.10,.10,.10];lastGuideTick=-1;placementStep=0;placementPreview=null;placementPointer=null;placementPreviewValid=false;placementSpotInvalid=false;
+ random=rng(seed);tick=0;acc=0;nextId=1;nextRegionId=1;regionsCreated=0;lastRegionTick=-72;agents=[];events=[];pendingEvent=null;candidateEvidence.clear();speciesBaseline=[.10,.10,.10];lastGuideTick=-1;lastOutcomeTick=null;placementStep=0;placementPreview=null;placementPointer=null;placementPreviewValid=false;placementSpotInvalid=false;
  walls=Array.from({length:N},()=>({shift:0,branch:0,layer:0,builderLayer:0,wave:0,wear:0,contacts:0,shelter:0,corner:0}));
  resources=Array.from({length:24},()=>.78);zones=[];
  interior=Array.from({length:IX*IY},()=>({rest:0,social:0,exchange:0,wear:0,imprints:[0,0,0],forms:[0,0,0],lastType:-1}));
@@ -124,6 +125,7 @@ function init(newSeed=false){
 }
 let nextId=1;
 let nextRegionId=1;
+let regionsCreated=0;
 let lastRegionTick=-72;
 let speciesBaseline=[.10,.10,.10],initialSpecies=[],lastGuideTick=-1,pendingEvent=null;
 const candidateEvidence=new Map();
@@ -589,6 +591,7 @@ function step(){
      if(zone.radius<18)continue;
      nextRegionId++;
      zones.push(zone);
+     regionsCreated++;
      lastRegionTick=tick;
      candidateEvidence.delete(c.key);
      addEvent(`A tentative ${regionName(kind)} region emerges where ${c.count} inhabitants have gathered.`);
@@ -1051,19 +1054,81 @@ function renderEvents(state){
   list.append(item);
  }
 }
-let lastOutcomeHistory=null;
-function renderOutcome(state,placing,regions,established){
- const message=placing
-  ?`${placementStep} of 3 initial rooms placed. Your choices establish a starting framework; inhabitants will reshape it once the run begins.`
-  :`${viewState?'Selected history':'Current state'}, tick ${state.tick}: ${state.agents.length} inhabitants and ${regions} ${regions===1?'region':'regions'}, ${established} established.`;
- if($('outcome-state').textContent!==message)$('outcome-state').textContent=message;
- if(lastOutcomeHistory!==Boolean(viewState))renderOutcomeConditions();
+let lastOutcomeTick=null,lastOutcomeTime=0,lastOutcomeView=null,lastOutcomePlacement=null;
+let canvasVisible=true;
+if(typeof window.IntersectionObserver==='function'){
+ const observer=new window.IntersectionObserver(entries=>{
+  for(const entry of entries){
+   if(entry.target!==canvas)continue;
+   const wasVisible=canvasVisible;
+   canvasVisible=entry.isIntersecting;
+   if(canvasVisible&&!wasVisible)draw(viewState||liveState());
+  }
+ });
+ observer.observe(canvas);
 }
-function renderOutcomeConditions(){
- lastOutcomeHistory=Boolean(viewState);
+function renderOutcome(state){
+ lastOutcomeTick=state.tick;
+ lastOutcomeTime=performance.now();
+ lastOutcomeView=viewState;
+ lastOutcomePlacement=placementStep;
+ $('outcome-history').hidden=!viewState;
+ const setOutcome=(id,text)=>{if($(id).textContent!==text)$(id).textContent=text};
  const settings=Object.fromEntries(['bureaucracy','solidarity','innovation','adaptability','abundance','impermanence'].map(id=>[id,Number($(id).value)]));
- const level=value=>value>=67?'high':value<=33?'low':'moderate';
- $('outcome-conditions').textContent=`${viewState?'Current controls (not necessarily those used at this historical moment)':'Current controls'}: ${level(settings.bureaucracy)} bureaucracy (${settings.bureaucracy}%) sets a ${settings.bureaucracy>=67?'more demanding':settings.bureaucracy<=33?'less demanding':'moderate'} threshold for regions, while ${level(settings.solidarity)} solidarity (${settings.solidarity}%) affects attraction and establishment. At ${settings.innovation}%, ${level(settings.innovation)} innovation influences wall response; ${level(settings.adaptability)} adaptability (${settings.adaptability}%) affects how quickly inhabitants change. Abundance (${settings.abundance}%) sets resource renewal, and impermanence (${settings.impermanence}%) influences changes in established use.`;
+ const level=value=>value<=33?'low':value>=67?'high':'moderate';
+ const pick=(value,low,middle,high)=>value<=33?low:value>=67?high:middle;
+ const describe=(name)=>`${level(settings[name])} ${name} (${settings[name]}%)`;
+ const groups=new Set(state.zones.map(zone=>zone.groupId)).size;
+ const established=new Set(state.zones.filter(zone=>zone.established).map(zone=>zone.groupId)).size;
+ let prior=snapshots[0];
+ for(let i=snapshots.length-1;i>=0;i--){
+  if(snapshots[i].tick<=state.tick-100){prior=snapshots[i];break}
+ }
+ const elapsed=state.tick-prior.tick;
+ const created=state.regionsCreated-prior.regionsCreated;
+ const observed=placementStep<ROOM_PLACEMENT_ORDER.length
+  ?`${groups} of the initial 3 rooms placed.`
+  :elapsed>0
+   ?`${created} new ${created===1?'region':'regions'} over the last ${elapsed} ticks.`
+   :'Initial rooms placed; no time has elapsed.';
+ setOutcome('outcome-new',observed);
+ setOutcome('outcome-regions',`${established} of ${groups} current ${groups===1?'region':'regions'} established.`);
+ const barriers=pick(settings.bureaucracy,'makes it easier for shared activity to take spatial hold','asks shared activity to persist before a place takes hold','makes establishing a place more demanding and strengthens its resistance to wall change');
+ const gathering=pick(settings.solidarity,'offers less pull towards gathering','gives gathering a moderate pull','draws inhabitants more strongly towards gathering and helps establish regions');
+ const anchors=established
+  ?`${settings.innovation>=67?'Even an amplified wall response':'The wall response'} can be tempered near established places${settings.bureaucracy>=67?', where high bureaucracy increases resistance':''}.`
+  :'Without an established region, wall movement is not yet tempered by established-region resistance.';
+ setOutcome('outcome-community',`Here, ${describe('bureaucracy')} ${barriers}, while ${describe('solidarity')} ${gathering}. Together they influence whether collective activity becomes a lasting anchor or remains tentative. ${anchors}`);
+ const memories=state.agents.filter(agent=>Math.max(agent.restMemory||0,agent.socialMemory||0,agent.exchangeMemory||0)>=.6).length;
+ const boundary=state.walls.reduce((sum,wall,index)=>sum+Math.abs(wallRadius(index,state.walls)-INITIAL_RADIUS),0)/state.walls.length;
+ setOutcome('outcome-boundary',`Boundary differs from its starting radius by ${Math.round(boundary)} units on average.`);
+ setOutcome('outcome-memories',`${memories} of ${state.agents.length} inhabitants carry strong memories of places.`);
+ const response=pick(settings.innovation,'a restrained','a moderate','an amplified');
+ const adaptation=pick(settings.adaptability,'slowly','gradually','quickly');
+ setOutcome('outcome-change',`With ${describe('innovation')}, inhabitants have ${response} influence on wall movement; ${describe('adaptability')} lets bodies and memories change ${adaptation}. A changing boundary can alter future encounters, which may in turn leave different traces: an architecture that could feel more open, unsettled or resistant rather than simply finished.`);
+ const supply=Math.round(100*state.resources.reduce((sum,value)=>sum+value,0)/state.resources.length);
+ setOutcome('outcome-supply',`Average resource supply: ${supply}% for ${state.agents.length} inhabitants.`);
+ const renewal=pick(settings.abundance,'slower renewal can make available resources more consequential','renewal can sustain activity while resources remain uneven','faster renewal can support wellbeing and reproduction');
+ const reuse=pick(settings.impermanence,'makes established uses more resistant to change','allows established uses to change through sustained activity','makes established uses more open to repurposing');
+ const prospects=established
+  ?`${supply<30?'Low current supplies may limit activity even when solidarity draws inhabitants together.':'Available supplies and solidarity can help sustain shared activity.'} Repeated use might eventually give an established place another purpose.`
+  :'No region is established yet, so repurposing remains a future possibility rather than an observed change.';
+ setOutcome('outcome-resources',`Under ${describe('abundance')}, ${renewal}; ${describe('impermanence')} ${reuse}. ${prospects} The resulting atmosphere might suggest continuity or possibility, depending on whose practices can take hold.`);
+ const effect=(established
+  ?'Established regions can anchor parts of the boundary.'
+  :groups?'The regions are still tentative, leaving the boundary without the resistance that established places can provide.'
+   :'No regions have been placed yet, so the boundary has no established-region resistance.')
+  +(memories?' Some inhabitants carry strong memories of places into future encounters.':' No inhabitants carry strong memories of places yet.');
+ const affect=supply<30
+  ?settings.adaptability>=67
+   ?'Low supplies alongside high adaptability might suggest an atmosphere of tension, but also resourcefulness as inhabitants change with their surroundings.'
+   :'Low supplies alongside slower adaptation might suggest an atmosphere of tension or constraint.'
+  :settings.impermanence>=67
+   ?'With uses more open to change, this combination might suggest an atmosphere of possibility, but also uncertainty about what will endure.'
+   :established&&settings.bureaucracy>=67
+    ?'The stronger resistance around established places might suggest stability to some, but constraint to others.'
+    :`The interplay of a ${settings.innovation<=33?'more restrained':'responsive'} boundary and established or emerging places might suggest openness, continuity or uncertainty.`;
+ setOutcome('outcome-affect',`${effect} These are potential effects of the modeled relationships. Affect asks what such conditions might be like to inhabit: ${affect} This is an interpretation, not a claim that the simulated entities feel.`);
 }
 function updateUI(){
  const state=viewState||liveState();
@@ -1088,13 +1153,13 @@ function updateUI(){
  $('placementStatus').dataset.invalid=placementSpotInvalid?'true':'false';
  canvas.style.cursor=placing?'crosshair':'default';
  $('historyHint').textContent=placing?'The simulation is paused until all three rooms are placed.':viewState?'Viewing tick '+state.tick+'. Press Play to return to the live simulation.':'Drag the timeline to review the full run. Older moments are sampled more sparsely in long runs.';
- renderOutcome(state,placing,totalRegions,establishedRegions);
+ if(lastOutcomeTick===null||lastOutcomeView!==viewState||lastOutcomePlacement!==placementStep||(!playing&&state.tick!==lastOutcomeTick)||(state.tick!==lastOutcomeTick&&performance.now()-lastOutcomeTime>=3000))renderOutcome(state);
  renderEvents(state);
  if(state.tick!==lastGuideTick&&(lastGuideTick<0||viewState||!playing||Math.abs(state.tick-lastGuideTick)>=8)){
    renderSpeciesGuide(state);
    lastGuideTick=state.tick;
  }
- draw(state);
+ if(canvasVisible)draw(state);
 }
 function frame(timestamp){
  if(!frame.previous)frame.previous=timestamp;
@@ -1151,7 +1216,7 @@ for(const id of ['bureaucracy','innovation','abundance','solidarity','adaptabili
  $(id).addEventListener('input',()=>{
   if(id==='rate')acc=0;
   $(id+'Value').textContent=id==='rate'?$(id).value+'\u00d7':$(id).value+'%';
-  if(id!=='rate')renderOutcomeConditions();
+  if(id!=='rate')renderOutcome(viewState||liveState());
  });
 }
 init();

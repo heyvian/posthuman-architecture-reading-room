@@ -438,6 +438,30 @@
   margin-top: 10px;
 }
 
+.outcome-observations {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px 16px;
+  margin: 12px 0;
+  padding: 0;
+  list-style: none;
+  color: #5d5f56;
+  font-size: 11px;
+  line-height: 1.65;
+}
+
+.outcome-observations li {
+  min-height: 3.3em;
+  padding-left: 10px;
+  border-left: 1px solid var(--line);
+}
+
+@media (max-width: 600px) {
+  .outcome-observations {
+    grid-template-columns: 1fr;
+  }
+}
+
 .becoming-outcome .source-card-link {
   margin: 0;
   font-size: inherit;
