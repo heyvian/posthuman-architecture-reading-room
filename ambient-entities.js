@@ -15,15 +15,21 @@
     const pile = pileLayers.includes(destination);
     if (pile) destination.style.zIndex = String(2 + Math.floor(Math.random() * 37));
     const phase = Math.random() * Math.PI * 2;
+    const size = index === 0 ? 35 : index === 1 ? 105 : 35 + Math.random() * 70;
+    element.style.width = `${size}px`;
+    element.style.height = `${size}px`;
     return {
       element, pile, path: element.querySelector('path'), form: element.dataset.form, index,
-      size: index === 0 ? 35 : index === 1 ? 105 : 35 + Math.random() * 70,
+      size,
+      needsShape: true,
       seed: Math.random() * 10000,
       phase,
       scrollSpeed: .65 + Math.random() * .8,
       driftSpeed: .75 + Math.random() * .5,
       x: .5 + .38 * Math.sin(phase),
       y: .5 + .33 * Math.sin(phase * 1.3),
+      velocityX: 0,
+      velocityY: 0,
       scatterFrom: null,
       scatterTo: null,
       from: .12 + Math.random() * .18,
@@ -32,12 +38,12 @@
       duration: 6000 + Math.random() * 4000
     };
   });
-  let timer = null;
   let frame = null;
   let scrollDistance = 0;
   let lastScroll = window.scrollY;
   let lastScrollAt = performance.now();
   let lastFrameAt = lastScrollAt;
+  let lastShapeAt = -Infinity;
 
   function gene(seed, generation, channel) {
     const value = Math.sin(seed + generation * 91.73 + channel * 47.31) * 43758.5453;
@@ -113,8 +119,12 @@
     const still = motion.matches;
     const scroll = still ? 0 : window.scrollY;
     const maturity = still ? 0 : 1 - Math.exp(-scrollDistance / (window.innerHeight * 1.4));
-    const scatterTime = Math.max(0, Math.min(1, (now - lastScrollAt - 200) / 5000));
+    const scatterTime = Math.max(0, Math.min(1, (now - lastScrollAt - 200) / 4000));
     const scatter = still ? 0 : scatterTime * scatterTime * (3 - 2 * scatterTime);
+    const shapesDue = now - lastShapeAt >= 100;
+    if (shapesDue) lastShapeAt = now;
+    const pileBounds = pileLayers[0].getBoundingClientRect();
+    const pileVisible = pileBounds.bottom > 0 && pileBounds.top < window.innerHeight && pileBounds.right > 0 && pileBounds.left < window.innerWidth;
     occupants.forEach((entity) => {
       if (!still && now - entity.started >= entity.duration) {
         entity.from = entity.to;
@@ -122,34 +132,29 @@
         entity.started = now;
         entity.duration = 6000 + Math.random() * 4000;
       }
-      const progress = still ? 0 : Math.min(1, (now - entity.started) / entity.duration);
-      const base = entity.from + (entity.to - entity.from) * progress;
-      const generation = still ? 0 : scrollDistance * entity.scrollSpeed / 650;
-      const stage = Math.floor(generation);
-      const blend = generation - stage;
-      const genes = Array.from({length:5}, (_, channel) => {
-        const previous = gene(entity.seed, stage, channel);
-        return previous + (gene(entity.seed, stage + 1, channel) - previous) * blend;
-      });
-      const trait = base + maturity * (.65 + genes[0] * .6);
-      entity.element.style.width = `${entity.size}px`;
-      entity.element.style.height = `${entity.size}px`;
-      const size = entity.element.clientWidth;
+      const size = entity.size;
       const movingX = .5 + .38 * Math.sin(scroll * entity.scrollSpeed / 1800 + entity.phase);
       const movingY = .5 + .33 * Math.sin(scroll * entity.scrollSpeed / 1300 + entity.phase * 1.3);
       if (!still && scatterTime > 0) {
         if (!entity.scatterFrom) {
-          entity.scatterFrom = {x:entity.x,y:entity.y};
+          entity.scatterFrom = {x:entity.x,y:entity.y,velocityX:entity.velocityX,velocityY:entity.velocityY};
           const distances = [entity.x * (window.innerWidth - size), (1-entity.x) * (window.innerWidth - size), entity.y * (window.innerHeight - size), (1-entity.y) * (window.innerHeight - size)];
           const edge = distances.indexOf(Math.min(...distances));
           entity.scatterTo = {x:edge===0?0:edge===1?1:entity.x,y:edge===2?0:edge===3?1:entity.y};
         }
-        entity.x = entity.scatterFrom.x + (entity.scatterTo.x - entity.scatterFrom.x) * scatter;
-        entity.y = entity.scatterFrom.y + (entity.scatterTo.y - entity.scatterFrom.y) * scatter;
+        const coast = 600 * (1 - Math.exp(-(now - lastScrollAt - 200) / 600)) * (1 - scatter);
+        entity.x = Math.max(0, Math.min(1, entity.scatterFrom.x + (entity.scatterTo.x - entity.scatterFrom.x) * scatter + entity.scatterFrom.velocityX * coast));
+        entity.y = Math.max(0, Math.min(1, entity.scatterFrom.y + (entity.scatterTo.y - entity.scatterFrom.y) * scatter + entity.scatterFrom.velocityY * coast));
       } else if (!still && now - lastScrollAt <= 200) {
         const follow = 1 - Math.exp(-elapsed / 900);
-        entity.x += (movingX - entity.x) * follow;
-        entity.y += (movingY - entity.y) * follow;
+        const dx = (movingX - entity.x) * follow;
+        const dy = (movingY - entity.y) * follow;
+        entity.x += dx;
+        entity.y += dy;
+        if (elapsed > 0) {
+          entity.velocityX = dx / elapsed;
+          entity.velocityY = dy / elapsed;
+        }
       }
       const horizontal = still ? .12 + (entity.index % 4) * .25 : entity.x;
       const vertical = still ? .15 + Math.floor(entity.index / 4) * .22 : entity.y;
@@ -157,24 +162,44 @@
       const driftY = still ? 0 : Math.cos(now * entity.driftSpeed / 4200 + entity.phase) * 20;
       const x = Math.max(0, Math.min(window.innerWidth - size, (window.innerWidth - size) * horizontal + driftX));
       const y = Math.max(0, Math.min(window.innerHeight - size, (window.innerHeight - size) * vertical + driftY));
-      const pileBounds = entity.pile ? entity.element.parentElement.getBoundingClientRect() : null;
-      entity.element.style.left = `${x - (pileBounds ? pileBounds.left : 0)}px`;
-      entity.element.style.top = `${y - (pileBounds ? pileBounds.top : 0)}px`;
-      entity.element.style.transform = still ? 'none' : `rotate(${Math.sin(scroll / 900 + entity.phase) * 25}deg)`;
-      entity.path.setAttribute('d', shape(entity.form, trait, maturity, genes));
+      if (entity.pile && !pileVisible) {
+        entity.needsShape = true;
+        return;
+      }
+      const offsetX = entity.pile ? pileBounds.left : 0;
+      const offsetY = entity.pile ? pileBounds.top : 0;
+      const angle = still ? 0 : Math.sin(scroll / 900 + entity.phase) * 25;
+      entity.element.style.transform = `translate3d(${x - offsetX}px, ${y - offsetY}px, 0) rotate(${angle}deg)`;
+      if (shapesDue || entity.needsShape) {
+        const progress = still ? 0 : Math.min(1, (now - entity.started) / entity.duration);
+        const base = entity.from + (entity.to - entity.from) * progress;
+        const generation = still ? 0 : scrollDistance * entity.scrollSpeed / 650;
+        const stage = Math.floor(generation);
+        const blend = generation - stage;
+        const genes = Array.from({length:5}, (_, channel) => {
+          const previous = gene(entity.seed, stage, channel);
+          return previous + (gene(entity.seed, stage + 1, channel) - previous) * blend;
+        });
+        const trait = base + maturity * (.65 + genes[0] * .6);
+        entity.path.setAttribute('d', shape(entity.form, trait, maturity, genes));
+        entity.needsShape = false;
+      }
     });
+    if (!still && !document.hidden) scheduleRender();
   }
 
   function scheduleRender() {
-    if (frame === null) frame = requestAnimationFrame(render);
+    if (!document.hidden && frame === null) frame = requestAnimationFrame(render);
   }
 
   function updateMotion() {
-    if (timer !== null) clearInterval(timer);
-    timer = null;
+    if (frame !== null) cancelAnimationFrame(frame);
+    frame = null;
     lastScroll = window.scrollY;
-    if (!motion.matches && !document.hidden) timer = setInterval(scheduleRender, 160);
-    scheduleRender();
+    lastFrameAt = performance.now();
+    lastShapeAt = -Infinity;
+    occupants.forEach(entity => { entity.velocityX = 0; entity.velocityY = 0; });
+    if (!document.hidden) scheduleRender();
   }
 
   window.addEventListener('scroll', () => {

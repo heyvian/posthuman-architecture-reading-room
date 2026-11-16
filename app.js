@@ -195,9 +195,12 @@ let entityFrame = null;
 function updateSiteEntities() {
   entityFrame = null;
   if (reducedMotion.matches) return;
-  siteEntities.forEach((entity, index) => {
+  const updates = [...siteEntities].map((entity, index) => {
     const bounds = entity.getBoundingClientRect();
     const progress = Math.max(0, Math.min(1, (window.innerHeight - bounds.top) / (window.innerHeight + bounds.height)));
+    return { entity, index, progress };
+  });
+  updates.forEach(({ entity, index, progress }) => {
     entity.style.setProperty('--entity-scale', (0.65 + progress * 0.6).toFixed(3));
     entity.style.setProperty('--entity-turn', `${((index % 2 ? -1 : 1) * progress * 35).toFixed(1)}deg`);
     entity.style.setProperty('--entity-dash', (80 * (1 - progress)).toFixed(1));

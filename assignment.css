@@ -714,6 +714,8 @@
 
 .roaming-entity {
   position: absolute;
+  top: 0;
+  left: 0;
   width: 68px;
   height: 68px;
   fill: none;
@@ -722,6 +724,7 @@
   stroke-linecap: round;
   stroke-linejoin: round;
   opacity: .55;
+  will-change: transform;
 }
 
 .roaming-foreground .roaming-entity {
