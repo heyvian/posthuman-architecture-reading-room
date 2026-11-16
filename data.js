@@ -147,6 +147,24 @@ window.readings = [
     citation: 'Friedman, Yona. Toward a Scientific Architecture. Cambridge, MA: MIT Press, 1975.'
   },
   {
+    id: 'schalk-metabolism',
+    title: 'The Architecture of Metabolism',
+    subtitle: 'Meike Schalk · resilience and postwar Japan',
+    type: 'Architectural history · journal article',
+    theme: 'Cybernetics',
+    year: '2014',
+    symbol: '↻',
+    quote: 'How can architecture adapt to change without losing sight of individual freedom?',
+    quoteType: 'Reading prompt',
+    summary: 'Schalk examines Japanese Metabolism as a vision of cultural resilience shaped by war, disaster, and the tension between large-scale infrastructure and individual freedom.',
+    why: 'Her account links adaptable architecture to its political and historical conditions. It invites comparison with how this project models change, while leaving open who gets to shape that change.',
+    tags: ['Meike Schalk', 'Metabolism', 'Resilience', 'Adaptation', 'Kisho Kurokawa'],
+    sources: [
+      { label: 'Arts journal article', url: 'https://doi.org/10.3390/arts3020279', note: 'Open-access article in Arts, 2014.' }
+    ],
+    citation: 'Schalk, Meike. “The Architecture of Metabolism: Inventing a Culture of Resilience.” Arts 3, no. 2 (2014): 279–297. https://doi.org/10.3390/arts3020279.'
+  },
+  {
     id: 'metabolism',
     title: 'Metabolism and the changing city',
     subtitle: 'Japanese Metabolists · growth, replacement, and systems',

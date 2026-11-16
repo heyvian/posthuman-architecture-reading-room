@@ -21,6 +21,7 @@ const pileReadings = shuffle(window.readings);
 const allThemes = [...new Set(window.readings.map((item) => item.theme))];
 let activeTheme = 'All ideas';
 let returnFocusId = null;
+let returnFocusElement = null;
 const pilePositions = [
   [23, 28, -14], [41, 25, 11], [61, 29, -5], [79, 25, 17], [84, 44, -11],
   [68, 48, 9], [49, 42, -17], [30, 49, 6], [16, 45, -8], [25, 70, 12],
@@ -29,7 +30,8 @@ const pilePositions = [
   [43, 55, -5], [60, 54, 8], [28, 60, -11], [13, 35, -3], [87, 34, 4],
   [12, 58, 14], [89, 57, -14], [49, 81, 4], [67, 83, -8], [32, 83, -12],
   [89, 78, 11], [14, 83, 6], [91, 47, 3], [49, 20, -7], [11, 25, -2],
-  [91, 25, 11], [25, 84, 7], [81, 84, -10], [90, 64, 5], [20, 57, -6]
+  [91, 25, 11], [25, 84, 7], [81, 84, -10], [90, 64, 5], [20, 57, -6],
+  [71, 57, -3]
 ];
 const pileScales = [0.94, 1.03, 0.98, 1.08, 0.92];
 
@@ -60,7 +62,9 @@ function renderCards() {
   cards.classList.toggle('sparse-pile', results.length === 1);
   document.querySelector('#result-count').textContent = String(results.length).padStart(2, '0');
   document.querySelector('#empty').hidden = results.length > 0;
+  const pileLayers = [...cards.querySelectorAll('.pile-roaming-layer')];
   cards.innerHTML = results.map((item, index) => renderCard(item, index)).join('');
+  cards.append(...pileLayers);
   cards.querySelectorAll('.reading-card').forEach((card) => card.addEventListener('click', () => openReading(card.dataset.id)));
 }
 
@@ -116,7 +120,10 @@ function relatedReadings(selected) {
 function openReading(id) {
   const item = window.readings.find((reading) => reading.id === id);
   if (!item) return;
-  if (!drawer.classList.contains('open')) returnFocusId = id;
+  if (!drawer.classList.contains('open')) {
+    returnFocusId = id;
+    returnFocusElement = document.activeElement;
+  }
   const cardIndex = window.readings.findIndex((reading) => reading.id === item.id);
   pickedMain.innerHTML = renderCard(item, cardIndex, 'picked');
   pickedMain.querySelector('.reading-card').addEventListener('click', () => openReading(item.id));
@@ -157,8 +164,11 @@ function closeReading() {
   document.body.classList.remove('drawer-open', 'reading-selected');
   if (wasOpen) {
     const returnTarget = [...cards.querySelectorAll('.reading-card')].find((card) => card.dataset.id === returnFocusId);
-    (returnTarget || search).focus();
+    const focusTarget = returnFocusElement && returnFocusElement.isConnected && returnFocusElement !== document.body
+      ? returnFocusElement : returnTarget || search;
+    focusTarget.focus();
     returnFocusId = null;
+    returnFocusElement = null;
   }
 }
 
@@ -166,7 +176,9 @@ search.addEventListener('input', renderCards);
 document.querySelector('#close-drawer').addEventListener('click', closeReading);
 scrim.addEventListener('click', closeReading);
 document.querySelectorAll('[data-reading-id]').forEach((button) => button.addEventListener('click', () => {
-  library.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  if (!button.classList.contains('citation-link')) {
+    library.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
   openReading(button.dataset.readingId);
 }));
 document.addEventListener('keydown', (event) => {
@@ -176,4 +188,25 @@ document.addEventListener('keydown', (event) => {
 
 renderFilters();
 renderCards();
-document.querySelector('#reading-total').textContent = String(window.readings.length).padStart(2, '0');
+
+const siteEntities = document.querySelectorAll('.site-entity');
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+let entityFrame = null;
+function updateSiteEntities() {
+  entityFrame = null;
+  if (reducedMotion.matches) return;
+  siteEntities.forEach((entity, index) => {
+    const bounds = entity.getBoundingClientRect();
+    const progress = Math.max(0, Math.min(1, (window.innerHeight - bounds.top) / (window.innerHeight + bounds.height)));
+    entity.style.setProperty('--entity-scale', (0.65 + progress * 0.6).toFixed(3));
+    entity.style.setProperty('--entity-turn', `${((index % 2 ? -1 : 1) * progress * 35).toFixed(1)}deg`);
+    entity.style.setProperty('--entity-dash', (80 * (1 - progress)).toFixed(1));
+  });
+}
+function scheduleSiteEntities() {
+  if (entityFrame === null) entityFrame = requestAnimationFrame(updateSiteEntities);
+}
+window.addEventListener('scroll', scheduleSiteEntities, { passive: true });
+window.addEventListener('resize', scheduleSiteEntities);
+reducedMotion.addEventListener('change', scheduleSiteEntities);
+scheduleSiteEntities();

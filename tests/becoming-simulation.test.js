@@ -215,6 +215,29 @@ test('single-step and history controls render the selected state', () => {
   assert.equal(model.drawCalls(), draws + 1);
 });
 
+test('outcome reflection follows room placement, current settings, and selected history', () => {
+  const model = simulation();
+  assert.match(model.element('outcome-state').textContent, /0 of 3 initial rooms placed/);
+  placeInitialRooms(model);
+  assert.match(model.element('outcome-state').textContent, /Current state, tick 0: 24 inhabitants and 3 regions, 0 established/);
+
+  model.element('bureaucracy').value = '80';
+  model.fire('bureaucracy', 'input');
+  assert.match(model.element('outcome-conditions').textContent, /high bureaucracy \(80%\) sets a more demanding threshold/);
+  for (let i = 0; i < 16; i++) model.step();
+  model.element('timeline').value = '1';
+  model.fire('timeline', 'input');
+  assert.match(model.element('outcome-state').textContent, /Selected history, tick 8/);
+  assert.match(model.element('outcome-conditions').textContent, /not necessarily those used at this historical moment/);
+
+  model.element('abundance').value = '10';
+  model.fire('abundance', 'input');
+  assert.match(model.element('outcome-conditions').textContent, /Abundance \(10%\)/);
+  assert.match(model.element('outcome-state').textContent, /Selected history, tick 8/);
+  model.fire('reset', 'click');
+  assert.match(model.element('outcome-state').textContent, /0 of 3 initial rooms placed/);
+});
+
 test('historical snapshots preserve all imprint values independently', () => {
   const model = simulation();
   placeInitialRooms(model);

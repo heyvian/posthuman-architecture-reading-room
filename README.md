@@ -1,6 +1,6 @@
 # Cybernetics & More-than-Human Architecture — Reading Room
 
-A small, responsive reading-room web app and assignment prototype for ARCH 602 Theory Class. Group Sweet Chili Heat: Evan Winther, Steff Siu, Vian Esterhuizen, and Victoria Shaw.
+A small, responsive reading-room web app and assignment prototype for ARCH 602 Introduction to Design Theories. Group Sweet Chili Heat: Evan Winther, Steff Siu, Vian Esterhuizen, and Victoria Shaw.
 
 The human-authored pitch asks: **How do we design for post-humanism in architecture, and how do we consider future needs of non-human users?** The reading room brings together the group’s supplied pitch sources, readings identified in the ARCH 602 course PDFs, and additional literary, ecological, and theoretical directions.
 
@@ -15,10 +15,12 @@ Open `index.html` in a browser. This prototype uses plain HTML, CSS, and JavaScr
 - A selected-card view that softens the pile and surfaces three related readings from distinct categories
 - A slide-out detail view with summaries, references, and citation fields; it adapts to a bottom drawer on narrower screens
 - Search across reading prompts, tags, source notes, and citations
-- 40 reading cards spanning cybernetics, architecture, more-than-human theory, ecology, and speculative fiction
+- 41 reading cards spanning cybernetics, architecture, more-than-human theory, ecology, and speculative fiction
 - A newly shuffled card order on each page load, held steady while searching and filtering
-- Two featured course readings under “Sources in conversation,” selected for their close fit with the research question and linked directly to their reading cards
+- Project questions and historical context, the app description, and an authorship reflection appear around the reading room and simulation; author-date citations open the corresponding reading cards
+- Decorative entities echo the simulation's inhabitants: screen-following forms continually evolve with scrolling and scatter gently toward the edges when scrolling stops. They layer across the site without intercepting interaction; reduced-motion preferences keep them static.
 - A native interactive “A History of Becoming” ecology model directly below the card pile, with adjustable conditions, playback controls, and a full-run history timeline that samples older moments more sparsely during long runs
+- A live outcome reflection summarizes the selected state and current controls, distinguishing the model's programmed behavior from real-world evidence
 - A process log distinguishing human-provided ideas and sources from AI contributions
 
 ## Reading entries

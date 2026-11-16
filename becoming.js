@@ -1051,6 +1051,16 @@ function renderEvents(state){
   list.append(item);
  }
 }
+function renderOutcome(state,placing){
+ const regions=new Set(state.zones.map(zone=>zone.groupId)).size;
+ const established=new Set(state.zones.filter(zone=>zone.established).map(zone=>zone.groupId)).size;
+ $('outcome-state').textContent=placing
+  ?`${placementStep} of 3 initial rooms placed. Your choices establish a starting framework; inhabitants will reshape it once the run begins.`
+  :`${viewState?'Selected history':'Current state'}, tick ${state.tick}: ${state.agents.length} inhabitants and ${regions} ${regions===1?'region':'regions'}, ${established} established.`;
+ const settings=Object.fromEntries(['bureaucracy','solidarity','innovation','adaptability','abundance','impermanence'].map(id=>[id,Number($(id).value)]));
+ const level=value=>value>=67?'high':value<=33?'low':'moderate';
+ $('outcome-conditions').textContent=`${viewState?'Current controls (not necessarily those used at this historical moment)':'Current controls'}: ${level(settings.bureaucracy)} bureaucracy (${settings.bureaucracy}%) sets a ${settings.bureaucracy>=67?'more demanding':settings.bureaucracy<=33?'less demanding':'moderate'} threshold for regions, while ${level(settings.solidarity)} solidarity (${settings.solidarity}%) affects attraction and establishment. At ${settings.innovation}%, ${level(settings.innovation)} innovation influences wall response; ${level(settings.adaptability)} adaptability (${settings.adaptability}%) affects how quickly inhabitants change. Abundance (${settings.abundance}%) sets resource renewal, and impermanence (${settings.impermanence}%) influences changes in established use.`;
+}
 function updateUI(){
  const state=viewState||liveState();
  const population=[0,0,0];
@@ -1074,6 +1084,7 @@ function updateUI(){
  $('placementStatus').dataset.invalid=placementSpotInvalid?'true':'false';
  canvas.style.cursor=placing?'crosshair':'default';
  $('historyHint').textContent=placing?'The simulation is paused until all three rooms are placed.':viewState?'Viewing tick '+state.tick+'. Press Play to return to the live simulation.':'Drag the timeline to review the full run. Older moments are sampled more sparsely in long runs.';
+ renderOutcome(state,placing);
  renderEvents(state);
  if(state.tick!==lastGuideTick&&(lastGuideTick<0||viewState||!playing||Math.abs(state.tick-lastGuideTick)>=8)){
    renderSpeciesGuide(state);
@@ -1136,6 +1147,7 @@ for(const id of ['bureaucracy','innovation','abundance','solidarity','adaptabili
  $(id).addEventListener('input',()=>{
   if(id==='rate')acc=0;
   $(id+'Value').textContent=id==='rate'?$(id).value+'\u00d7':$(id).value+'%';
+  if(id!=='rate')renderOutcome(viewState||liveState(),placementStep<ROOM_PLACEMENT_ORDER.length);
  });
 }
 init();
